@@ -393,7 +393,7 @@ class ProgramRunner:
         if len(starViewObjects) == 0:
             self.__programRunnerIO.getProgramRunnerLogger().warning(
                 "No StarViews were loaded from the "
-                "provided listso the default StarViews "
+                "provided list so the default StarViews "
                 "shall be used for the "
                 "Stars Archive Wiki Page Writer."
             )

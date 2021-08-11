@@ -3,8 +3,6 @@
 
 __author__ = "u/beeznutsonly"
 
-from praw.exceptions import ReadOnlyException
-
 """
 Main script from which the beezassistant bot is run
 """
@@ -12,12 +10,13 @@ Main script from which the beezassistant bot is run
 import configparser
 import json
 import logging
-import os.path
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import TimedRotatingFileHandler
 
 import praw
+from praw.exceptions import ReadOnlyException
 from prawcore import ResponseException
 
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
@@ -142,11 +141,43 @@ except FileNotFoundError as ex:
 
     MAIN_LOGGER.info("Database successfully created")
 
-# Loading bot credentials from the database
-databaseConnection = DATABASE_CONNECTION_FACTORY.getConnection()
-botCredentialsDAO = BotCredentialsDAO(databaseConnection)
-botCredentials = botCredentialsDAO.getBotCredentials()
-databaseConnection.close()
+# Setting bot credentials
+
+MAIN_LOGGER.debug("Setting bot credentials")
+
+botCredentials = None
+
+# Checking for bot credentials in environment variables first
+envUserAgent = os.getenv("USER_AGENT")
+envClientId = os.getenv("CLIENT_ID")
+envClientSecret = os.getenv("CLIENT_SECRET")
+envUsername = os.getenv("USERNAME")
+envPassword = os.getenv("PASSWORD")
+
+if (
+    envUserAgent and
+    envClientId and
+    envClientSecret and
+    envUsername and
+    envPassword
+):
+    botCredentials = BotCredentials(
+        envUserAgent,
+        envClientId,
+        envClientSecret,
+        envUsername,
+        envPassword
+    )
+
+# If bot credentials not found
+# in environment variables
+else:
+
+    # Loading bot credentials from the database
+    databaseConnection = DATABASE_CONNECTION_FACTORY.getConnection()
+    botCredentialsDAO = BotCredentialsDAO(databaseConnection)
+    botCredentials = botCredentialsDAO.getBotCredentials()
+    databaseConnection.close()
 
 # Loading initial bot application settings from config file
 
@@ -234,7 +265,7 @@ else:
             )
             
             # Pause console logging while listening for input
-            level = CONSOLE_HANDLER.level
+            consoleLevel = CONSOLE_HANDLER.level
             CONSOLE_HANDLER.setLevel(logging.CRITICAL)
     
             user_agent = input("Enter User Agent: ")
@@ -252,7 +283,7 @@ else:
             )
 
             # Resume console logging
-            CONSOLE_HANDLER.setLevel(level)
+            CONSOLE_HANDLER.setLevel(consoleLevel)
 
             if __authenticated(reddit):
                 REDDIT_INTERFACE = RedditInterface(
@@ -284,7 +315,7 @@ else:
                     newBotCredentials.clearCredentials()
 
                     # Resume console logging once authenticated
-                    CONSOLE_HANDLER.setLevel(level)
+                    CONSOLE_HANDLER.setLevel(consoleLevel)
                     break
                 
     # Abort and quit application If shutdown
