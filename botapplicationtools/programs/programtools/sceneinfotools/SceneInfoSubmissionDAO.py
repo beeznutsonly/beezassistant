@@ -35,7 +35,7 @@ class SceneInfoSubmissionDAO:
             )
 
         # Handle database error
-        except sqlite3.Error(
+        except sqlite3.DatabaseError(
                 "Failed to insert a new submission into the database"
         ) as er:
             raise er

@@ -31,7 +31,7 @@ class IndividualStarViewDAO:
                         str(row[2])
                     )
                 )
-        except sqlite3.Error(
+        except sqlite3.DatabaseError(
                 "Failed to retrieve star view "
                 "records from database"
         ) as er:

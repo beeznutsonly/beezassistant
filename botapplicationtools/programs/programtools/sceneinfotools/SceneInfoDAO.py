@@ -32,7 +32,7 @@ class SceneInfoDAO:
             )
 
         # Handle database error
-        except sqlite3.Error(
+        except sqlite3.DatabaseError(
                 "Failed to insert new scene info "
                 "into the database"
         ) as er:

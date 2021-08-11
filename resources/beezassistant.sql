@@ -1,3 +1,15 @@
+CREATE TABLE BotCredentials (
+    user_agent     NOT NULL,
+    client_id      NOT NULL,
+    client_secret  NOT NULL,
+    username       NOT NULL,
+    password       NOT NULL,
+    PRIMARY KEY (
+        client_id,
+        client_secret
+    )
+);
+
 CREATE TABLE PostInfo (
     id          VARCHAR PRIMARY KEY
                         NOT NULL,

@@ -3,6 +3,8 @@
 
 __author__ = "u/beeznutsonly"
 
+from praw.exceptions import ReadOnlyException
+
 """
 Main script from which the beezassistant bot is run
 """
@@ -16,7 +18,10 @@ from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import TimedRotatingFileHandler
 
 import praw
+from prawcore import ResponseException
 
+from botapplicationtools.botcredentials.BotCredentials import BotCredentials
+from botapplicationtools.botcredentials.BotCredentialsDAO import BotCredentialsDAO
 from botapplicationtools.databasetools import SqliteDatabaseInitializer
 from botapplicationtools.databasetools.databaseconnectionfactories \
     .SqliteDatabaseConnectionFactory \
@@ -76,7 +81,8 @@ LOG_FILE_HANDLER = TimedRotatingFileHandler(
 )
 LOG_FILE_HANDLER.setFormatter(
     logging.Formatter(
-        '[%(asctime)s] %(name)-16s : %(levelname)-8s - %(message)s'
+        '[%(asctime)s] %(name)-16s : '
+        '%(levelname)-8s - %(message)s'
     )
 )
 CONSOLE_HANDLER.setFormatter(
@@ -93,8 +99,8 @@ ROOT_LOGGER.addHandler(CONSOLE_HANDLER)
 
 MAIN_LOGGER.debug("Initializing the bot")
 
-# Loading the bot's database
-MAIN_LOGGER.debug("Loading the bot's database")
+# Loading bot information from database
+MAIN_LOGGER.debug("Loading bot information from database")
 
 DATABASE_PATH = os.path.join(RESOURCES_PATH, 'beezassistant.db')
 DATABASE_CONNECTION_FACTORY = None
@@ -136,9 +142,18 @@ except FileNotFoundError as ex:
 
     MAIN_LOGGER.info("Database successfully created")
 
-# Loading initial bot application values from config file
+# Loading bot credentials from the database
+databaseConnection = DATABASE_CONNECTION_FACTORY.getConnection()
+botCredentialsDAO = BotCredentialsDAO(databaseConnection)
+botCredentials = botCredentialsDAO.getBotCredentials()
+databaseConnection.close()
 
-MAIN_LOGGER.debug("Loading initial bot application values from config file")
+# Loading initial bot application settings from config file
+
+MAIN_LOGGER.debug(
+    "Loading initial bot application "
+    "settings from config file"
+)
 
 # Loading the bot's configuration file
 CONFIG_FILE = os.path.join(RESOURCES_PATH, 'beezassistant.ini')
@@ -149,7 +164,7 @@ try:
 # Handle when there is a problem reading the config file
 except OSError as ex:
     MAIN_LOGGER.critical(
-        "A fatal error just while trying to open the "
+        "A fatal error just occurred while trying to open the "
         "bot's configuration file. Error(s): " + str(ex.args),
         exc_info=True
     )
@@ -162,24 +177,6 @@ try:
     INITIAL_PROGRAM_COMMANDS = json.loads(CONFIG_PARSER.get(
         'BotApplication', 'initialprogramcommands'
     ))
-
-    # Bot Credentials
-    BOT_CREDENTIALS_CONFIG_SECTION = 'BotCredentials'
-    botUserAgent = CONFIG_PARSER.get(
-        BOT_CREDENTIALS_CONFIG_SECTION, 'user_agent'
-    )
-    botClientId = CONFIG_PARSER.get(
-        BOT_CREDENTIALS_CONFIG_SECTION, 'client_id'
-    )
-    botClientSecret = CONFIG_PARSER.get(
-        BOT_CREDENTIALS_CONFIG_SECTION, 'client_secret'
-    )
-    botUsername = CONFIG_PARSER.get(
-        BOT_CREDENTIALS_CONFIG_SECTION, 'username'
-    )
-    botPassword = CONFIG_PARSER.get(
-        BOT_CREDENTIALS_CONFIG_SECTION, 'password'
-    )
 
 # Handle when there is a problem parsing the config file
 except configparser.Error or json.JSONDecodeError as ex:
@@ -196,16 +193,108 @@ except configparser.Error or json.JSONDecodeError as ex:
 # -------------------------------------------------------------------------------
 
 # Initializing the Reddit Interface
+
 MAIN_LOGGER.debug("Initialializing the Reddit Interface")
 
+# Attempting to retrieve a valid Praw instance from
+# provided credentials
 PRAW_REDDIT = praw.Reddit(
-    user_agent=botUserAgent,
-    client_id=botClientId,
-    client_secret=botClientSecret,
-    username=botUsername,
-    password=botPassword
+    user_agent=botCredentials.getUserAgent(),
+    client_id=botCredentials.getClientId(),
+    client_secret=botCredentials.getClientSecret(),
+    username=botCredentials.getUsername(),
+    password=botCredentials.getPassword()
 )
-REDDIT_INTERFACE = RedditInterface(PRAW_REDDIT)
+
+
+# Convenience method to authenticate bot credentials
+def __authenticated(redditInstance):
+    try:
+        MAIN_LOGGER.info("Authenticating credentials...")
+        if redditInstance.user.me() is None:
+            return False
+        MAIN_LOGGER.info("Credentials authenticated")
+    except ResponseException or ReadOnlyException:
+        return False
+    return True
+
+
+if __authenticated(PRAW_REDDIT):
+    REDDIT_INTERFACE = RedditInterface(PRAW_REDDIT)
+
+# Handle if credentials are invalid
+else:
+
+    try:
+        # Prompt for new valid credentials
+        while True:
+            MAIN_LOGGER.error(
+                "The provided credentials are invalid. "
+                "Please enter new valid credentials"
+            )
+            
+            # Pause console logging while listening for input
+            level = CONSOLE_HANDLER.level
+            CONSOLE_HANDLER.setLevel(logging.CRITICAL)
+    
+            user_agent = input("Enter User Agent: ")
+            client_id = input("Enter Client ID: ")
+            client_secret = input("Enter Client Secret: ")
+            username = input("Enter Username: ")
+            password = input("Enter Password: ")
+
+            reddit = praw.Reddit(
+                user_agent=user_agent,
+                client_id=client_id,
+                client_secret=client_secret,
+                username=username,
+                password=password
+            )
+
+            # Resume console logging
+            CONSOLE_HANDLER.setLevel(level)
+
+            if __authenticated(reddit):
+                REDDIT_INTERFACE = RedditInterface(
+                    reddit
+                )
+                
+                # Save new credentials to database
+                newBotCredentials = BotCredentials(
+                    user_agent, client_id,
+                    client_secret, username,
+                    password
+                )
+                newDatabaseConnection = DATABASE_CONNECTION_FACTORY \
+                    .getConnection()
+                try:
+                    newBotCredentialsDAO = BotCredentialsDAO(
+                        newDatabaseConnection
+                    )
+                    newBotCredentialsDAO.saveBotCredentials(newBotCredentials)
+
+                # Handle if save operation fails
+                except Exception as ex:
+                    MAIN_LOGGER.error(
+                        "Failed to save new bot credentials"
+                        " to database. Error: {}".format(str(ex.args), exc_info=True)
+                    )
+                finally:
+                    newDatabaseConnection.close()
+                    newBotCredentials.clearCredentials()
+
+                    # Resume console logging once authenticated
+                    CONSOLE_HANDLER.setLevel(level)
+                    break
+                
+    # Abort and quit application If shutdown
+    # is requested mid-prompt
+    except KeyboardInterrupt or EOFError:
+        MAIN_LOGGER.warning(
+            "Forced shut down requested."
+            " Bot now shutting down"
+        )
+        sys.exit(1)
 
 
 # Initializing the Programs Executor

@@ -42,7 +42,7 @@ class SceneInfoSubmissionWithSceneInfoDAO:
                          .getSceneInfo().getStars()[1]
                 )
             )
-        except sqlite3.Error(
+        except sqlite3.DatabaseError(
                 "Failed to insert new submission and "
                 "scene info data into the database"
         ) as er:

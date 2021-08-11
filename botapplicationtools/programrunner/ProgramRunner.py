@@ -341,7 +341,7 @@ class ProgramRunner:
 
         starsArchiveWikiPageWriter = \
             self.__getNewStarsArchiveWikiPageWriter(
-                databaseConnection
+                databaseConnection, self.__defaultStarViews
             )
 
         # Executing the program
@@ -392,8 +392,9 @@ class ProgramRunner:
         # Use default Starviews if list of provided starviews is empty
         if len(starViewObjects) == 0:
             self.__programRunnerIO.getProgramRunnerLogger().warning(
-                "No initial StarViews were loaded so the "
-                "default StarViews shall be used for the "
+                "No StarViews were loaded from the "
+                "provided listso the default StarViews "
+                "shall be used for the "
                 "Stars Archive Wiki Page Writer."
             )
 
