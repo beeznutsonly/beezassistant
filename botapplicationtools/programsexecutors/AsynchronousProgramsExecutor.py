@@ -112,10 +112,11 @@ class AsynchronousProgramsExecutor:
 
     # Get the asynchronous program statuses
     def getProgramStatuses(self):
-        programStatuses = dict({
-            (program, "RUNNING" if not task.done() else "DONE")
-            for (program, task) in self.__programs.items()
-        })
+        programStatuses = \
+            {
+                program: ("RUNNING" if not task.done() else "DONE")
+                for (program, task) in self.__programs.items()
+            }
         return programStatuses
 
     def __informIfShutdown(self):

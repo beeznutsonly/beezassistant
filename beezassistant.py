@@ -3,6 +3,7 @@
 
 __author__ = "u/beeznutsonly"
 
+import signal
 import time
 
 """
@@ -423,7 +424,7 @@ def __initializeBot():
             "will now exit. Error(s): " + str(er),
             exc_info=True
         )
-        sys.exit(2)
+        sys.exit(2) # May need future cleaning up
 
 # -------------------------------------------------------------------------------
 
@@ -461,65 +462,57 @@ def __resumeConsoleLogging():
 def startBot(args=sys.argv):
 
     try:
-        try:
-            # Retrieve additional bot instructions if present
-            if len(args) > 1:
-                try:
-                    listen = int(args[1])  # Command listening setting
+        # Retrieve additional bot instructions if present
+        if len(args) > 1:
 
-                    # Retrieve and execute bot command if present
-                    if len(args) > 2:
-                        botCommand = " ".join(args[2:])
-                        __processBotCommand(botCommand)
+            botCommand = ''
 
-                    # Check if command listening is set
-                    if listen:
-                        __mainLogger.info('The bot is now running')
-                        __startCommandListener()
+            # Retrieve and execute bot command if present
+            if len(args) > 2:
+                botCommand = " ".join(args[2:])
 
-                # Handle if provided listen argument is invalid
-                except ValueError:
-                    __mainLogger.error(
-                        "The provided 'listen' argument, \"{}\", is invalid. "
-                        "The bot will therefore shutdown once all of its tasks"
-                        " are completed.".format(args[1])
-                    )
-                    __mainLogger.info('The bot is now running')
-                    shutdownBot(True, 1)
-            else:
-                # Default to listening for commands if
-                # no additional instructions specified
-                __mainLogger.info('The bot is now running')
-                __startCommandListener()
+            __processBotCommand(botCommand)
+            __mainLogger.info('The bot is now running')
 
-        # Handle forced shutdown request
-        except KeyboardInterrupt or EOFError:
-            __mainLogger.warning(
-                'Forced bot shutdown requested. Please wait a bit wait while '
-                'a graceful shutdown is attempted or press Ctrl+Break to '
-                'exit immediately'
-            )
-            shutdownBot(True, 1)
+            try:
 
-        except SystemExit:
-            pass
+                listen = int(args[1])  # Command listening setting
 
-        # Handle unknown exception while bot is running
-        except BaseException:
-            __mainLogger.critical(
-                "A fatal error just occurred while the bot was "
-                "running. Please wait a bit wait while "
-                "a graceful shutdown is attempted or press Ctrl+Break "
-                "to exit immediately", exc_info=True
-            )
-            shutdownBot(True, 2)
+                # Check if command listening is set
+                if listen:
+                    __startCommandListener()
 
-    # Handle forced shutdown request midway through graceful shutdown
-    except KeyboardInterrupt:
+            # Handle if provided listen argument is invalid
+            except ValueError:
+                __mainLogger.error(
+                    "The provided 'listen' argument, \"{}\", is invalid. "
+                    "The bot will therefore shutdown once all of its tasks"
+                    " are completed.".format(args[1])
+                )
+
+        else:
+            # Default to listening for commands if
+            # no additional instructions specified
+            __startCommandListener()
+
+    # Handle forced shutdown request
+    except KeyboardInterrupt or EOFError:
         __mainLogger.warning(
-            'Graceful shutdown aborted.'
+            'Forced bot shutdown requested. Please wait a bit wait while '
+            'a graceful shutdown is attempted or press Ctrl+C '
+            '(or Ctrl+Break) to exit immediately'
         )
-        shutdownBot(False, 2)
+        shutDownBot(True, 1)
+
+    # Handle unknown exception while bot is running
+    except BaseException:
+        __mainLogger.critical(
+            "A fatal error just occurred while the bot was "
+            "running. Please wait a bit wait while "
+            "a graceful shutdown is attempted or press Ctrl+C "
+            "(or Ctrl+Break) to exit immediately", exc_info=True
+        )
+        shutDownBot(True, 2)
 
 
 # Start the bot command listener
@@ -547,8 +540,11 @@ def __startCommandListener():
 # Process a bot command
 def __processBotCommand(command):
 
+    # Blank command
+    if command == '' or command == '\n':
+        return
     # For program command
-    if command.startswith('run '):
+    elif command.startswith('run '):
         __programsExecutor.executeProgram(command.split('run ', 1)[1])
 
     # For programs status request
@@ -568,7 +564,7 @@ def __processBotCommand(command):
             command == 'quit' or
             command == 'exit'
     ):
-        shutdownBot()
+        shutDownBot()
 
     else:
         __mainLogger.debug(
@@ -577,12 +573,23 @@ def __processBotCommand(command):
 
 
 # Shut down the bot
-def shutdownBot(wait=True, shutdownExitCode=0):
+def shutDownBot(wait=True, shutdownExitCode=0):
 
     if wait:
         __mainLogger.info(
-            'Shutting down the bot. Please wait a bit wait while '
-            'remaining tasks are being finished off'
+            'Shutting down the bot. Please wait a bit wait while the '
+            'remaining tasks ({}) are being finished off'.format(
+                ", ".join(
+                    {
+                        program: status
+                        for (program, status) in
+                        __programsExecutor
+                        .getProgramStatuses()
+                        .items()
+                        if status != "DONE"
+                    }.keys()
+                )
+            )
         )
         try:
             __programsExecutor.shutdown(True)
@@ -592,15 +599,36 @@ def shutdownBot(wait=True, shutdownExitCode=0):
 
         # Handle keyboard interrupt midway through graceful shutdown
         except KeyboardInterrupt:
+
+            __programsExecutor.shutdown(False)
             __mainLogger.warning(
                 'Graceful shutdown aborted.'
             )
             __mainLogger.info('Bot shut down')
-            sys.exit(2)
+
+            # Windows kill command
+            if (
+                    sys.platform.startswith('win32') or
+                    sys.platform.startswith('cygwin')
+            ):
+                os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
+
+            # Linux kill command
+            os.kill(os.getpid(), signal.SIGKILL)
+
     else:
         __programsExecutor.shutdown(False)
         __mainLogger.info('Bot shut down')
-        sys.exit(shutdownExitCode)
+        # Windows kill command
+        if (
+                sys.platform.startswith('win32') or
+                sys.platform.startswith('cygwin')
+        ):
+            os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
+
+        # Linux kill command
+        os.kill(os.getpid(), signal.SIGKILL)
+
 
 # -------------------------------------------------------------------------------
 
@@ -612,9 +640,14 @@ if __name__ == "__main__":
     __initializeBot()
     startBot()
 
-    # Wait for tasks to complete before shutdown
-    while True:
-        if not ("RUNNING" in __programsExecutor.getProgramStatuses().values()):
-            shutdownBot()
-            break
-        time.sleep(1)
+    try:
+        # Wait for tasks to complete before shutdown
+        while True:
+            if not ("RUNNING" in __programsExecutor.getProgramStatuses().values()):
+                shutDownBot()
+                break
+            time.sleep(1)
+    # Handle if forced shutdown requested while waiting for tasks to complete
+    except KeyboardInterrupt:
+        shutDownBot(True, 0)
+
