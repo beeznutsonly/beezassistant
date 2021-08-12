@@ -3,9 +3,6 @@
 
 __author__ = "u/beeznutsonly"
 
-import signal
-import time
-
 """
 Main script from which the beezassistant bot is run
 """
@@ -14,7 +11,9 @@ import configparser
 import json
 import logging
 import os
+import signal
 import sys
+import time
 from logging.handlers import TimedRotatingFileHandler
 
 import praw
@@ -22,22 +21,19 @@ from praw.exceptions import ReadOnlyException
 from prawcore import ResponseException
 
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
-from botapplicationtools.botcredentials.BotCredentialsDAO import BotCredentialsDAO
+from botapplicationtools.botcredentials.BotCredentialsDAO import \
+    BotCredentialsDAO
 from botapplicationtools.databasetools import SqliteDatabaseInitializer
-from botapplicationtools.databasetools.databaseconnectionfactories \
-    .SqliteDatabaseConnectionFactory \
-    import SqliteDatabaseConnectionFactory
-from botapplicationtools.exceptions.InitializationError \
-    import InitializationError
-from botapplicationtools.programrunners.ProgramRunner \
-    import ProgramRunner
-from botapplicationtools.programrunners.ProgramRunnerIO \
-    import ProgramRunnerIO
-from botapplicationtools.programs.programtools.generaltools.RedditInterface \
-    import RedditInterface
-from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
-    import AsynchronousProgramsExecutor
-
+from botapplicationtools.databasetools.databaseconnectionfactories.SqliteDatabaseConnectionFactory import \
+    SqliteDatabaseConnectionFactory
+from botapplicationtools.exceptions.InitializationError import \
+    InitializationError
+from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
+from botapplicationtools.programrunners.ProgramRunnerIO import ProgramRunnerIO
+from botapplicationtools.programs.programtools.generaltools.RedditInterface import \
+    RedditInterface
+from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor import \
+    AsynchronousProgramsExecutor
 
 __RESOURCES_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -461,6 +457,9 @@ def __resumeConsoleLogging():
 # Start up the bot
 def startBot(args=sys.argv):
 
+    # Initializing the bot
+    __initializeBot()
+
     try:
         # Retrieve additional bot instructions if present
         if len(args) > 1:
@@ -493,6 +492,7 @@ def startBot(args=sys.argv):
         else:
             # Default to listening for commands if
             # no additional instructions specified
+            __mainLogger.info('The bot is now running')
             __startCommandListener()
 
     # Handle forced shutdown request
@@ -518,7 +518,7 @@ def startBot(args=sys.argv):
 # Start the bot command listener
 def __startCommandListener():
     try:
-        while True:
+        while not isBotShutDown():
 
             # Pause console logging while bot is
             # listening for commands
@@ -551,8 +551,13 @@ def __processBotCommand(command):
     elif command == 'status':
 
         print('\nPrograms status:')
+        
         # Printing all program statuses
-        for program, status in __programsExecutor.getProgramStatuses():
+        for program, status in \
+            __programsExecutor \
+            .getProgramStatuses() \
+            .items():
+
             print('{}\t\t: {}'.format(
                 program, status
             ))
@@ -629,6 +634,11 @@ def shutDownBot(wait=True, shutdownExitCode=0):
         # Linux kill command
         os.kill(os.getpid(), signal.SIGKILL)
 
+    
+# Check if bot is shutdown
+def isBotShutDown():
+    return __programsExecutor and __programsExecutor.isShutDown()
+
 
 # -------------------------------------------------------------------------------
 
@@ -637,17 +647,17 @@ def shutDownBot(wait=True, shutdownExitCode=0):
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":
-    __initializeBot()
-    startBot()
 
+    # Start
+    startBot()
     try:
         # Wait for tasks to complete before shutdown
         while True:
             if not ("RUNNING" in __programsExecutor.getProgramStatuses().values()):
-                shutDownBot()
                 break
             time.sleep(1)
-    # Handle if forced shutdown requested while waiting for tasks to complete
-    except KeyboardInterrupt:
-        shutDownBot(True, 0)
+    finally:
+        # Shut bot down if not already
+        if not isBotShutDown():
+            shutDownBot()
 

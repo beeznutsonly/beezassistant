@@ -134,3 +134,7 @@ class AsynchronousProgramsExecutor:
         self.__programsExecutorLogger.info(
             "Programs executor successfully shut down"
         )
+
+    # Check if Programs Executor is shut down
+    def isShutDown(self):
+        return self.__isProgramsExecutorShutDown
