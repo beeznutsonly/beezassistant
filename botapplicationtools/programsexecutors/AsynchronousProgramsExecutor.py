@@ -5,29 +5,33 @@ Class responsible for asynchronously executing multiple programs
 """
 
 import concurrent.futures
+import logging
+from concurrent.futures import ThreadPoolExecutor
 
 
 class AsynchronousProgramsExecutor:
 
     __isProgramsExecutorShutDown = True
 
-    __programsExecutorLogger = None
+    __programsExecutorLogger: logging.Logger
     __executor = None
     __programRunner = None
     __programs = None
 
     def __init__(
             self,
-            programsExecutorLogger,
-            executor,
             programRunner,
+            initialProgramCommands,
+            executor=ThreadPoolExecutor(),
             programs={}
     ):
-        self.__programsExecutorLogger = programsExecutorLogger
+        self.__programsExecutorLogger = logging.getLogger("programsExecutor")
         self.__executor = executor
         self.__programRunner = programRunner
         self.__programs = programs
         self.__isProgramsExecutorShutDown = False
+        self.executePrograms(initialProgramCommands)
+        self.__programsExecutorLogger.info("Programs Executor initialized")
 
     # Execute a single program
     def executeProgram(self, program):
@@ -106,9 +110,13 @@ class AsynchronousProgramsExecutor:
                 "Program '{}' is not recognized".format(program)
             )
 
-    # Get the asynchronous programs
-    def getPrograms(self):
-        return self.__programs
+    # Get the asynchronous program statuses
+    def getProgramStatuses(self):
+        programStatuses = dict({
+            (program, "RUNNING" if not task.done() else "DONE")
+            for (program, task) in self.__programs.items()
+        })
+        return programStatuses
 
     def __informIfShutdown(self):
         if self.__isProgramsExecutorShutDown:

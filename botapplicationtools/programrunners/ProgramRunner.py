@@ -5,11 +5,13 @@ Class responsible for running the bot's programs
 """
 
 import json
+import logging
 import re
 import time
 from datetime import datetime, timedelta
 
-from botapplicationtools.exceptions.InitializationError import InitializationError
+from botapplicationtools.programrunners.exceptions.ProgramRunnerInitializationError import \
+    ProgramRunnerInitializationError
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoDAO import SceneInfoDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionDAO import \
     SceneInfoSubmissionDAO
@@ -38,6 +40,7 @@ class ProgramRunner:
     __isProgramRunnerShutdown = True
     __programRunnerIO = None
     __redditInterface = None
+    __programRunnerLogger: logging.Logger
 
     def __init__(self, programRunnerIO, redditInterface):
         self.__programRunnerIO = programRunnerIO
@@ -46,7 +49,6 @@ class ProgramRunner:
 
     # Scene Info Archiver variables
     __sceneInfoArchiverRefreshInterval = None
-
     __subredditSearchParameters = None
 
     # Stars Archive Wiki Page Writer variables
@@ -57,67 +59,68 @@ class ProgramRunner:
     # Initialize the program runner
     def __initializeProgramRunner(self):
 
-        programRunnerLogger = self.__programRunnerIO.getProgramRunnerLogger()
-        programRunnerLogger.debug("Initializing the Program Runner")
+        # Setting up logging apparatus
+        self.__programRunnerLogger = logging.getLogger('programRunner')
+
+        self.__programRunnerLogger.debug("Initializing the Program Runner")
 
         # Loading values from configuration file
         # -------------------------------------------------------------------------------
-        programRunnerLogger.debug(
-            "Retrieving program runner initial values from the config. file"
+
+        self.__programRunnerLogger.debug(
+            "Retrieving Program Runner initial values from the config. reader"
         )
 
-        configparser = self.__programRunnerIO.getConfigParser()
+        configReader = self.__programRunnerIO.getConfigParser()
         try:
 
             # Scene Info Archiver
 
             section = 'SceneInfoArchiver'
-            sceneInfoArchiverRefreshInterval = configparser.getint(
+            sceneInfoArchiverRefreshInterval = configReader.getint(
                 section, 'sceneInfoArchiverRefreshInterval'
             )
-            sceneInfoArchiverSubredditName = configparser.get(
+            sceneInfoArchiverSubredditName = configReader.get(
                 section, 'subredditName'
             )
-            fromTime = configparser.get(
+            fromTime = configReader.get(
                 section, 'fromTime'
             )
-            sceneInfoFlairID = configparser.get(
+            sceneInfoFlairID = configReader.get(
                 section, 'sceneInfoFlairID'
             )
-            sceneInfoTextMatcher = re.compile(r'{}'.format(configparser.get(
+            sceneInfoTextMatcher = re.compile(r'{}'.format(configReader.get(
                 section, 'sceneInfoTextMatcherString'
             )))
-            movieNameExtractor = re.compile(r'{}'.format(configparser.get(
+            movieNameExtractor = re.compile(r'{}'.format(configReader.get(
                 section, 'movieNameMatcherString'
             )))
-            starsExtractor = re.compile(r'{}'.format(configparser.get(
+            starsExtractor = re.compile(r'{}'.format(configReader.get(
                 section, 'starsMatcherString'
             )))
 
             # Stars Archive Wiki Page Writer
 
             section = 'StarsArchiveWikiPageWriter'
-            starsArchiveWikiPageWriterSubredditName = configparser.get(
+            starsArchiveWikiPageWriterSubredditName = configReader.get(
                 section, 'subredditName'
             )
-            wikiName = configparser.get(
+            wikiName = configReader.get(
                 section, 'wikiName'
             )
-            defaultStarViews = json.loads(configparser.get(
+            defaultStarViews = json.loads(configReader.get(
                 section, 'defaultStarViews'
             ))
 
             # Initialization of program instance variables
             # -------------------------------------------------------------------------------
-            programRunnerLogger.debug("Initializing program instance variables")
-
-            # Convenience objects
-            programRunnerLogger = self.__programRunnerIO \
-                .getProgramRunnerLogger()
+            self.__programRunnerLogger.debug(
+                "Setting program initial values"
+            )
 
             # Stars Archive Wiki Page Writer
-            programRunnerLogger.debug(
-                "Initializing Stars Archive Wiki Page Runner variables"
+            self.__programRunnerLogger.debug(
+                "Initializing Stars Archive Wiki Page Writer variables"
             )
 
             # Initializing default starviews
@@ -128,22 +131,24 @@ class ProgramRunner:
                         defaultStarView
                     )
 
-                # If provided default starview is invalid
+                # If provided default star view is invalid
                 else:
-                    self.__programRunnerIO.getProgramRunnerLogger().warning(
-                        "'{}' is an invalid starview and shall"
+                    self.__programRunnerLogger.warning(
+                        "'{}' is an invalid Star view and shall"
                         " be removed from the list of provided"
                         " default starviews".format(defaultStarView)
                     )
 
             # Use default Starviews if list of provided starviews is empty
             if len(validStarViewList) == 0:
-                self.__programRunnerIO.getProgramRunnerLogger().warning(
-                    "No initial StarViews were loaded so one "
-                    "IndividualStarView shall be used for the "
-                    "Stars Archive Wiki Page Writer."
-                )
                 validStarViewList.extend(['individual'])
+                self.__programRunnerLogger.warning(
+                    "No initial Star views were loaded so the following "
+                    "default Star views shall be used for the "
+                    "Stars Archive Wiki Page Writer: {}".format(
+                        str(validStarViewList)
+                    )
+                )
             self.__defaultStarViews = validStarViewList
 
             self.__wikiPage = self.__redditInterface.getPrawReddit() \
@@ -151,7 +156,7 @@ class ProgramRunner:
                 .wiki[wikiName]
 
             # Scene Info Archiver
-            programRunnerLogger.debug(
+            self.__programRunnerLogger.debug(
                 "Initializing Scene Info Archiver variables"
             )
 
@@ -169,12 +174,13 @@ class ProgramRunner:
 
         # Handle if an error occurs while initializing the Program Runner
         except Exception as ex:
-            raise InitializationError(
+            raise ProgramRunnerInitializationError(
                 "An error occurred while initializing"
-                " the program runner", ex
+                " the Program Runner", ex
             )
 
         self.__isProgramRunnerShutdown = False
+        self.__programRunnerLogger.info('Program Runner initialized')
 
     # -------------------------------------------------------------------------------
 
@@ -186,17 +192,18 @@ class ProgramRunner:
     def shutdown(self):
         if not self.__isProgramRunnerShutdown:
             self.__isProgramRunnerShutdown = True
-        self.__programRunnerIO.getProgramRunnerLogger().info(
+        self.__programRunnerLogger.info(
             "Program Runner successfully shut down"
         )
 
     # Check if shutdown before running any applications
     def __informIfShutdown(self):
         if self.__isProgramRunnerShutdown:
-            self.__programRunnerIO.getProgramRunnerLogger().warning(
+            self.__programRunnerLogger.warning(
                 "The program runner cannot run any more programs "
                 "after it has been shut down"
             )
+        return self.__isProgramRunnerShutdown
 
     # -------------------------------------------------------------------------------
 
@@ -212,8 +219,7 @@ class ProgramRunner:
             return
 
         # Retrieving relevant I/O tools
-        programRunnerLogger = self.__programRunnerIO \
-            .getProgramRunnerLogger()
+        programRunnerLogger = self.__programRunnerLogger
 
         try:
 
@@ -237,31 +243,32 @@ class ProgramRunner:
                         ' task started'
                     )
 
-                    storageDatabaseConnection = self.__programRunnerIO \
+                    with self.__programRunnerIO \
                         .getDatabaseConnectionFactory() \
-                        .getConnection()
+                        .getConnection() \
+                            as storageDatabaseConnection:
 
-                    sceneInfoSubmissionsWithSceneInfoStorage = \
-                        SceneInfoSubmissionsWithSceneInfoStorage(
+                        sceneInfoSubmissionsWithSceneInfoStorage = \
+                            SceneInfoSubmissionsWithSceneInfoStorage(
 
-                            SceneInfoDAO(
-                                storageDatabaseConnection
-                            ),
+                                SceneInfoDAO(
+                                    storageDatabaseConnection
+                                ),
 
-                            SceneInfoSubmissionDAO(
-                                storageDatabaseConnection
-                            ),
+                                SceneInfoSubmissionDAO(
+                                    storageDatabaseConnection
+                                ),
 
-                            SceneInfoSubmissionWithSceneInfoDAO(
-                                storageDatabaseConnection
+                                SceneInfoSubmissionWithSceneInfoDAO(
+                                    storageDatabaseConnection
+                                )
                             )
-                        )
 
-                    SceneInfoStorageArchiver.executeSceneInfoArchiver(
-                        self.__redditInterface.getPushShiftAPI(),
-                        self.__subredditSearchParameters,
-                        sceneInfoSubmissionsWithSceneInfoStorage
-                    )
+                        SceneInfoStorageArchiver.executeSceneInfoArchiver(
+                            self.__redditInterface.getPushShiftAPI(),
+                            self.__subredditSearchParameters,
+                            sceneInfoSubmissionsWithSceneInfoStorage
+                        )
 
                     # Task 1 completo
                     programRunnerLogger.debug(
@@ -274,24 +281,22 @@ class ProgramRunner:
                         'Scene Info Archiver wiki archiving'
                         ' task started'
                     )
-                    wikiWriterDatabaseConnection = self.__programRunnerIO \
+                    with self.__programRunnerIO \
                         .getDatabaseConnectionFactory() \
-                        .getConnection()
-                    starsArchiveWikiPageWriter = \
-                        self.__getNewStarsArchiveWikiPageWriter(
-                            wikiWriterDatabaseConnection
+                        .getConnection() \
+                            as wikiWriterDatabaseConnection:
+
+                        starsArchiveWikiPageWriter = \
+                            self.__getNewStarsArchiveWikiPageWriter(
+                                wikiWriterDatabaseConnection
+                            )
+                        starsArchiveWikiPageWriter.writeToWiki()
+
+                        # Task 2 completo
+                        programRunnerLogger.debug(
+                            'Scene Info Archiver wiki archiving'
+                            ' task completed'
                         )
-                    starsArchiveWikiPageWriter.writeToWiki()
-
-                    # Task 2 completo
-                    programRunnerLogger.debug(
-                        'Scene Info Archiver wiki archiving'
-                        ' task completed'
-                    )
-
-                    # Cleaning up
-                    storageDatabaseConnection.close()
-                    wikiWriterDatabaseConnection.close()
 
                     # Another quick shutdown check after task completo
                     if self.__isProgramRunnerShutdown:
@@ -333,32 +338,32 @@ class ProgramRunner:
 
         # Retrieving relevant I/O tools
         programRunnerLogger = \
-            self.__programRunnerIO.getProgramRunnerLogger()
+            self.__programRunnerLogger
 
-        databaseConnection = self.__programRunnerIO \
-            .getDatabaseConnectionFactory() \
-            .getConnection()
+        with self.__programRunnerIO \
+                .getDatabaseConnectionFactory()\
+                .getConnection() \
+                as databaseConnection:
 
-        starsArchiveWikiPageWriter = \
-            self.__getNewStarsArchiveWikiPageWriter(
-                databaseConnection, self.__defaultStarViews
+            starsArchiveWikiPageWriter = \
+                self.__getNewStarsArchiveWikiPageWriter(
+                    databaseConnection, self.__defaultStarViews
+                )
+
+            # Executing the program
+            programRunnerLogger.info(
+                'Stars Archive Wiki Page Writer is now running'
             )
-
-        # Executing the program
-        programRunnerLogger.info(
-            'Stars Archive Wiki Page Writer is now running'
-        )
-        starsArchiveWikiPageWriter.writeToWiki(starViews)
-        programRunnerLogger.info(
-            'Stars Archive Wiki Page Writer completed'
-        )
-        databaseConnection.close()
+            starsArchiveWikiPageWriter.writeToWiki(starViews)
+            programRunnerLogger.info(
+                'Stars Archive Wiki Page Writer completed'
+            )
 
     # Convenience method to return a new
     # StarsArchiveWikiPageWriter
     def __getNewStarsArchiveWikiPageWriter(
             self,
-            databaseConnection=None,
+            databaseConnection,
             starViews=None
     ):
 
@@ -383,7 +388,7 @@ class ProgramRunner:
                 )
             # If provided default starview is invalid
             else:
-                self.__programRunnerIO.getProgramRunnerLogger().warning(
+                self.__programRunnerLogger.warning(
                     "'{}' is an invalid starview and shall"
                     " be removed from the list of provided"
                     " default starviews".format(starView)
@@ -391,7 +396,7 @@ class ProgramRunner:
 
         # Use default Starviews if list of provided starviews is empty
         if len(starViewObjects) == 0:
-            self.__programRunnerIO.getProgramRunnerLogger().warning(
+            self.__programRunnerLogger.warning(
                 "No StarViews were loaded from the "
                 "provided list so the default StarViews "
                 "shall be used for the "
