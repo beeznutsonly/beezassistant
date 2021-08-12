@@ -103,7 +103,7 @@ def __initializeLogging(logFileName):
     __defaultConsoleLoggingLevel = consoleHandler.level
 
 
-# Retrieving an initial sqlite database connection factory
+# Retrieve an initial sqlite database connection factory
 def __getInitialSqliteDatabaseConnectionFactory(databaseFileName):
 
     try:
@@ -146,7 +146,7 @@ def __getInitialSqliteDatabaseConnectionFactory(databaseFileName):
     return databaseConnectionFactory
 
 
-# Retrieving initial bot credentials
+# Retrieve initial bot credentials
 def __getInitialBotCredentials(databaseConnection):
 
     # Checking for bot credentials in environment variables first
@@ -188,7 +188,7 @@ def __getInitialBotCredentials(databaseConnection):
     return botCredentials
 
 
-# Retrieving the bot's config. file reader
+# Retrieve the bot's config. file reader
 def __getInitialConfigReader(configFileName):
 
     configParser = configparser.ConfigParser()
@@ -267,7 +267,6 @@ def ___authenticated(redditInstance):
 
 
 # Initialize Reddit Interface
-# noinspection PyUnresolvedReferences
 def __getInitialRedditInterface(botCredentials, databaseConnection):
 
     # Attempting to retrieve a valid Praw instance from
@@ -523,7 +522,7 @@ def startBot(args=sys.argv):
         shutdownBot(False, 2)
 
 
-# Starting the bot command listener
+# Start the bot command listener
 def __startCommandListener():
     try:
         while True:
@@ -545,7 +544,7 @@ def __startCommandListener():
         raise ex
 
 
-# Processing a bot command
+# Process a bot command
 def __processBotCommand(command):
 
     # For program command
