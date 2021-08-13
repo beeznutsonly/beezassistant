@@ -1,1 +1,1 @@
-nohup ./beezassistant.py 0 &
+nohup python3 beezassistant.py 0 &

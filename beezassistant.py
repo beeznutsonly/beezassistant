@@ -478,7 +478,7 @@ def startBot(args=sys.argv):
         __mainLogger.warning(
             'Forced bot shutdown requested. Please wait a bit wait while '
             'a graceful shutdown is attempted or press '
-            'Ctrl+Break to exit immediately'
+            'Ctrl+C to exit immediately'
         )
         shutDownBot(True, 1)
 
@@ -488,7 +488,7 @@ def startBot(args=sys.argv):
             "A fatal error just occurred while the bot was "
             "running. Please wait a bit wait while "
             "a graceful shutdown is attempted or press "
-            "Ctrl+Break to exit immediately", exc_info=True
+            "Ctrl+C to exit immediately", exc_info=True
         )
         shutDownBot(True, 2)
 
@@ -588,6 +588,8 @@ def shutDownBot(wait=True, shutdownExitCode=0):
                 'Graceful shutdown aborted.'
             )
             __mainLogger.info('Bot shut down')
+            
+            # Process killers (only way to effectively stop all threads)
 
             # Windows kill command
             if (
@@ -602,6 +604,7 @@ def shutDownBot(wait=True, shutdownExitCode=0):
     else:
         __programsExecutor.shutdown(False)
         __mainLogger.info('Bot shut down')
+        
         # Windows kill command
         if (
                 sys.platform.startswith('win32') or
@@ -625,6 +628,9 @@ def isBotShutDown():
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":
+
+    # Setting up shutdown signal handler
+    signal.signal(signal.SIGINT, signal.default_int_handler)
 
     # Start
     startBot()
