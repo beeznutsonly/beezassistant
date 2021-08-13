@@ -37,7 +37,7 @@ class ProgramRunner:
     # -------------------------------------------------------------------------------
 
     # Program Runner variables
-    __isProgramRunnerShutdown = True
+    __isProgramRunnerShutdown = None
     __programRunnerIO = None
     __redditInterface = None
     __programRunnerLogger: logging.Logger
@@ -174,10 +174,12 @@ class ProgramRunner:
 
         # Handle if an error occurs while initializing the Program Runner
         except Exception as ex:
-            raise ProgramRunnerInitializationError(
-                "An error occurred while initializing"
-                " the Program Runner", ex
+
+            self.__programRunnerLogger.critical(
+                "A terminal error occurred while initializing"
+                " the Program Runner. Error(s) " + str(ex)
             )
+            raise ProgramRunnerInitializationError(ex)
 
         self.__isProgramRunnerShutdown = False
         self.__programRunnerLogger.info('Program Runner initialized')
@@ -364,7 +366,7 @@ class ProgramRunner:
     def __getNewStarsArchiveWikiPageWriter(
             self,
             databaseConnection,
-            starViews=None
+            starViews=__defaultStarViews
     ):
 
         # Oh, just initializing the database connection

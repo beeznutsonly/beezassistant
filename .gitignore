@@ -1,10 +1,3 @@
-# Beezassistant specific
-# --------------------------------------------------------------
-
-# Resources directory
-resources/beezassistant.db
-
-
 # Universal
 # --------------------------------------------------------------
 

@@ -4,14 +4,18 @@
 Class responsible for asynchronously executing multiple programs
 """
 
+from botapplicationtools.programsexecutors.exceptions.ProgramsExecutorInitializationError import ProgramsExecutorInitializationError
 import concurrent.futures
+import json
 import logging
 from concurrent.futures import ThreadPoolExecutor
+
+from praw import config
 
 
 class AsynchronousProgramsExecutor:
 
-    __isProgramsExecutorShutDown = True
+    __isProgramsExecutorShutDown = None
 
     __programsExecutorLogger: logging.Logger
     __executor = None
@@ -21,17 +25,68 @@ class AsynchronousProgramsExecutor:
     def __init__(
             self,
             programRunner,
-            initialProgramCommands,
+            configReader,
             executor=ThreadPoolExecutor(),
             programs={}
     ):
-        self.__programsExecutorLogger = logging.getLogger("programsExecutor")
         self.__executor = executor
         self.__programRunner = programRunner
         self.__programs = programs
+        self.__initializeProgramsExecutor(configReader)
+        
+
+    # Initialize the programs executor
+    def __initializeProgramsExecutor(self, configReader):        
+    
+        # Setting up the Programs Executor logger
+        self.__programsExecutorLogger = logging.getLogger("programsExecutor")    
+        
+        try: 
+            # Retrieving initial program commands
+            self.__programsExecutorLogger.debug(
+                "Retrieving initial program commands"
+            )
+            initialProgramCommands = self.__getInitialProgramCommands(
+                configReader
+            )
+
+            # Executing initial program commands 
+            self.__programsExecutorLogger.debug(
+                "Executing initial program commands"
+            )
+            self.executePrograms(initialProgramCommands)
+        
+        # Handle in case the programs executor fails to initialize
+        except ProgramsExecutorInitializationError as ex:
+            self.__programsExecutorLogger.critical(
+                "A terminal error occurred while initializing the Programs "
+                "Executor. Error(s): " + str(ex)
+            )
+            raise ex
+
         self.__isProgramsExecutorShutDown = False
-        self.executePrograms(initialProgramCommands)
-        self.__programsExecutorLogger.info("Programs Executor initialized")
+        self.__programsExecutorLogger.info(
+            "Programs Executor initialized"
+        )
+
+    # Retrieve initial program commands
+    def __getInitialProgramCommands(self, configReader):
+
+        try:
+            # Initial program commands
+            initialProgramCommands = json.loads(configReader.get(
+                'ProgramsExecutor', 'initialprogramcommands'
+            ))
+
+        # Handle when there is a problem parsing the config file
+        except configReader.Error or json.JSONDecodeError as ex:
+            raise ProgramsExecutorInitializationError(
+                "An error occurred while parsing the "
+                "configuration file for the Programs Executor's "
+                "initial program commands.", ex
+            )
+
+        return initialProgramCommands
 
     # Execute a single program
     def executeProgram(self, program):
@@ -77,6 +132,7 @@ class AsynchronousProgramsExecutor:
 
     # Execute multiple programs
     def executePrograms(self, programs):
+
         # Confirm if shut down first
         if self.__informIfShutdown():
             return
@@ -137,4 +193,4 @@ class AsynchronousProgramsExecutor:
 
     # Check if Programs Executor is shut down
     def isShutDown(self):
-        return self.__isProgramsExecutorShutDown
+        return self.__isProgramsExecutorShutDown 

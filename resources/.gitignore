@@ -1,0 +1,9 @@
+# .gitignore for the resources folder
+
+*
+*/
+!.gitignore
+!beezassistant.ini
+!beezassistant.sql
+!sample_beezassistant.ini
+!/logs

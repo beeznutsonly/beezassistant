@@ -196,31 +196,11 @@ def __getInitialConfigReader(configFileName):
     # Handle when there is a problem reading the config file
     except OSError as ex:
         raise InitializationError(
-            "A fatal error just occurred while trying to open the "
+            "An error just occurred while trying to open the "
             "bot's configuration file.", ex
         )
 
     return configParser
-
-
-# Retrieve initial program commands
-def __getInitialProgramsCommands(configReader):
-
-    try:
-        # Initial program commands
-        initialProgramCommands = json.loads(configReader.get(
-            'BotApplication', 'initialprogramcommands'
-        ))
-
-    # Handle when there is a problem parsing the config file
-    except configparser.Error or json.JSONDecodeError as ex:
-        raise InitializationError(
-            "An error occurred while parsing the "
-            "configuration file for the bot application's "
-            "initial program commands.", ex
-        )
-
-    return initialProgramCommands
 
 
 # Convenience method to retrieve bot credentials from user input
@@ -398,19 +378,13 @@ def __initializeBot():
             programRunnerIO, redditInterface
         )
 
-        # Retrieving initial program commands
-        __mainLogger.debug("Retrieving initial program commands")
-        initialProgramCommands = __getInitialProgramsCommands(configReader)
-
         # Initializing the Programs Executor
         __mainLogger.debug("Initializing the bot's Programs Executor")
         __programsExecutor = AsynchronousProgramsExecutor(
-            programRunner, initialProgramCommands
+            programRunner, configReader
         )
 
         # -------------------------------------------------------------------------------
-
-        __mainLogger.info("Bot successfully initialized")
 
     # Handle if an initialization error occurs
     except InitializationError as er:
@@ -421,6 +395,8 @@ def __initializeBot():
             exc_info=True
         )
         sys.exit(2) # May need future cleaning up
+
+    __mainLogger.info("Bot successfully initialized")
 
 # -------------------------------------------------------------------------------
 
@@ -499,8 +475,8 @@ def startBot(args=sys.argv):
     except KeyboardInterrupt or EOFError:
         __mainLogger.warning(
             'Forced bot shutdown requested. Please wait a bit wait while '
-            'a graceful shutdown is attempted or press Ctrl+C '
-            '(or Ctrl+Break) to exit immediately'
+            'a graceful shutdown is attempted or press '
+            'Ctrl+Break to exit immediately'
         )
         shutDownBot(True, 1)
 
@@ -509,8 +485,8 @@ def startBot(args=sys.argv):
         __mainLogger.critical(
             "A fatal error just occurred while the bot was "
             "running. Please wait a bit wait while "
-            "a graceful shutdown is attempted or press Ctrl+C "
-            "(or Ctrl+Break) to exit immediately", exc_info=True
+            "a graceful shutdown is attempted or press "
+            "Ctrl+Break to exit immediately", exc_info=True
         )
         shutDownBot(True, 2)
 
