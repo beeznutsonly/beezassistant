@@ -332,7 +332,7 @@ class ProgramRunner:
             )
 
     # Stars Archive Wiki Page Writer
-    def runStarsArchiveWikiPageWriter(self, starViews=None):
+    def runStarsArchiveWikiPageWriter(self):
 
         # First confirm that the program runner is not shutdown
         if self.__informIfShutdown():
@@ -356,7 +356,7 @@ class ProgramRunner:
             programRunnerLogger.info(
                 'Stars Archive Wiki Page Writer is now running'
             )
-            starsArchiveWikiPageWriter.writeToWiki(starViews)
+            starsArchiveWikiPageWriter.writeToWiki()
             programRunnerLogger.info(
                 'Stars Archive Wiki Page Writer completed'
             )
@@ -366,8 +366,11 @@ class ProgramRunner:
     def __getNewStarsArchiveWikiPageWriter(
             self,
             databaseConnection,
-            starViews=__defaultStarViews
+            starViews=None
     ):
+
+        if starViews is None:
+            starViews = self.__defaultStarViews
 
         # Oh, just initializing the database connection
         databaseConnection = self.__programRunnerIO \

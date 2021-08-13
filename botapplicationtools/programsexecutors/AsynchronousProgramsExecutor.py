@@ -4,13 +4,13 @@
 Class responsible for asynchronously executing multiple programs
 """
 
-from botapplicationtools.programsexecutors.exceptions.ProgramsExecutorInitializationError import ProgramsExecutorInitializationError
 import concurrent.futures
 import json
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-from praw import config
+from botapplicationtools.programsexecutors.exceptions.ProgramsExecutorInitializationError import \
+    ProgramsExecutorInitializationError
 
 
 class AsynchronousProgramsExecutor:
@@ -89,27 +89,33 @@ class AsynchronousProgramsExecutor:
         return initialProgramCommands
 
     # Execute a single program
-    def executeProgram(self, program):
+    def executeProgram(self, programCommand):
 
         # Confirm if shut down first
         if self.__informIfShutdown():
             return
 
         # Checking if there are duplicate running programs
-        if program in self.__programs.keys():
-            if not self.__programs[program].done():
+        if programCommand in self.__programs.keys():
+            if not self.__programs[programCommand].done():
                 self.__programsExecutorLogger.warning(
                     "Did not run the '{}' program command "
                     "because an identical command is"
-                    " still running".format(program)
+                    " still running".format(programCommand)
                 )
                 return
 
         # Generating an asynchronous task for the program
-        task = self.__executor.submit(
-            self.__processProgram,
-            program
-        )
+        try:
+            task = self.__executor.submit(
+                self.__processProgram,
+                programCommand
+            )
+        except RuntimeError:
+            self.__programsExecutorLogger.error(
+                "Failed to execute '{}' because the executor is "
+                "shutting down or is shut down".format(programCommand)
+            )
 
         try:
 
@@ -118,7 +124,7 @@ class AsynchronousProgramsExecutor:
         # Add to running programs if task was started successfully
         except concurrent.futures.TimeoutError:
 
-            self.__programs[program] = task
+            self.__programs[programCommand] = task
 
         # Handle if provided program could not be parsed
         except ValueError as ex:
@@ -126,7 +132,7 @@ class AsynchronousProgramsExecutor:
                 "Did not run the '{}' program command "
                 "because there was an error parsing the "
                 "program command. Error(s): {}".format(
-                    program, str(ex.args)
+                    programCommand, str(ex.args)
                 )
             )
 

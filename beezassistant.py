@@ -26,6 +26,8 @@ from botapplicationtools.botcredentials.BotCredentialsDAO import \
 from botapplicationtools.databasetools import SqliteDatabaseInitializer
 from botapplicationtools.databasetools.databaseconnectionfactories.SqliteDatabaseConnectionFactory import \
     SqliteDatabaseConnectionFactory
+from botapplicationtools.exceptions.BotInitializationError import \
+    BotInitializationError
 from botapplicationtools.exceptions.InitializationError import \
     InitializationError
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
@@ -134,7 +136,7 @@ def __getInitialSqliteDatabaseConnectionFactory(databaseFileName):
 
         # Handle if database creation fails
         except Exception as ex:
-            raise InitializationError(
+            raise BotInitializationError(
                 "An error occurred while trying to create the "
                 "bot's database.",
                 ex
@@ -177,7 +179,7 @@ def __getInitialBotCredentials(databaseConnection):
             botCredentials = botCredentialsDAO.getBotCredentials()
 
         except Exception as ex:
-            raise InitializationError(
+            raise BotInitializationError(
                 "Could not load initial bot credentials from "
                 "the database.", ex
             )
@@ -195,7 +197,7 @@ def __getInitialConfigReader(configFileName):
 
     # Handle when there is a problem reading the config file
     except OSError as ex:
-        raise InitializationError(
+        raise BotInitializationError(
             "An error just occurred while trying to open the "
             "bot's configuration file.", ex
         )
@@ -275,7 +277,7 @@ def __getInitialRedditInterface(botCredentials, databaseConnection):
                 ___getNewBotCredentials(), databaseConnection
             )
         except KeyboardInterrupt or EOFError:
-            raise InitializationError(
+            raise BotInitializationError(
                 "Retrieval of bot credentials from user input "
                 "aborted"
             )
@@ -311,7 +313,7 @@ def __initializeProgramRunner(programRunnerIO, redditInterface):
 
     # Handle if there is an error initializing the Program Runner
     except Exception as ex:
-        raise InitializationError(
+        raise BotInitializationError(
             "An error occurred while initializing "
             "the Program Runner.", ex
         )
