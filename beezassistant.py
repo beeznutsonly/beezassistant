@@ -433,19 +433,19 @@ def __resumeConsoleLogging():
 
 
 # Start up the bot
-def startBot(args=sys.argv):
+def startBot(args=[]):
 
     # Initializing the bot
     __initializeBot()
 
     try:
         # Retrieve additional bot instructions if present
-        if len(args) > 1:
+        if len(args) > 0:
 
             botCommand = ''
 
             # Retrieve and execute bot command if present
-            if len(args) > 2:
+            if len(args) > 1:
                 botCommand = " ".join(args[2:])
 
             __processBotCommand(botCommand)
@@ -453,7 +453,7 @@ def startBot(args=sys.argv):
 
             try:
 
-                listen = int(args[1])  # Command listening setting
+                listen = int(args[0])  # Command listening setting
 
                 # Check if command listening is set
                 if listen:
@@ -464,7 +464,7 @@ def startBot(args=sys.argv):
                 __mainLogger.error(
                     "The provided 'listen' argument, \"{}\", is invalid. "
                     "The bot will therefore shutdown once all of its tasks"
-                    " are completed.".format(args[1])
+                    " are completed.".format(args[0])
                 )
 
         else:
@@ -629,11 +629,15 @@ def isBotShutDown():
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    # Setting up shutdown signal handler
+    # Setting up interrupt signal handler
     signal.signal(signal.SIGINT, signal.default_int_handler)
 
-    # Start
-    startBot()
+    # Start bot
+    if len(sys.argv) == 1:
+        startBot()
+    else:
+        startBot(sys.argv)
+        
     try:
         # Wait for tasks to complete before shutdown
         while True:

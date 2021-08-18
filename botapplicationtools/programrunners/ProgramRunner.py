@@ -123,6 +123,11 @@ class ProgramRunner:
                 "Initializing Stars Archive Wiki Page Writer variables"
             )
 
+            # Can you believe my dumbass left this line out 
+            # of production code for close to a week??
+            self.__starsArchiveWikiPageWriterSubredditName = \
+                starsArchiveWikiPageWriterSubredditName
+
             # Initializing default starviews
             validStarViewList = []
             for defaultStarView in defaultStarViews:
