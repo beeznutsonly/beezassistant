@@ -9,7 +9,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from botapplicationtools.programrunners.exceptions.ProgramRunnerInitializationError import \
     ProgramRunnerInitializationError
@@ -376,17 +376,47 @@ class ProgramRunner:
             vespoliPost = [
                 'https://redgifs.com/watch/majorpoliticalgrayreefshark',
                 'Scene from *Mr. Perfect from the Dating App* with **Dana Vespoli** and **Damon Dice**',
-                ['nsfw', 'lostinthemoment', 'missionarysex']
+                ['nsfw', 'lostinthemoment', 'missionarysex'],
+                datetime(
+                    2021,
+                    8,
+                    20,
+                    13,
+                    0,
+                    0
+                ).replace(
+                    tzinfo=timezone.utc
+                )
             ]
             alinaPost = [
                 'https://redgifs.com/watch/darlingfalseangelwingmussel',
                 'Scene from *Black Lingerie (II)* with **Alina Lopez** and **Bambino**',
-                ['nsfw', 'lostinthemoment', 'alinalopez']
+                ['nsfw', 'lostinthemoment', 'alinalopez'],
+                datetime(
+                    2021,
+                    8,
+                    21,
+                    13,
+                    0,
+                    0
+                ).replace(
+                    tzinfo=timezone.utc
+                )
             ]
             zaawaadiPost = [
                 'https://redgifs.com/watch/colorfulzestylamprey',
                 'Scene from *Big Ass Ebony Babe Interracial Sex* with **Zaawaadi** and **Angelo Godshack**',
-                ['nsfw', 'lostinthemoment']
+                ['nsfw', 'lostinthemoment'],
+                datetime(
+                    2021,
+                    8,
+                    22,
+                    13,
+                    0,
+                    0
+                ).replace(
+                    tzinfo=timezone.utc
+                )
             ]
             prawRedditInstance = self.__redditInterface.getPrawReddit()
             self.__programRunnerLogger.info('Posts Manager is now running')
@@ -405,18 +435,22 @@ class ProgramRunner:
     # (To be refactored soon) Process Posts Manager Post
     def __processPost(self, submission, postArgs):
         self.__programRunnerLogger.info('Processing: ' + str(submission.title))
-        submission.reply(postArgs[1])
-        submission.crosspost(
-            subreddit='porn',
-            title='[/r/romanticxxx] {}'.format(
-                submission.title
-            )
-        )
-        for subreddit in postArgs[2]:
+        if (datetime.now(tz=timezone.utc) <= (postArgs[3] + timedelta(
+                            minutes=60
+                        ))
+        ):
+            submission.reply(postArgs[1])
             submission.crosspost(
-                subreddit=subreddit
+                subreddit='porn',
+                title='[/r/romanticxxx] {}'.format(
+                    submission.title
+                )
             )
-            time.sleep(600)
+            for subreddit in postArgs[2]:
+                submission.crosspost(
+                    subreddit=subreddit
+                )
+                time.sleep(600)
 
     # Convenience method to return a new
     # StarsArchiveWikiPageWriter
