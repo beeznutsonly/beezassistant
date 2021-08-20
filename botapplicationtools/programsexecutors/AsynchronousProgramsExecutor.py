@@ -166,6 +166,10 @@ class AsynchronousProgramsExecutor:
             )
             self.__programRunner.runStarsArchiveWikiPageWriter()
 
+        # (To be refactored) Temporary hack
+        elif program == 'postsmanager':
+            self.__programRunner.runPostsManager()
+
         # Raise error if provided program does not exist
         else:
             raise ValueError(

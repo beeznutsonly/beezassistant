@@ -8,6 +8,7 @@ import json
 import logging
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 from botapplicationtools.programrunners.exceptions.ProgramRunnerInitializationError import \
@@ -40,9 +41,12 @@ class ProgramRunner:
     __isProgramRunnerShutdown = None
     __programRunnerIO = None
     __redditInterface = None
-    __programRunnerLogger: logging.Logger
+    __programRunnerLogger : logging.Logger
 
     def __init__(self, programRunnerIO, redditInterface):
+        self.__programRunnerLogger = logging.getLogger(
+            'programRunner'
+        )
         self.__programRunnerIO = programRunnerIO
         self.__redditInterface = redditInterface
         self.__initializeProgramRunner()
@@ -60,7 +64,6 @@ class ProgramRunner:
     def __initializeProgramRunner(self):
 
         # Setting up logging apparatus
-        self.__programRunnerLogger = logging.getLogger('programRunner')
 
         self.__programRunnerLogger.debug("Initializing the Program Runner")
 
@@ -365,6 +368,55 @@ class ProgramRunner:
             programRunnerLogger.info(
                 'Stars Archive Wiki Page Writer completed'
             )
+
+    # (To be refactored soon; temporary program) Run posts manager
+    def runPostsManager(self):
+        try:
+            postProcessExecutor = ThreadPoolExecutor()
+            vespoliPost = [
+                'https://redgifs.com/watch/majorpoliticalgrayreefshark',
+                'Scene from *Mr. Perfect from the Dating App* with **Dana Vespoli** and **Damon Dice**',
+                ['nsfw', 'lostinthemoment', 'missionarysex']
+            ]
+            alinaPost = [
+                'https://redgifs.com/watch/darlingfalseangelwingmussel',
+                'Scene from *Black Lingerie (II)* with **Alina Lopez** and **Bambino**',
+                ['nsfw', 'lostinthemoment', 'alinalopez']
+            ]
+            zaawaadiPost = [
+                'https://redgifs.com/watch/colorfulzestylamprey',
+                'Scene from *Big Ass Ebony Babe Interracial Sex* with **Zaawaadi** and **Angelo Godshack**',
+                ['nsfw', 'lostinthemoment']
+            ]
+            prawRedditInstance = self.__redditInterface.getPrawReddit()
+            self.__programRunnerLogger.info('Posts Manager is now running')
+            for submission in prawRedditInstance.subreddit("romanticxxx").stream.submissions():
+                if submission.url == vespoliPost[0]:
+                    postProcessExecutor.submit(self.__processPost, submission, vespoliPost)
+                elif submission.url == alinaPost[0]:
+                    postProcessExecutor.submit(self.__processPost, submission, alinaPost)
+                elif submission.url == zaawaadiPost[0]:
+                    postProcessExecutor.submit(self.__processPost, submission, zaawaadiPost)
+        except Exception as ex:
+            self.__programRunnerLogger.critical('This is bad {}'.format(str(ex.args)), exc_info=True)
+        finally:
+            print('fin')
+
+    # (To be refactored soon) Process Posts Manager Post
+    def __processPost(self, submission, postArgs):
+        self.__programRunnerLogger.info('Processing: ' + str(submission.title))
+        submission.reply(postArgs[1])
+        submission.crosspost(
+            subreddit='porn',
+            title='[/r/romanticxxx] {}'.format(
+                submission.title
+            )
+        )
+        for subreddit in postArgs[2]:
+            submission.crosspost(
+                subreddit=subreddit
+            )
+            time.sleep(600)
 
     # Convenience method to return a new
     # StarsArchiveWikiPageWriter
