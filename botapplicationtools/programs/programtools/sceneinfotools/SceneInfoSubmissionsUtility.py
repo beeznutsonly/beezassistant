@@ -17,7 +17,7 @@ def retrieveSceneInfoSubmissions(submissions, sceneInfoFlairID):
         try:
             if str(submission.link_flair_template_id) == sceneInfoFlairID:
                 sceneInfoSubmissions.append(submission)
-        except AttributeError as ae:
+        except AttributeError:
             pass
     return sceneInfoSubmissions
 

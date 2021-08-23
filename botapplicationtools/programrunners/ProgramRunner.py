@@ -439,13 +439,6 @@ class ProgramRunner:
                             minutes=60
                         ))
         ):
-            submission.reply(postArgs[1])
-            submission.crosspost(
-                subreddit='porn',
-                title='[/r/romanticxxx] {}'.format(
-                    submission.title
-                )
-            )
             for subreddit in postArgs[2]:
                 submission.crosspost(
                     subreddit=subreddit
