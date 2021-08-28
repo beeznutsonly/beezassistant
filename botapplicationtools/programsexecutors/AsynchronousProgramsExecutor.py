@@ -19,28 +19,28 @@ class AsynchronousProgramsExecutor:
 
     __programsExecutorLogger: logging.Logger
     __executor = None
-    __programRunner = None
+    __programRunners: dict
     __programs = None
 
     def __init__(
             self,
-            programRunner,
+            programRunners,
             configReader,
             executor=ThreadPoolExecutor(),
             programs={}
     ):
+        self.__programsExecutorLogger = \
+            logging.getLogger("programsExecutor")
         self.__executor = executor
-        self.__programRunner = programRunner
+        self.__programRunners = programRunners
         self.__programs = programs
         self.__initializeProgramsExecutor(configReader)
-        
 
     # Initialize the programs executor
     def __initializeProgramsExecutor(self, configReader):        
-    
-        # Setting up the Programs Executor logger
-        self.__programsExecutorLogger = logging.getLogger("programsExecutor")    
-        
+
+        self.__programsExecutorLogger.debug('Initializing Programs Executor')
+
         try: 
             # Retrieving initial program commands
             self.__programsExecutorLogger.debug(
@@ -116,6 +116,7 @@ class AsynchronousProgramsExecutor:
                 "Failed to execute '{}' because the executor is "
                 "shutting down or is shut down".format(programCommand)
             )
+            return
 
         try:
 
@@ -152,28 +153,53 @@ class AsynchronousProgramsExecutor:
         programCommandBreakdown = programCommand.split()
         program = programCommandBreakdown[0]
 
-        # Scene Info Archiver program
-        if program == 'sceneinfoarchiver':
-            self.__programsExecutorLogger.info(
-                "Running program '{}'".format(program)
-            )
-            self.__programRunner.runSceneInfoArchiver()
+        try:
 
-        # Stars Archive Wiki Page Writer program
-        elif program == 'starsarchivewikipagewriter':
-            self.__programsExecutorLogger.info(
-                "Running program '{}'".format(program)
-            )
-            self.__programRunner.runStarsArchiveWikiPageWriter()
+            if program in self.__programRunners.keys():
+                self.__programsExecutorLogger.info(
+                    "Running program '{}'".format(program)
+                )
+                self.__programRunners[program].run()
 
-        # (To be refactored) Temporary hack
-        elif program == 'postsmanager':
-            self.__programRunner.runPostsManager()
+            # Raise error if provided program does not exist
+            else:
+                raise ValueError(
+                    "Program '{}' is not recognized".format(program)
+                )
 
-        # Raise error if provided program does not exist
-        else:
-            raise ValueError(
-                "Program '{}' is not recognized".format(program)
+            # # Scene Info Archiver program
+            # if program == 'sceneinfoarchiver':
+            #     self.__programsExecutorLogger.info(
+            #         "Running program '{}'".format(program)
+            #     )
+            #     self.__programRunner.runSceneInfoArchiver()
+            #
+            # # Stars Archive Wiki Page Writer program
+            # elif program == 'starsarchivewikipagewriter':
+            #     self.__programsExecutorLogger.info(
+            #         "Running program '{}'".format(program)
+            #     )
+            #     self.__programRunner.runStarsArchiveWikiPageWriter()
+            #
+            # # (To be refactored) Temporary hack
+            # elif program == 'postsmanager':
+            #     self.__programRunner.runPostsManager()
+            #
+            # # Raise error if provided program does not exist
+            # else:
+            #     raise ValueError(
+            #         "Program '{}' is not recognized".format(program)
+            #     )
+        
+        # Handle if unexpected exception crashes a program
+        except ValueError as ex:
+            raise ex
+        except Exception as ex:
+            self.__programsExecutorLogger.error(
+                "An unexpected error just caused the '{}' "
+                "program to crash. Error: {}".format(
+                    program, str(ex.args)
+                ), exc_info=True
             )
 
     # Get the asynchronous program statuses
@@ -195,7 +221,8 @@ class AsynchronousProgramsExecutor:
     # Shut down the programs executor
     def shutdown(self, wait):
         self.__isProgramsExecutorShutDown = True
-        self.__programRunner.shutdown()
+        for programRunner in self.__programRunners.values():
+            programRunner.shutDown()
         self.__executor.shutdown(wait)
         self.__programsExecutorLogger.info(
             "Programs executor successfully shut down"

@@ -3,15 +3,24 @@
 
 __author__ = "u/beeznutsonly"
 
+import psycopg2
+
+from botapplicationtools.programrunners.SceneInfoArchiverRunner import SceneInfoArchiverRunner
+from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import StarsArchiveWikiPageWriterRunner
+from botapplicationtools.programrunners.exceptions.ProgramRunnerInitializationError import \
+    ProgramRunnerInitializationError
+from botapplicationtools.programsexecutors.exceptions.ProgramsExecutorInitializationError import \
+    ProgramsExecutorInitializationError
+
 """
 Main script from which the beezassistant bot is run
 """
 
 import configparser
-import json
 import logging
 import os
 import signal
+import sqlite3
 import sys
 import time
 from logging.handlers import TimedRotatingFileHandler
@@ -23,19 +32,19 @@ from prawcore import ResponseException
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
 from botapplicationtools.botcredentials.BotCredentialsDAO import \
     BotCredentialsDAO
-from botapplicationtools.databasetools import SqliteDatabaseInitializer
+from botapplicationtools.databasetools.databaseconnectionfactories.PgsqlDatabaseConnectionFactory import \
+    PgsqlDatabaseConnectionFactory
 from botapplicationtools.databasetools.databaseconnectionfactories.SqliteDatabaseConnectionFactory import \
     SqliteDatabaseConnectionFactory
+from botapplicationtools.databasetools.databaseinitializers import DatabaseInitializer
+from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError import DatabaseNotFoundError
 from botapplicationtools.exceptions.BotInitializationError import \
     BotInitializationError
-from botapplicationtools.exceptions.InitializationError import \
-    InitializationError
-from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programrunners.ProgramRunnerIO import ProgramRunnerIO
 from botapplicationtools.programs.programtools.generaltools.RedditInterface import \
     RedditInterface
 from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor import \
     AsynchronousProgramsExecutor
+
 
 __RESOURCES_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -102,91 +111,6 @@ def __initializeLogging(logFileName):
     __defaultConsoleLoggingLevel = consoleHandler.level
 
 
-# Retrieve an initial sqlite database connection factory
-def __getInitialSqliteDatabaseConnectionFactory(databaseFileName):
-
-    try:
-
-        databaseConnectionFactory = SqliteDatabaseConnectionFactory(
-            databaseFileName
-        )
-
-    # Handle when database is not found
-    except FileNotFoundError:
-
-        __mainLogger.warning(
-            "Database not found. The bot is now "
-            "creating a new database."
-        )
-
-        # Creating new database
-
-        SqliteScriptPath = os.path.join(
-            __RESOURCES_PATH, 'beezassistant.sql'
-        )
-
-        try:
-            SqliteDatabaseInitializer.initializeDatabase(
-                databaseFileName, SqliteScriptPath
-            )
-            __mainLogger.info("Database successfully created")
-            databaseConnectionFactory = SqliteDatabaseConnectionFactory(
-                databaseFileName
-            )
-
-        # Handle if database creation fails
-        except Exception as ex:
-            raise BotInitializationError(
-                "An error occurred while trying to create the "
-                "bot's database.",
-                ex
-            )
-
-    return databaseConnectionFactory
-
-
-# Retrieve initial bot credentials
-def __getInitialBotCredentials(databaseConnection):
-
-    # Checking for bot credentials in environment variables first
-    envUserAgent = os.getenv("USER_AGENT")
-    envClientId = os.getenv("CLIENT_ID")
-    envClientSecret = os.getenv("CLIENT_SECRET")
-    envUsername = os.getenv("USERNAME")
-    envPassword = os.getenv("PASSWORD")
-
-    if (
-        envUserAgent and
-        envClientId and
-        envClientSecret and
-        envUsername and
-        envPassword
-    ):
-        botCredentials = BotCredentials(
-            envUserAgent,
-            envClientId,
-            envClientSecret,
-            envUsername,
-            envPassword
-        )
-
-    # If bot credentials not found in environment variables
-    else:
-
-        try:
-            # Loading bot credentials from the database
-            botCredentialsDAO = BotCredentialsDAO(databaseConnection)
-            botCredentials = botCredentialsDAO.getBotCredentials()
-
-        except Exception as ex:
-            raise BotInitializationError(
-                "Could not load initial bot credentials from "
-                "the database.", ex
-            )
-
-    return botCredentials
-
-
 # Retrieve the bot's config. file reader
 def __getInitialConfigReader(configFileName):
 
@@ -203,6 +127,184 @@ def __getInitialConfigReader(configFileName):
         )
 
     return configParser
+
+
+def ___initializeDatabase(connection):
+    sqliteScriptPath = os.path.join(
+        __RESOURCES_PATH, 'beezassistant.sql'
+    )
+    DatabaseInitializer.initializeDatabase(
+        connection, sqliteScriptPath
+    )
+
+
+# Retrieve an initial postgresql database connection factory
+def ___getInitialPgsqlDatabaseConnectionFactory(
+        user, password, databaseName
+):
+
+    try:
+
+        databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
+            user, password, databaseName
+        )
+
+    # Handle when database is not found
+    except DatabaseNotFoundError:
+
+        __mainLogger.warning(
+            "Database not found. The bot is now "
+            "creating a new database."
+        )
+
+        # Creating new database
+        with psycopg2.connect(
+                user=user, password=password
+        ) as databaseCreationConnection:
+
+            databaseCreationConnection.autocommit = True
+            with databaseCreationConnection.cursor() as cursor:
+                cursor.execute('create database {};'.format(
+                    databaseName
+                ))
+
+        # Initializing the new database
+        with psycopg2.connect(
+                user=user,
+                password=password,
+                dbName=databaseName
+        ) as databaseInitializationConnection:
+            ___initializeDatabase(databaseInitializationConnection)
+
+        __mainLogger.info("Database successfully created")
+
+        databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
+            user, password, databaseName
+        )
+
+    return databaseConnectionFactory
+
+
+# Retrieve an initial sqlite database connection factory
+def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName):
+    try:
+
+        databaseConnectionFactory = SqliteDatabaseConnectionFactory(
+            databaseFileName
+        )
+
+    # Handle when database is not found
+    except DatabaseNotFoundError:
+
+        __mainLogger.warning(
+            "Database not found. The bot is now "
+            "creating a new database."
+        )
+
+        # Creating and initializing new database
+        with sqlite3.connect(databaseFileName) as connection:
+            ___initializeDatabase(connection)
+
+        __mainLogger.info("Database successfully created")
+        databaseConnectionFactory = SqliteDatabaseConnectionFactory(
+            databaseFileName
+        )
+
+    return databaseConnectionFactory
+
+
+# Retrieve an initial database connection factory
+def __getInitialDatabaseConnectionFactory(database, configReader):
+    try:
+        if database == 'sqlite':
+            section = 'SqliteDatabase'
+            databaseFilePath = configReader.get(
+                section, 'databaseFilePath'
+            )
+            return ___getInitialSqliteDatabaseConnectionFactory(
+                databaseFilePath
+            )
+        elif database == 'pgsql':
+            section = 'PgsqlDatabase'
+            user = configReader.get(
+                section, 'user'
+            )
+            password = configReader.get(
+                section, 'password'
+            )
+            databaseName = configReader.get(
+                section, 'databaseName'
+            )
+            return ___getInitialPgsqlDatabaseConnectionFactory(
+                user, password, databaseName
+            )
+        else:
+            raise BotInitializationError(
+                "The specified database, '{}', is not supported by the bot".format(
+                    database
+                )
+            )
+    except BotInitializationError as ex:
+        raise ex
+    except Exception as ex:
+        raise BotInitializationError(
+            "An error occurred while initializing the bot's "
+            "database connection factory ",
+            ex
+        )
+
+
+# Retrieve initial bot credentials
+def __getInitialBotCredentials(databaseConnection):
+
+    # Checking for bot credentials in environment variables first
+    envUserAgent = os.getenv("USER_AGENT")
+    envClientId = os.getenv("CLIENT_ID")
+    envClientSecret = os.getenv("CLIENT_SECRET")
+    envUsername = os.getenv("USERNAME")
+    envPassword = os.getenv("PASSWORD")
+
+    if (
+            envUserAgent and
+            envClientId and
+            envClientSecret and
+            envUsername and
+            envPassword
+    ):
+        botCredentials = BotCredentials(
+            envUserAgent,
+            envClientId,
+            envClientSecret,
+            envUsername,
+            envPassword
+        )
+
+    # If bot credentials not found
+    # in environment variables
+    else:
+
+        try:
+            # Loading bot credentials from the database
+            botCredentialsDAO = BotCredentialsDAO(databaseConnection)
+            botCredentials = botCredentialsDAO.getBotCredentials()
+
+        except Exception as ex:
+            raise BotInitializationError(
+                "Could not load initial bot credentials from "
+                "the database.", ex
+            )
+
+    return botCredentials
+
+
+# Convenience method to authenticate bot credentials
+def ___authenticated(redditInstance):
+    try:
+        if redditInstance.user.me() is None:
+            return False
+    except ResponseException or ReadOnlyException:
+        return False
+    return True
 
 
 # Convenience method to retrieve bot credentials from user input
@@ -233,16 +335,6 @@ def ___getNewBotCredentials():
     except KeyboardInterrupt or EOFError as ex:
         __resumeConsoleLogging()
         raise ex
-
-
-# Convenience method to authenticate bot credentials
-def ___authenticated(redditInstance):
-    try:
-        if redditInstance.user.me() is None:
-            return False
-    except ResponseException or ReadOnlyException:
-        return False
-    return True
 
 
 # Initialize Reddit Interface
@@ -302,23 +394,61 @@ def __getInitialRedditInterface(botCredentials, databaseConnection):
 
 
 # Initialize Program Runner
-def __initializeProgramRunner(programRunnerIO, redditInterface):
+def __initializeProgramRunners(
+        databaseConnectionFactory,
+        redditInterface,
+        configReader
+):
+
+    programRunners = {}
 
     # Initializing the Program Runner
     try:
-        programRunner = ProgramRunner(
-            programRunnerIO,
-            redditInterface
+        programRunners['starsarchivewikipagewriter'] = \
+            StarsArchiveWikiPageWriterRunner(
+                databaseConnectionFactory,
+                redditInterface,
+                configReader
+            )
+        programRunners['sceneinfoarchiver'] = SceneInfoArchiverRunner(
+            databaseConnectionFactory,
+            redditInterface,
+            configReader
+        )
+        programRunners['postsmanager'] = PostsManagerRunner(
+            databaseConnectionFactory,
+            redditInterface,
+            configReader
         )
 
     # Handle if there is an error initializing the Program Runner
-    except Exception as ex:
+    except ProgramRunnerInitializationError as ex:
         raise BotInitializationError(
             "An error occurred while initializing "
             "the Program Runner.", ex
         )
 
-    return programRunner
+    return programRunners
+
+
+# Initialize the Programs Executor
+def __initializeProgramsExecutor(programRunners, configReader):
+
+    # Initializing the Programs Executor
+    try:
+        programsExecutor = AsynchronousProgramsExecutor(
+            programRunners,
+            configReader
+        )
+
+    # Handle if there is an error initializing the Programs Executor
+    except ProgramsExecutorInitializationError as ex:
+        raise BotInitializationError(
+            "An error occurred while initializing "
+            "the Program Runner.", ex
+        )
+
+    return programsExecutor
 
 
 # Initialize the bot
@@ -338,21 +468,24 @@ def __initializeBot():
         # I/O initialization
         # -------------------------------------------------------------------------------
 
+        # Initializing the config. file reader
+
+        __mainLogger.debug("Initializing the bot's config. file reader")
+        configFileName = os.path.join(__RESOURCES_PATH, 'beezassistant.ini')
+        configReader = __getInitialConfigReader(configFileName)
+
         # Initializing bot's database connection factory
 
         __mainLogger.debug(
             "Initializing the bot's database"
             " connection factory"
         )
-        databaseString = os.path.join(__RESOURCES_PATH, 'beezassistant.db')
+        section = 'BotApplication'
+        database = configReader.get(
+            section, 'database'
+        )
         databaseConnectionFactory = \
-            __getInitialSqliteDatabaseConnectionFactory(databaseString)
-
-        # Initializing the config. file reader
-
-        __mainLogger.debug("Initializing the bot's config. file reader")
-        configFileName = os.path.join(__RESOURCES_PATH, 'beezassistant.ini')
-        configReader = __getInitialConfigReader(configFileName)
+            __getInitialDatabaseConnectionFactory(database, configReader)
 
         # Bot attribute initialization
         # -------------------------------------------------------------------------------
@@ -371,32 +504,29 @@ def __initializeBot():
                 botCredentials, databaseConnection
             )
 
-        # Initializing the Program Runner
-        __mainLogger.debug("Initializing the Program Runner")
-        programRunnerIO = ProgramRunnerIO(
-            configReader, databaseConnectionFactory
-        )
-        programRunner = __initializeProgramRunner(
-            programRunnerIO, redditInterface
+        # Initializing the Program Runners
+        programRunners = __initializeProgramRunners(
+            databaseConnectionFactory,
+            redditInterface,
+            configReader
         )
 
         # Initializing the Programs Executor
-        __mainLogger.debug("Initializing the bot's Programs Executor")
-        __programsExecutor = AsynchronousProgramsExecutor(
-            programRunner, configReader
+        __programsExecutor = __initializeProgramsExecutor(
+            programRunners, configReader
         )
 
         # -------------------------------------------------------------------------------
 
     # Handle if an initialization error occurs
-    except InitializationError as er:
+    except BotInitializationError as er:
         __mainLogger.critical(
             "A fatal error occurred during the "
             "bot's initialization. The application "
             "will now exit. Error(s): " + str(er),
             exc_info=True
         )
-        sys.exit(2) # May need future cleaning up
+        sys.exit(2)  # May need future cleaning up
 
     __mainLogger.info("Bot successfully initialized")
 
@@ -430,6 +560,129 @@ def __resumeConsoleLogging():
         "Failed to resume logging because "
         "the console logger was not found"
     )
+
+
+# Start the bot command listener
+def __startCommandListener():
+    try:
+        while not isBotShutDown():
+            # Pause console logging while bot is
+            # listening for commands
+            __pauseConsoleLogging()
+
+            command = input('Enter bot command: ')
+
+            # Resume console logging once command
+            # entered
+            __resumeConsoleLogging()
+
+            __processBotCommand(command)
+
+    except BaseException as ex:
+        __resumeConsoleLogging()
+        raise ex
+
+
+# Process a bot command
+def __processBotCommand(command):
+    # Blank command
+    if command == '' or command == '\n':
+        return
+
+    # For program command
+    elif command.startswith('run '):
+        __programsExecutor.executeProgram(command.split('run ', 1)[1])
+
+    # For programs status request
+    elif command == 'status':
+
+        print('\nPrograms status:')
+
+        # Printing all program statuses
+        for program, status in __programsExecutor \
+                .getProgramStatuses() \
+                .items():
+            print('{}\t\t: {}'.format(
+                program, status
+            ))
+        print()
+
+    # For shutdown command
+    elif (
+            command == 'shutdown' or
+            command == 'quit' or
+            command == 'exit'
+    ):
+        shutDownBot()
+
+    else:
+        __mainLogger.debug(
+            "'{}' is not a valid bot command".format(command)
+        )
+
+
+# Shut down the bot
+def shutDownBot(wait=True, shutdownExitCode=0):
+    if wait:
+        __mainLogger.info(
+            'Shutting down the bot. Please wait a bit wait while the '
+            'remaining tasks ({}) are being finished off'.format(
+                ", ".join(
+                    {
+                        program: status
+                        for (program, status) in __programsExecutor
+                        .getProgramStatuses()
+                        .items()
+                        if status != "DONE"
+                    }.keys()
+                )
+            )
+        )
+        try:
+            __programsExecutor.shutdown(True)
+            __mainLogger.info('Bot successfully shut down')
+            if shutdownExitCode != 0:
+                sys.exit(shutdownExitCode)
+
+        # Handle keyboard interrupt midway through graceful shutdown
+        except KeyboardInterrupt:
+
+            __programsExecutor.shutdown(False)
+            __mainLogger.warning(
+                'Graceful shutdown aborted.'
+            )
+            __mainLogger.info('Bot shut down')
+
+            # Process killers (only way to effectively stop all threads)
+
+            # Windows kill command
+            if (
+                    sys.platform.startswith('win32') or
+                    sys.platform.startswith('cygwin')
+            ):
+                os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
+
+            # Linux kill command
+            os.kill(os.getpid(), signal.SIGKILL)
+
+    else:
+        __programsExecutor.shutdown(False)
+        __mainLogger.info('Bot shut down')
+
+        # Windows kill command
+        if (
+                sys.platform.startswith('win32') or
+                sys.platform.startswith('cygwin')
+        ):
+            os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
+
+        # Linux kill command
+        os.kill(os.getpid(), signal.SIGKILL)
+
+
+# Check if bot is shutdown
+def isBotShutDown():
+    return __programsExecutor and __programsExecutor.isShutDown()
 
 
 # Start up the bot
@@ -492,135 +745,6 @@ def startBot(args=[]):
         )
         shutDownBot(True, 2)
 
-
-# Start the bot command listener
-def __startCommandListener():
-    try:
-        while not isBotShutDown():
-
-            # Pause console logging while bot is
-            # listening for commands
-            __pauseConsoleLogging()
-
-            command = input('Enter bot command: ')
-
-            # Resume console logging once command
-            # entered
-            __resumeConsoleLogging()
-
-            __processBotCommand(command)
-
-    except BaseException as ex:
-        __resumeConsoleLogging()
-        raise ex
-
-
-# Process a bot command
-def __processBotCommand(command):
-
-    # Blank command
-    if command == '' or command == '\n':
-        return
-    # For program command
-    elif command.startswith('run '):
-        __programsExecutor.executeProgram(command.split('run ', 1)[1])
-
-    # For programs status request
-    elif command == 'status':
-
-        print('\nPrograms status:')
-        
-        # Printing all program statuses
-        for program, status in \
-            __programsExecutor \
-            .getProgramStatuses() \
-            .items():
-
-            print('{}\t\t: {}'.format(
-                program, status
-            ))
-        print()
-
-    # For shutdown command
-    elif (
-            command == 'shutdown' or
-            command == 'quit' or
-            command == 'exit'
-    ):
-        shutDownBot()
-
-    else:
-        __mainLogger.debug(
-            "'{}' is not a valid bot command".format(command)
-        )
-
-
-# Shut down the bot
-def shutDownBot(wait=True, shutdownExitCode=0):
-
-    if wait:
-        __mainLogger.info(
-            'Shutting down the bot. Please wait a bit wait while the '
-            'remaining tasks ({}) are being finished off'.format(
-                ", ".join(
-                    {
-                        program: status
-                        for (program, status) in
-                        __programsExecutor
-                        .getProgramStatuses()
-                        .items()
-                        if status != "DONE"
-                    }.keys()
-                )
-            )
-        )
-        try:
-            __programsExecutor.shutdown(True)
-            __mainLogger.info('Bot successfully shut down')
-            if shutdownExitCode != 0:
-                sys.exit(shutdownExitCode)
-
-        # Handle keyboard interrupt midway through graceful shutdown
-        except KeyboardInterrupt:
-
-            __programsExecutor.shutdown(False)
-            __mainLogger.warning(
-                'Graceful shutdown aborted.'
-            )
-            __mainLogger.info('Bot shut down')
-            
-            # Process killers (only way to effectively stop all threads)
-
-            # Windows kill command
-            if (
-                    sys.platform.startswith('win32') or
-                    sys.platform.startswith('cygwin')
-            ):
-                os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
-
-            # Linux kill command
-            os.kill(os.getpid(), signal.SIGKILL)
-
-    else:
-        __programsExecutor.shutdown(False)
-        __mainLogger.info('Bot shut down')
-        
-        # Windows kill command
-        if (
-                sys.platform.startswith('win32') or
-                sys.platform.startswith('cygwin')
-        ):
-            os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
-
-        # Linux kill command
-        os.kill(os.getpid(), signal.SIGKILL)
-
-    
-# Check if bot is shutdown
-def isBotShutDown():
-    return __programsExecutor and __programsExecutor.isShutDown()
-
-
 # -------------------------------------------------------------------------------
 
 
@@ -648,4 +772,3 @@ if __name__ == "__main__":
         # Shut bot down if not already
         if not isBotShutDown():
             shutDownBot()
-
