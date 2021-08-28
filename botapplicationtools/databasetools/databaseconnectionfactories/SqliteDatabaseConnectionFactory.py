@@ -3,23 +3,25 @@
 """
 Connection factory for Bot Application's sqlite database
 """
-import logging
+
 import sqlite3
 
 from os.path import isfile
 
+from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError import DatabaseNotFoundError
+from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
+    DatabaseConnectionFactory
 
-class SqliteDatabaseConnectionFactory:
+
+class SqliteDatabaseConnectionFactory(DatabaseConnectionFactory):
 
     __databaseString = None
 
     def __init__(self, databaseString):
 
-        logging.getLogger()
-
         # Raise exception if database file is not found
         if not isfile(databaseString):
-            raise FileNotFoundError(
+            raise DatabaseNotFoundError(
                 "Database '{}' does not exist".format(databaseString)
             )
 
@@ -28,5 +30,3 @@ class SqliteDatabaseConnectionFactory:
     def getConnection(self):
         return sqlite3.connect(self.__databaseString, check_same_thread=False)
 
-    def __getConnection(databaseString):
-        return sqlite3.connect(databaseString)

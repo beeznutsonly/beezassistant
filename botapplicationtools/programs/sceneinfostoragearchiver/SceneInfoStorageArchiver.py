@@ -9,7 +9,7 @@ from botapplicationtools.programs.programtools.sceneinfotools import SceneInfoSu
 
 
 # Executing the scene info archiver program
-def executeSceneInfoArchiver(
+def execute(
     pushShiftAPI,
     subredditSearchParameters,
     sceneInfoSubmissionsWithSceneInfoStorage
@@ -23,7 +23,7 @@ def executeSceneInfoArchiver(
                     subredditSearchParameters.getFromTime()
                 ),
                 subredditSearchParameters.getExtractors()
-                    .getSceneInfoFlairID()
+                .getSceneInfoFlairID()
         )
 
     # Extract scene info from scene info submissions and generate
@@ -33,13 +33,13 @@ def executeSceneInfoArchiver(
                 freshSceneInfoSubmissions,
 
                 subredditSearchParameters.getExtractors()
-                    .getSceneInfoTextMatcher(),
+                .getSceneInfoTextMatcher(),
 
                 subredditSearchParameters.getExtractors()
-                    .getMovieNameExtractor(),
+                .getMovieNameExtractor(),
 
                 subredditSearchParameters.getExtractors()
-                    .getStarNamesExtractor()
+                .getStarNamesExtractor()
         )
 
     # Store the scene and submission info to storage
@@ -48,13 +48,13 @@ def executeSceneInfoArchiver(
             freshSubmissionsAndInfo,
 
             sceneInfoSubmissionsWithSceneInfoStorage
-                .getSceneInfoSubmissionDAO(),
+            .getSceneInfoSubmissionDAO(),
 
             sceneInfoSubmissionsWithSceneInfoStorage
-                .getSceneInfoDAO(),
+            .getSceneInfoDAO(),
 
             sceneInfoSubmissionsWithSceneInfoStorage
-                .getSceneInfoSubmissionWithSceneInfoDAO()
+            .getSceneInfoSubmissionWithSceneInfoDAO()
         )
 
 
@@ -72,12 +72,12 @@ def __retrieveSubmissions(pushShiftAPI, subredditName, fromTime):
     ))
 
     return list(filter(
-        lambda submission: not __is_removed(submission), submissions
+        lambda submission: not __isRemoved(submission), submissions
     ))
 
 
 # Checking if a submission is removed
-def __is_removed(submission):
+def __isRemoved(submission):
     try:
         author = str(submission.author.name)
     except:

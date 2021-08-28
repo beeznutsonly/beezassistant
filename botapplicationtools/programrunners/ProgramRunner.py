@@ -24,11 +24,11 @@ from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsW
     SceneInfoSubmissionsWithSceneInfoStorage
 from botapplicationtools.programs.sceneinfostoragearchiver.SubredditSearchParameters import \
     SubredditSearchParameters
-from botapplicationtools.programs.starsarchivewikipagewriter.StarsArchiveWikiPageWriter import \
-    StarsArchiveWikiPageWriter
+from botapplicationtools.programs.starsarchivewikipagewriter import StarsArchiveWikiPageWriter
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarView import IndividualStarView
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarViewDAO import \
     IndividualStarViewDAO
+import praw
 
 
 class ProgramRunner:
@@ -41,7 +41,7 @@ class ProgramRunner:
     __isProgramRunnerShutdown = None
     __programRunnerIO = None
     __redditInterface = None
-    __programRunnerLogger : logging.Logger
+    __programRunnerLogger: logging.Logger
 
     def __init__(self, programRunnerIO, redditInterface):
         self.__programRunnerLogger = logging.getLogger(
@@ -56,16 +56,13 @@ class ProgramRunner:
     __subredditSearchParameters = None
 
     # Stars Archive Wiki Page Writer variables
-    __starsArchiveWikiPageWriterSubredditName = None
     __wikiPage = None
     __defaultStarViews = None
 
     # Initialize the program runner
     def __initializeProgramRunner(self):
 
-        # Setting up logging apparatus
-
-        self.__programRunnerLogger.debug("Initializing the Program Runner")
+        self.__programRunnerLogger.debug("Initializing Program Runner")
 
         # Loading values from configuration file
         # -------------------------------------------------------------------------------
@@ -126,11 +123,6 @@ class ProgramRunner:
                 "Initializing Stars Archive Wiki Page Writer variables"
             )
 
-            # Can you believe my dumbass left this line out 
-            # of production code for close to a week??
-            self.__starsArchiveWikiPageWriterSubredditName = \
-                starsArchiveWikiPageWriterSubredditName
-
             # Initializing default starviews
             validStarViewList = []
             for defaultStarView in defaultStarViews:
@@ -168,7 +160,8 @@ class ProgramRunner:
                 "Initializing Scene Info Archiver variables"
             )
 
-            self.__sceneInfoArchiverRefreshInterval = sceneInfoArchiverRefreshInterval
+            self.__sceneInfoArchiverRefreshInterval = \
+                sceneInfoArchiverRefreshInterval
             self.__subredditSearchParameters = SubredditSearchParameters(
                 sceneInfoArchiverSubredditName,
                 fromTime,
@@ -228,7 +221,6 @@ class ProgramRunner:
         if self.__informIfShutdown():
             return
 
-        # Retrieving relevant I/O tools
         programRunnerLogger = self.__programRunnerLogger
 
         try:
@@ -274,7 +266,7 @@ class ProgramRunner:
                                 )
                             )
 
-                        SceneInfoStorageArchiver.executeSceneInfoArchiver(
+                        SceneInfoStorageArchiver.execute(
                             self.__redditInterface.getPushShiftAPI(),
                             self.__subredditSearchParameters,
                             sceneInfoSubmissionsWithSceneInfoStorage
@@ -296,11 +288,13 @@ class ProgramRunner:
                         .getConnection() \
                             as wikiWriterDatabaseConnection:
 
-                        starsArchiveWikiPageWriter = \
-                            self.__getNewStarsArchiveWikiPageWriter(
+                        starViewObjects = \
+                            self.__getStarViewObjects(
                                 wikiWriterDatabaseConnection
                             )
-                        starsArchiveWikiPageWriter.writeToWiki()
+                        StarsArchiveWikiPageWriter.execute(
+                            self.__wikiPage, starViewObjects
+                        )
 
                         # Task 2 completo
                         programRunnerLogger.debug(
@@ -355,32 +349,35 @@ class ProgramRunner:
                 .getConnection() \
                 as databaseConnection:
 
-            starsArchiveWikiPageWriter = \
-                self.__getNewStarsArchiveWikiPageWriter(
+            starViewObjects = \
+                self.__getStarViewObjects(
                     databaseConnection, self.__defaultStarViews
                 )
 
-            # Executing the program
-            programRunnerLogger.info(
-                'Stars Archive Wiki Page Writer is now running'
-            )
-            starsArchiveWikiPageWriter.writeToWiki()
-            programRunnerLogger.info(
-                'Stars Archive Wiki Page Writer completed'
-            )
+        # Executing the program
+        programRunnerLogger.info(
+            'Stars Archive Wiki Page Writer is now running'
+        )
+        StarsArchiveWikiPageWriter.execute(
+            self.__wikiPage, starViewObjects
+        )
+        programRunnerLogger.info(
+            'Stars Archive Wiki Page Writer completed'
+        )
 
     # (To be refactored soon; temporary program) Run posts manager
     def runPostsManager(self):
         try:
             postProcessExecutor = ThreadPoolExecutor()
-            vespoliPost = [
-                'https://redgifs.com/watch/majorpoliticalgrayreefshark',
-                'Scene from *Mr. Perfect from the Dating App* with **Dana Vespoli** and **Damon Dice**',
-                ['nsfw', 'lostinthemoment', 'missionarysex'],
+            post1 = [
+                'https://redgifs.com/watch/illfatedmilkyturtle',
+                'Clip from [Husband Gets Seconds And Cums Quick](https://www.pornhub.com/view_video.php?viewkey=ph5d0590feca9e6) '
+                'by [Jane Dro](https://www.pornhub.com/model/jane-dro)',
+                ['nsfw', 'forgottopullout', 'lostinthemoment'],
                 datetime(
                     2021,
                     8,
-                    20,
+                    28,
                     13,
                     0,
                     0
@@ -388,14 +385,14 @@ class ProgramRunner:
                     tzinfo=timezone.utc
                 )
             ]
-            alinaPost = [
-                'https://redgifs.com/watch/darlingfalseangelwingmussel',
-                'Scene from *Black Lingerie (II)* with **Alina Lopez** and **Bambino**',
-                ['nsfw', 'lostinthemoment', 'alinalopez'],
+            post2 = [
+                'https://redgifs.com/watch/aridcraftybufeo',
+                'Scene from *Lesbian Adventures: Strap-On Specialists 15* with **Lena Paul** and **Sinn Sage**',
+                ['nsfw', 'lesbians', 'lenapaul'],
                 datetime(
                     2021,
                     8,
-                    21,
+                    29,
                     13,
                     0,
                     0
@@ -403,14 +400,14 @@ class ProgramRunner:
                     tzinfo=timezone.utc
                 )
             ]
-            zaawaadiPost = [
-                'https://redgifs.com/watch/colorfulzestylamprey',
-                'Scene from *Big Ass Ebony Babe Interracial Sex* with **Zaawaadi** and **Angelo Godshack**',
-                ['nsfw', 'lostinthemoment'],
+            post3 = [
+                'https://redgifs.com/watch/ethicalstarkhoneycreeper',
+                'Scene from *Raw 33* with **Abella Danger** and **Manuel Ferrara**',
+                ['nsfw', 'abelladanger', 'lostinthemoment'],
                 datetime(
                     2021,
                     8,
-                    22,
+                    30,
                     13,
                     0,
                     0
@@ -418,15 +415,17 @@ class ProgramRunner:
                     tzinfo=timezone.utc
                 )
             ]
+            prawRedditInstance: praw.Reddit
             prawRedditInstance = self.__redditInterface.getPrawReddit()
             self.__programRunnerLogger.info('Posts Manager is now running')
-            for submission in prawRedditInstance.subreddit("romanticxxx").stream.submissions():
-                if submission.url == vespoliPost[0]:
-                    postProcessExecutor.submit(self.__processPost, submission, vespoliPost)
-                elif submission.url == alinaPost[0]:
-                    postProcessExecutor.submit(self.__processPost, submission, alinaPost)
-                elif submission.url == zaawaadiPost[0]:
-                    postProcessExecutor.submit(self.__processPost, submission, zaawaadiPost)
+            for submission in prawRedditInstance.subreddit("romanticxxx").stream.submissions(
+            ):
+                if submission.url == post1[0]:
+                    postProcessExecutor.submit(self.__processPost, submission, post1)
+                elif submission.url == post2[0]:
+                    postProcessExecutor.submit(self.__processPost, submission, post2)
+                elif submission.url == post3[0]:
+                    postProcessExecutor.submit(self.__processPost, submission, post3)
         except Exception as ex:
             self.__programRunnerLogger.critical('This is bad {}'.format(str(ex.args)), exc_info=True)
         finally:
@@ -435,19 +434,27 @@ class ProgramRunner:
     # (To be refactored soon) Process Posts Manager Post
     def __processPost(self, submission, postArgs):
         self.__programRunnerLogger.info('Processing: ' + str(submission.title))
-        if (datetime.now(tz=timezone.utc) <= (postArgs[3] + timedelta(
+        if (
+                datetime.now(tz=timezone.utc) <= (postArgs[3] + timedelta(
                             minutes=60
                         ))
         ):
+            submission.reply(postArgs[1])
+            submission.crosspost(
+                subreddit='porn',
+                title='[/r/romanticxxx] {}'.format(
+                    submission.title
+                )
+            )
             for subreddit in postArgs[2]:
+                time.sleep(600)
                 submission.crosspost(
                     subreddit=subreddit
                 )
-                time.sleep(600)
 
-    # Convenience method to return a new
-    # StarsArchiveWikiPageWriter
-    def __getNewStarsArchiveWikiPageWriter(
+    # Convenience method to return StarViewObjects
+    # from string arguments
+    def __getStarViewObjects(
             self,
             databaseConnection,
             starViews=None
@@ -456,20 +463,12 @@ class ProgramRunner:
         if starViews is None:
             starViews = self.__defaultStarViews
 
-        # Oh, just initializing the database connection
-        databaseConnection = self.__programRunnerIO \
-            .getDatabaseConnectionFactory() \
-            .getConnection() \
-            if databaseConnection is None \
-            else databaseConnection
-
         # Generating the default Starview objects
         starViewObjects = []
         for starView in ([] if starViews is None else starViews):
             if starView == 'individual':
                 starViewObjects.append(
                     IndividualStarView(
-                        self.__starsArchiveWikiPageWriterSubredditName,
                         IndividualStarViewDAO(
                             databaseConnection
                         )
@@ -493,8 +492,8 @@ class ProgramRunner:
             )
 
             # (Be careful you naughty, naughty boy)
-            return self.__getNewStarsArchiveWikiPageWriter(
+            return self.__getStarViewObjects(
                 databaseConnection, self.__defaultStarViews
             )
 
-        return StarsArchiveWikiPageWriter(self.__wikiPage, starViewObjects)
+        return starViewObjects

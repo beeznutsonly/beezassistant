@@ -9,18 +9,15 @@ wiki "view" organized per individual star
 class IndividualStarView:
 
     __viewMarkdown = None
-    __subredditName = None
+    __individualStarViewDAO = None
 
-    def __init__(self, subredditName, individualStarViewDAO):
-        self.__subredditName = subredditName
-        self.__viewMarkdown = self.__generateViewMarkdown(
-            subredditName, individualStarViewDAO
-        )
+    def __init__(self, individualStarViewDAO):
+        self.__individualStarViewDAO = individualStarViewDAO
 
     # Utility method for generating the markdown
     # for the view from provided data
     @classmethod
-    def __generateViewMarkdown(cls, subredditName, individualStarViewDAO):
+    def __generateViewMarkdown(cls, individualStarViewDAO):
         starViewRecords = individualStarViewDAO.getIndividualStarViewRecords()
         pageData = ''
 
@@ -35,7 +32,7 @@ class IndividualStarView:
             )
             pageData += (
                 '- [' + starViewRecords[0].getTitle() + ']' + 
-                '(https://www.reddit.com/r/{}/comments/'.format(subredditName) +
+                '(https://www.reddit.com/comments/' +
                 starViewRecords[0].getSubmissionId() + ')\n'
             )
             
@@ -61,18 +58,22 @@ class IndividualStarView:
 
                 pageData += (
                     '- [' + starViewRecords[index].getTitle() + ']' +
-                    '(https://www.reddit.com/r/{}/comments/'.format(subredditName) +
+                    '(https://www.reddit.com/comments/' +
                     starViewRecords[index].getSubmissionId() + ')\n'
                 )
 
         return pageData
 
-    # Update the view's markdown from the data provided
-    def updateViewMarkdown(self, individualStarViewDAO):
+    # Update the view's markdown
+    def updateViewMarkdown(self):
         self.__viewMarkdown = self.__generateViewMarkdown(
-            self.__subredditName, individualStarViewDAO
+            self.__individualStarViewDAO
         )
 
     # Retrieve the view's markdown
     def getViewMarkdown(self):
+        if self.__viewMarkdown is None:
+            self.__viewMarkdown = self.__generateViewMarkdown(
+                self.__individualStarViewDAO
+            )
         return self.__viewMarkdown
