@@ -1,3 +1,11 @@
+import logging
+import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone, timedelta
+
+from botapplicationtools.programrunners.GenericProgramRunner import GenericProgramRunner
+
+
 class PostsManagerRunner(GenericProgramRunner):
 
     __programRunnerLogger = None
@@ -10,6 +18,7 @@ class PostsManagerRunner(GenericProgramRunner):
             redditInterface,
             configReader
     ):
+        super(PostsManagerRunner, self).__init__()
         self.__programRunnerLogger = logging.getLogger('postsManager')
         self.__databaseConnectionFactory = databaseConnectionFactory
         self.__prawReddit = redditInterface.getPrawReddit()
@@ -19,7 +28,8 @@ class PostsManagerRunner(GenericProgramRunner):
             postProcessExecutor = ThreadPoolExecutor()
             post1 = [
                 'https://redgifs.com/watch/illfatedmilkyturtle',
-                'Clip from [Husband Gets Seconds And Cums Quick](https://www.pornhub.com/view_video.php?viewkey=ph5d0590feca9e6) '
+                'Clip from [Husband Gets Seconds And Cums Quick]'
+                '(https://www.pornhub.com/view_video.php?viewkey=ph5d0590feca9e6) '
                 'by [Jane Dro](https://www.pornhub.com/model/jane-dro)',
                 ['nsfw', 'forgottopullout', 'lostinthemoment'],
                 datetime(
@@ -75,8 +85,6 @@ class PostsManagerRunner(GenericProgramRunner):
                     postProcessExecutor.submit(self.__processPost, submission, post3)
         except Exception as ex:
             self.__programRunnerLogger.critical('This is bad {}'.format(str(ex.args)), exc_info=True)
-        finally:
-            print('fin')
 
     # (To be refactored soon) Process Posts Manager Post
     def __processPost(self, submission, postArgs):

@@ -1,0 +1,4 @@
+{
+    // Automatically update the language server.
+	"python.autoUpdateLanguageServer": true,
+}

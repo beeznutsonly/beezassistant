@@ -17,7 +17,6 @@ def getStarViews(databaseConnection, starViewArguments):
             [] if starViewArguments is None else starViewArguments
     ):
         starViewObject = getStarView(databaseConnection, starViewArgument)
-        print(starViewObject)
         if starViewObject is not None:
             starViewObjects.append(starViewObject)
 

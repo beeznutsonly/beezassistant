@@ -5,6 +5,7 @@ __author__ = "u/beeznutsonly"
 
 import psycopg2
 
+from botapplicationtools.programrunners.PostsManagerRunner import PostsManagerRunner
 from botapplicationtools.programrunners.SceneInfoArchiverRunner import SceneInfoArchiverRunner
 from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import StarsArchiveWikiPageWriterRunner
 from botapplicationtools.programrunners.exceptions.ProgramRunnerInitializationError import \

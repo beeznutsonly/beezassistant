@@ -209,8 +209,6 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
                                     starViewObjects
                                 )
 
-                            print(starViewObjects)
-
                             SceneInfoArchiver.execute(
                                 sceneInfoStorageArchiverTools,
                                 starsArchiveWikiPageWriterTools,
