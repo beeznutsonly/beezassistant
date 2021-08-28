@@ -1,3 +1,4 @@
 praw
-psaw
 prawcore
+psaw
+psycopg2
