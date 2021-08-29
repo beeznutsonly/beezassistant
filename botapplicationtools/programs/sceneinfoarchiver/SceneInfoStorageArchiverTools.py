@@ -1,11 +1,19 @@
+# -*- coding: utf-8 -*
+
 from psaw import PushshiftAPI
 
-from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsWithSceneInfoStorage import \
+from botapplicationtools.programs.sceneinfostoragearchiver \
+    .SceneInfoSubmissionsWithSceneInfoStorage import \
     SceneInfoSubmissionsWithSceneInfoStorage
-from botapplicationtools.programs.sceneinfostoragearchiver.SubredditSearchParameters import SubredditSearchParameters
+from botapplicationtools.programs.sceneinfostoragearchiver \
+    .SubredditSearchParameters import SubredditSearchParameters
 
 
 class SceneInfoStorageArchiverTools:
+    """
+    Class holding tools required by the scene info storage
+    archiver program
+    """
 
     __pushShiftAPI: PushshiftAPI
     __subredditSearchParameters: SubredditSearchParameters
@@ -24,11 +32,14 @@ class SceneInfoStorageArchiverTools:
         self.__sceneInfoSubmissionsWithSceneInfoStorage = \
             sceneInfoSubmissionsWithSceneInfoStorage
 
+    @property
     def getPushShiftAPI(self):
         return self.__pushShiftAPI
 
+    @property
     def getSubredditSearchParameters(self):
         return self.__subredditSearchParameters
 
+    @property
     def getSceneInfoSubmissionsWithSceneInfoStorage(self):
         return self.__sceneInfoSubmissionsWithSceneInfoStorage

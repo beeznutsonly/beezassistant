@@ -1,29 +1,30 @@
 # -*- coding: utf-8 -*
 
 """
-Module responsible for archiving scene info submissions
-and the relevant scene info to storage
+Program responsible for archiving scene info submissions
+and the relevant scene info to provided storage
 """
 
 from botapplicationtools.programs.programtools.sceneinfotools import SceneInfoSubmissionsUtility
 
 
-# Executing the scene info archiver program
 def execute(
     pushShiftAPI,
     subredditSearchParameters,
     sceneInfoSubmissionsWithSceneInfoStorage
 ):
+    """Execute the program"""
+
     # Retrieve all scene info submissions from a subreddit within given timeframe
     freshSceneInfoSubmissions = SceneInfoSubmissionsUtility \
         .retrieveSceneInfoSubmissions(
                 __retrieveSubmissions(
                     pushShiftAPI,
-                    subredditSearchParameters.getSubredditName(),
-                    subredditSearchParameters.getFromTime()
+                    subredditSearchParameters.getSubredditName,
+                    subredditSearchParameters.getFromTime
                 ),
-                subredditSearchParameters.getExtractors()
-                .getSceneInfoFlairID()
+                subredditSearchParameters.getExtractors
+                .getSceneInfoFlairID
         )
 
     # Extract scene info from scene info submissions and generate
@@ -32,14 +33,14 @@ def execute(
         .retrieveSceneInfoSubmissionsWithSceneInfo(
                 freshSceneInfoSubmissions,
 
-                subredditSearchParameters.getExtractors()
-                .getSceneInfoTextMatcher(),
+                subredditSearchParameters.getExtractors
+                .getSceneInfoTextMatcher,
 
-                subredditSearchParameters.getExtractors()
-                .getMovieNameExtractor(),
+                subredditSearchParameters.getExtractors
+                .getMovieNameExtractor,
 
-                subredditSearchParameters.getExtractors()
-                .getStarNamesExtractor()
+                subredditSearchParameters.getExtractors
+                .getStarNamesExtractor
         )
 
     # Store the scene and submission info to storage
@@ -48,22 +49,25 @@ def execute(
             freshSubmissionsAndInfo,
 
             sceneInfoSubmissionsWithSceneInfoStorage
-            .getSceneInfoSubmissionDAO(),
+            .getSceneInfoSubmissionDAO,
 
             sceneInfoSubmissionsWithSceneInfoStorage
-            .getSceneInfoDAO(),
+            .getSceneInfoDAO,
 
             sceneInfoSubmissionsWithSceneInfoStorage
-            .getSceneInfoSubmissionWithSceneInfoDAO()
+            .getSceneInfoSubmissionWithSceneInfoDAO
         )
 
 
 # Private utility methods
 # -------------------------------------------------------------------------------------
 
-# Retrieving all submissions from a given subreddit
-# after the provided time
+
 def __retrieveSubmissions(pushShiftAPI, subredditName, fromTime):
+    """
+    Retrieving all submissions from a given subreddit
+    after the provided time
+    """
 
     submissions = list(pushShiftAPI.search_submissions(
         subreddit=subredditName,
@@ -76,11 +80,12 @@ def __retrieveSubmissions(pushShiftAPI, subredditName, fromTime):
     ))
 
 
-# Checking if a submission is removed
 def __isRemoved(submission):
+    """Checking if a submission is removed"""
+
     try:
         author = str(submission.author.name)
-    except:
+    except Exception:
         author = '[Deleted]'
     if not (submission.banned_by is None) or author == '[Deleted]':
         return True

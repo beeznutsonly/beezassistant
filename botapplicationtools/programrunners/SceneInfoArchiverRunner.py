@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
+
 import json
-import logging
 import re
 import time
 from datetime import datetime, timedelta
@@ -27,8 +28,8 @@ from botapplicationtools.programs.starsarchivewikipagewriter import StarViewFact
 
 
 class SceneInfoArchiverRunner(GenericProgramRunner):
+    """Class responsible for running the SceneInfoArchiver program"""
 
-    __sceneInfoArchiverLogger: logging.Logger
     __databaseConnectionFactory: DatabaseConnectionFactory
     __refreshInterval: int
 
@@ -47,17 +48,18 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
             configReader
     ):
         super(SceneInfoArchiverRunner, self).__init__()
-        self.__sceneInfoArchiverLogger = logging.getLogger(
-            'sceneInfoArchiverLogger'
-        )
         self.__databaseConnectionFactory = databaseConnectionFactory
         self.__initializeSceneInfoArchiverRunner(redditInterface, configReader)
 
     def __initializeSceneInfoArchiverRunner(
             self, redditInterface, configReader
     ):
+        """Initializing the scene info archiver"""
 
-        # Scene Info Archiver
+        # Retrieving values from config file
+        # -------------------------------------------------------------------------------
+
+        # Scene Info Storage Archiver values
 
         section = 'SceneInfoArchiver'
         refreshInterval = configReader.getint(
@@ -82,7 +84,7 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
             section, 'starsMatcherString'
         )))
 
-        # Stars Archive Wiki Page Writer
+        # Stars Archive Wiki Page Writer values
 
         section = 'StarsArchiveWikiPageWriter'
         starsArchiveWikiPageWriterSubredditName = configReader.get(
@@ -95,45 +97,16 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
             section, 'defaultStarViews'
         ))
 
-        # Initializing default starviews
-        validStarViewList = []
-        for defaultStarView in defaultStarViews:
-            if defaultStarView == 'individual':
-                validStarViewList.append(
-                    defaultStarView
-                )
+        # Instance variable initialization
+        # -------------------------------------------------------------------------------
 
-            # If provided default star view is invalid
-            else:
-                self.__sceneInfoArchiverLogger.warning(
-                    "'{}' is an invalid Star view and shall"
-                    " be removed from the list of provided"
-                    " default starviews".format(defaultStarView)
-                )
-
-        # Use default Starviews if list of provided starviews is empty
-        if len(validStarViewList) == 0:
-            validStarViewList.extend(['individual'])
-            self.__sceneInfoArchiverLogger.warning(
-                "No initial StarViews were loaded so the following "
-                "default StarViews shall be used for the "
-                "Stars Archive Wiki Page Writer: {}".format(
-                    str(validStarViewList)
-                )
-            )
-        self.__defaultStarViews = validStarViewList
-
-        self.__wikiPage = redditInterface.getPrawReddit() \
-            .subreddit(starsArchiveWikiPageWriterSubredditName) \
-            .wiki[wikiName]
-
-        # Scene Info Archiver
-        self.__sceneInfoArchiverLogger.debug(
-            "Initializing Scene Info Archiver variables"
+        # For Scene Info Storage Archiver
+        self._programRunnerLogger.debug(
+            "Initializing Scene Info Storage Archiver variables"
         )
 
         self.__refreshInterval = refreshInterval
-        self.__pushShiftAPI = redditInterface.getPushShiftAPI()
+        self.__pushShiftAPI = redditInterface.getPushShiftAPI
         self.__subredditSearchParameters = SubredditSearchParameters(
             subredditName,
             fromTime,
@@ -145,13 +118,47 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
             )
         )
 
+        # For Stars Archive Wiki Page Writer
+        self._programRunnerLogger.debug(
+            "Initializing Stars Archive Wiki Page Writer variables"
+        )
+
+        self.__wikiPage = redditInterface.getPrawReddit \
+            .subreddit(starsArchiveWikiPageWriterSubredditName) \
+            .wiki[wikiName]
+        # Setting up default StarViews
+        validStarViewList = []
+        for defaultStarView in defaultStarViews:
+            if defaultStarView == 'individual':
+                validStarViewList.append(
+                    defaultStarView
+                )
+            # If provided default star view is invalid
+            else:
+                self._programRunnerLogger.warning(
+                    "'{}' is an invalid Star view and shall"
+                    " be removed from the list of provided"
+                    " default starviews".format(defaultStarView)
+                )
+        # Use default StarViews if list of provided StarViews is empty
+        if len(validStarViewList) == 0:
+            validStarViewList.extend(['individual'])
+            self._programRunnerLogger.warning(
+                "No initial StarViews were loaded so the following "
+                "default StarViews shall be used for the "
+                "Stars Archive Wiki Page Writer: {}".format(
+                    str(validStarViewList)
+                )
+            )
+        self.__defaultStarViews = validStarViewList
+
     def run(self):
 
         # First confirm that the program runner is not shutdown
-        if self.__informIfShutdown():
+        if self._informIfShutDown():
             return
 
-        programRunnerLogger = self.__sceneInfoArchiverLogger
+        programRunnerLogger = self._programRunnerLogger
 
         try:
 
@@ -244,6 +251,3 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
                 "A terminal error occurred while running the Scene "
                 "Info Archiver: " + str(er.args), exc_info=True
             )
-
-    def __informIfShutdown(self):
-        return self.isShutDown()

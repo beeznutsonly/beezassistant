@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-Class responsible for running StarsArchiveWikiPageWriter 
-program instances
-"""
 import json
-import logging
 from typing import List
 
 import praw.models
@@ -18,8 +13,11 @@ from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarView 
 
 
 class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
-
-    __starsArchiveWikiPageWriterRunnerLogger: logging.Logger
+    """
+    Class responsible for running StarsArchiveWikiPageWriter 
+    program instances
+    """
+    
     __databaseConnectionFactory: DatabaseConnectionFactory
 
     __wikiPage: praw.models.WikiPage
@@ -33,22 +31,20 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
             configReader
     ):
         super(StarsArchiveWikiPageWriterRunner, self).__init__()
-
-        self.__starsArchiveWikiPageWriterRunnerLogger = \
-            logging.getLogger("starsArchiveWikiPageWriterRunner")
         self.__databaseConnectionFactory = databaseConnectionFactory
         self.__initializeStarsArchiveWikiPageWriterRunner(
-            redditInterface.getPrawReddit(), configReader
+            redditInterface.getPrawReddit, configReader
         )
 
     def __initializeStarsArchiveWikiPageWriterRunner(
             self, prawReddit, configReader
     ):
+        """Initializing the Stars Archive Wiki Page Writer"""
 
-        # Loading values from configuration file
+        # Retrieving values from configuration file
         # -------------------------------------------------------------------------------
 
-        self.__starsArchiveWikiPageWriterRunnerLogger.debug(
+        self._programRunnerLogger.debug(
             "Retrieving Program Runner initial values from the config. reader"
         )
 
@@ -63,11 +59,17 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
             section, 'defaultStarViews'
         ))
 
-        self.__starsArchiveWikiPageWriterRunnerLogger.debug(
+        # Instance variable initialization
+        # -------------------------------------------------------------------------------
+
+        self._programRunnerLogger.debug(
             "Initializing Stars Archive Wiki Page Writer variables"
         )
 
-        # Initializing default starviews
+        self.__wikiPage = prawReddit \
+            .subreddit(starsArchiveWikiPageWriterSubredditName) \
+            .wiki[wikiName]
+        # Setting up default StarViews
         validStarViewList = []
         for defaultStarView in defaultStarViews:
             if defaultStarView == 'individual':
@@ -77,16 +79,16 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
 
             # If provided default star view is invalid
             else:
-                self.__starsArchiveWikiPageWriterRunnerLogger.warning(
+                self._programRunnerLogger.warning(
                     "'{}' is an invalid Star view and shall"
                     " be removed from the list of provided"
                     " default starviews".format(defaultStarView)
                 )
 
-        # Use default Starviews if list of provided starviews is empty
+        # Use default StarViews if list of provided StarViews is empty
         if len(validStarViewList) == 0:
             validStarViewList.extend(['individual'])
-            self.__starsArchiveWikiPageWriterRunnerLogger.warning(
+            self._programRunnerLogger.warning(
                 "No initial Star views were loaded so the following "
                 "default Star views shall be used for the "
                 "Stars Archive Wiki Page Writer: {}".format(
@@ -95,18 +97,14 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
             )
         self.__defaultStarViews = validStarViewList
 
-        self.__wikiPage = prawReddit \
-            .subreddit(starsArchiveWikiPageWriterSubredditName) \
-            .wiki[wikiName]
-
     def run(self):
 
         # First confirm that the program runner is not shutdown
-        if self.__informIfShutdown():
+        if self._informIfShutDown():
             return
 
         programRunnerLogger = \
-            self.__starsArchiveWikiPageWriterRunnerLogger
+            self._programRunnerLogger
 
         with self.__databaseConnectionFactory.getConnection() \
                 as databaseConnection:
@@ -125,6 +123,4 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
         programRunnerLogger.info(
             'Stars Archive Wiki Page Writer completed'
         )
-
-    def __informIfShutdown(self):
-        return self.isShutDown()
+        

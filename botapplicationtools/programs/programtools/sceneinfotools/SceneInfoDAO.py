@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*
 
-"""
-SceneInfo type's sqlite DAO
-"""
-
-import sqlite3
-
-
 class SceneInfoDAO:
+    """SceneInfo type's DAO"""
 
     __connection = None
     __cursor = None
@@ -16,8 +10,9 @@ class SceneInfoDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    # Inserting new scene info data into database
     def add(self, sceneInfo):
+        """Inserting new scene info data into database"""
+
         sqlString = (
             'INSERT INTO SceneInfo(Movie,Star1,Star2) ' +
             'VALUES (?,?,?) ON CONFLICT DO NOTHING'
@@ -25,41 +20,46 @@ class SceneInfoDAO:
         try:
             self.__cursor.execute(
                 sqlString, (
-                    sceneInfo.getMovieName(), 
-                    sceneInfo.getStars()[0], 
-                    sceneInfo.getStars()[1]
+                    sceneInfo.getMovieName,
+                    sceneInfo.getStars[0],
+                    sceneInfo.getStars[1]
                 )
             )
 
         # Handle database error
-        except sqlite3.DatabaseError(
+        except Exception(
                 "Failed to insert new scene info "
                 "into the database"
         ) as er:
             raise er
 
-    # Reset cursor for the DAO
     def refreshCursor(self):
+        """Reset cursor for the DAO"""
+
         self.closeCursor()
         self.__cursor = self.__connection.cursor()
 
-    # Commiting any changes to the database
     def saveChanges(self):
+        """Committing any changes to the database"""
+
         if self.__connection is not None:
             self.__connection.commit()
             self.refreshCursor()
 
-    # Closing the cursor
     def closeCursor(self):
+        """Closing the cursor"""
+
         if self.__cursor is not None:
             self.__cursor.close()
 
-    # Close the database connection
     def closeConnection(self):
+        """Close the database connection"""
+
         if self.__connection is not None:
             self.__connection.close()
 
-    # Closing the DAO
     def closeDAO(self):
+        """Closing the DAO"""
+
         self.closeCursor()
         self.closeConnection()

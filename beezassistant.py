@@ -1,21 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Main script from which the beezassistant bot is run"""
+
 __author__ = "u/beeznutsonly"
-
-import psycopg2
-
-from botapplicationtools.programrunners.PostsManagerRunner import PostsManagerRunner
-from botapplicationtools.programrunners.SceneInfoArchiverRunner import SceneInfoArchiverRunner
-from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import StarsArchiveWikiPageWriterRunner
-from botapplicationtools.programrunners.exceptions.ProgramRunnerInitializationError import \
-    ProgramRunnerInitializationError
-from botapplicationtools.programsexecutors.exceptions.ProgramsExecutorInitializationError import \
-    ProgramsExecutorInitializationError
-
-"""
-Main script from which the beezassistant bot is run
-"""
 
 import configparser
 import logging
@@ -25,27 +13,44 @@ import sqlite3
 import sys
 import time
 from logging.handlers import TimedRotatingFileHandler
+from typing import Dict
 
 import praw
+import psycopg2
 from praw.exceptions import ReadOnlyException
 from prawcore import ResponseException
 
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
 from botapplicationtools.botcredentials.BotCredentialsDAO import \
     BotCredentialsDAO
-from botapplicationtools.databasetools.databaseconnectionfactories.PgsqlDatabaseConnectionFactory import \
-    PgsqlDatabaseConnectionFactory
-from botapplicationtools.databasetools.databaseconnectionfactories.SqliteDatabaseConnectionFactory import \
-    SqliteDatabaseConnectionFactory
-from botapplicationtools.databasetools.databaseinitializers import DatabaseInitializer
-from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError import DatabaseNotFoundError
+from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
+    DatabaseConnectionFactory
+from botapplicationtools.databasetools.databaseconnectionfactories \
+    .PgsqlDatabaseConnectionFactory import PgsqlDatabaseConnectionFactory
+from botapplicationtools.databasetools.databaseconnectionfactories \
+    .SqliteDatabaseConnectionFactory import SqliteDatabaseConnectionFactory
+from botapplicationtools.databasetools.databaseinitializers \
+    import DatabaseInitializer
+from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError \
+    import DatabaseNotFoundError
 from botapplicationtools.exceptions.BotInitializationError import \
     BotInitializationError
-from botapplicationtools.programs.programtools.generaltools.RedditInterface import \
-    RedditInterface
-from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor import \
-    AsynchronousProgramsExecutor
-
+from botapplicationtools.programrunners.PostsManagerRunner import \
+    PostsManagerRunner
+from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
+from botapplicationtools.programrunners.SceneInfoArchiverRunner import \
+    SceneInfoArchiverRunner
+from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import \
+    StarsArchiveWikiPageWriterRunner
+from botapplicationtools.programrunners.exceptions \
+    .ProgramRunnerInitializationError import ProgramRunnerInitializationError
+from botapplicationtools.programs.programtools.generaltools.RedditInterface \
+    import RedditInterface
+from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
+    import AsynchronousProgramsExecutor
+from botapplicationtools.programsexecutors.ProgramsExecutor import ProgramsExecutor
+from botapplicationtools.programsexecutors.exceptions \
+    .ProgramsExecutorInitializationError import ProgramsExecutorInitializationError
 
 __RESOURCES_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -53,14 +58,15 @@ __RESOURCES_PATH = os.path.join(
 )
 __mainLogger: logging.Logger
 __defaultConsoleLoggingLevel: int
-__programsExecutor: AsynchronousProgramsExecutor
+__programsExecutor: ProgramsExecutor
 
 
 # Bot initialization commands
 # -------------------------------------------------------------------------------
 
-# Initialize the bot's logging apparatus
+
 def __initializeLogging(logFileName):
+    """Initialize the bot's logging apparatus"""
 
     global __mainLogger
     global __defaultConsoleLoggingLevel
@@ -112,8 +118,8 @@ def __initializeLogging(logFileName):
     __defaultConsoleLoggingLevel = consoleHandler.level
 
 
-# Retrieve the bot's config. file reader
-def __getInitialConfigReader(configFileName):
+def __getInitialConfigReader(configFileName) -> configparser.ConfigParser:
+    """Retrieve the bot's config. file reader"""
 
     configParser = configparser.ConfigParser()
     try:
@@ -131,6 +137,8 @@ def __getInitialConfigReader(configFileName):
 
 
 def ___initializeDatabase(connection):
+    """Convenience method to initialize the bot's database"""
+
     sqliteScriptPath = os.path.join(
         __RESOURCES_PATH, 'beezassistant.sql'
     )
@@ -139,10 +147,10 @@ def ___initializeDatabase(connection):
     )
 
 
-# Retrieve an initial postgresql database connection factory
 def ___getInitialPgsqlDatabaseConnectionFactory(
         user, password, databaseName
-):
+) -> PgsqlDatabaseConnectionFactory:
+    """Retrieve an initial postgresql database connection factory"""
 
     try:
 
@@ -164,10 +172,11 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
         ) as databaseCreationConnection:
 
             databaseCreationConnection.autocommit = True
-            with databaseCreationConnection.cursor() as cursor:
-                cursor.execute('create database {};'.format(
-                    databaseName
-                ))
+            cursor = databaseCreationConnection.cursor()
+            cursor.execute('create database {};'.format(
+                databaseName
+            ))
+            cursor.close()
 
         # Initializing the new database
         with psycopg2.connect(
@@ -186,8 +195,10 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
     return databaseConnectionFactory
 
 
-# Retrieve an initial sqlite database connection factory
-def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName):
+def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName)\
+        -> SqliteDatabaseConnectionFactory:
+    """Retrieve an initial sqlite database connection factory"""
+
     try:
 
         databaseConnectionFactory = SqliteDatabaseConnectionFactory(
@@ -214,9 +225,12 @@ def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName):
     return databaseConnectionFactory
 
 
-# Retrieve an initial database connection factory
-def __getInitialDatabaseConnectionFactory(database, configReader):
+def __getInitialDatabaseConnectionFactory(database, configReader)\
+        -> DatabaseConnectionFactory:
+    """Retrieve an initial database connection factory"""
+
     try:
+        # For SQLite database
         if database == 'sqlite':
             section = 'SqliteDatabase'
             databaseFilePath = configReader.get(
@@ -225,6 +239,8 @@ def __getInitialDatabaseConnectionFactory(database, configReader):
             return ___getInitialSqliteDatabaseConnectionFactory(
                 databaseFilePath
             )
+
+        # For PostgresSQL database
         elif database == 'pgsql':
             section = 'PgsqlDatabase'
             user = configReader.get(
@@ -239,14 +255,20 @@ def __getInitialDatabaseConnectionFactory(database, configReader):
             return ___getInitialPgsqlDatabaseConnectionFactory(
                 user, password, databaseName
             )
+
+        # Handle if database provided is not catered for
         else:
             raise BotInitializationError(
                 "The specified database, '{}', is not supported by the bot".format(
                     database
                 )
             )
+
+    # Propagate up a Bot Initialization Error
     except BotInitializationError as ex:
         raise ex
+
+    # Handle when an unexpected exception occurs
     except Exception as ex:
         raise BotInitializationError(
             "An error occurred while initializing the bot's "
@@ -255,8 +277,9 @@ def __getInitialDatabaseConnectionFactory(database, configReader):
         )
 
 
-# Retrieve initial bot credentials
-def __getInitialBotCredentials(databaseConnection):
+def __getInitialBotCredentials(databaseConnection)\
+        -> BotCredentials:
+    """Retrieve initial bot credentials"""
 
     # Checking for bot credentials in environment variables first
     envUserAgent = os.getenv("USER_AGENT")
@@ -289,6 +312,8 @@ def __getInitialBotCredentials(databaseConnection):
             botCredentialsDAO = BotCredentialsDAO(databaseConnection)
             botCredentials = botCredentialsDAO.getBotCredentials()
 
+        # Handle if there is a problem loading
+        # bot credentials from database
         except Exception as ex:
             raise BotInitializationError(
                 "Could not load initial bot credentials from "
@@ -298,18 +323,21 @@ def __getInitialBotCredentials(databaseConnection):
     return botCredentials
 
 
-# Convenience method to authenticate bot credentials
-def ___authenticated(redditInstance):
+def ___authenticated(redditInstance) -> bool:
+    """
+    Convenience method to authenticate bot credentials
+    provided to Reddit instance
+    """
+
     try:
-        if redditInstance.user.me() is None:
-            return False
+        return not (redditInstance.user.me() is None)
     except ResponseException or ReadOnlyException:
         return False
-    return True
 
 
-# Convenience method to retrieve bot credentials from user input
-def ___getNewBotCredentials():
+def ___getNewBotCredentials() -> BotCredentials:
+    """Convenience method to retrieve bot credentials from user input"""
+
     try:
         # Prompt for new valid credentials
         while True:
@@ -338,18 +366,19 @@ def ___getNewBotCredentials():
         raise ex
 
 
-# Initialize Reddit Interface
-def __getInitialRedditInterface(botCredentials, databaseConnection):
+def __getInitialRedditInterface(botCredentials, databaseConnection)\
+        -> RedditInterface:
+    """ Initialize Reddit Interface"""
 
     # Attempting to retrieve a valid Praw instance from
     # provided credentials
 
     prawReddit = praw.Reddit(
-        user_agent=botCredentials.getUserAgent(),
-        client_id=botCredentials.getClientId(),
-        client_secret=botCredentials.getClientSecret(),
-        username=botCredentials.getUsername(),
-        password=botCredentials.getPassword()
+        user_agent=botCredentials.getUserAgent,
+        client_id=botCredentials.getClientId,
+        client_secret=botCredentials.getClientSecret,
+        username=botCredentials.getUsername,
+        password=botCredentials.getPassword
     )
 
     __mainLogger.debug("Authenticating credentials ...")
@@ -375,7 +404,7 @@ def __getInitialRedditInterface(botCredentials, databaseConnection):
                 "aborted"
             )
 
-    # Saving the bot credentials to storage
+    # Saving the valid bot credentials to storage
     try:
         botCredentialsDAO = BotCredentialsDAO(
             databaseConnection
@@ -394,16 +423,15 @@ def __getInitialRedditInterface(botCredentials, databaseConnection):
     return redditInterface
 
 
-# Initialize Program Runner
-def __initializeProgramRunners(
+def __loadInitialProgramRunners(
         databaseConnectionFactory,
         redditInterface,
         configReader
-):
+) -> Dict[str, ProgramRunner]:
+    """Load initial Program Runners"""
 
     programRunners = {}
 
-    # Initializing the Program Runner
     try:
         programRunners['starsarchivewikipagewriter'] = \
             StarsArchiveWikiPageWriterRunner(
@@ -422,18 +450,19 @@ def __initializeProgramRunners(
             configReader
         )
 
-    # Handle if there is an error initializing the Program Runner
+    # Handle if there is an error initializing any of the Program Runners
     except ProgramRunnerInitializationError as ex:
         raise BotInitializationError(
             "An error occurred while initializing "
-            "the Program Runner.", ex
+            "the Program Runners.", ex
         )
 
     return programRunners
 
 
-# Initialize the Programs Executor
-def __initializeProgramsExecutor(programRunners, configReader):
+def __initializeProgramsExecutor(programRunners, configReader)\
+        -> ProgramsExecutor:
+    """Initialize the Programs Executor"""
 
     # Initializing the Programs Executor
     try:
@@ -446,14 +475,14 @@ def __initializeProgramsExecutor(programRunners, configReader):
     except ProgramsExecutorInitializationError as ex:
         raise BotInitializationError(
             "An error occurred while initializing "
-            "the Program Runner.", ex
+            "the Programs Executor.", ex
         )
 
     return programsExecutor
 
 
-# Initialize the bot
 def __initializeBot():
+    """Initialize the bot"""
 
     global __programsExecutor
 
@@ -506,7 +535,7 @@ def __initializeBot():
             )
 
         # Initializing the Program Runners
-        programRunners = __initializeProgramRunners(
+        programRunners = __loadInitialProgramRunners(
             databaseConnectionFactory,
             redditInterface,
             configReader
@@ -527,7 +556,7 @@ def __initializeBot():
             "will now exit. Error(s): " + str(er),
             exc_info=True
         )
-        sys.exit(2)  # May need future cleaning up
+        sys.exit(2)  # TODO: May need future cleaning up
 
     __mainLogger.info("Bot successfully initialized")
 
@@ -538,8 +567,8 @@ def __initializeBot():
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 
-# Pause console logging across entire application
 def __pauseConsoleLogging():
+    """Pause console logging across entire application"""
 
     for handler in logging.getLogger().handlers:
         if handler.name == "console":
@@ -551,8 +580,9 @@ def __pauseConsoleLogging():
     )
 
 
-# Resume console logging across entire application
 def __resumeConsoleLogging():
+    """Resume console logging across entire application"""
+
     for handler in logging.getLogger().handlers:
         if handler.name == "console":
             handler.setLevel(__defaultConsoleLoggingLevel)
@@ -563,8 +593,9 @@ def __resumeConsoleLogging():
     )
 
 
-# Start the bot command listener
 def __startCommandListener():
+    """Start the bot command listener"""
+
     try:
         while not isBotShutDown():
             # Pause console logging while bot is
@@ -584,9 +615,10 @@ def __startCommandListener():
         raise ex
 
 
-# Process a bot command
 def __processBotCommand(command):
-    # Blank command
+    """Process a bot command"""
+
+    # For blank command
     if command == '' or command == '\n':
         return
 
@@ -622,8 +654,23 @@ def __processBotCommand(command):
         )
 
 
-# Shut down the bot
+def __killBot():
+    """Forcefully shut down the bot"""
+
+    # Windows kill command
+    if (
+            sys.platform.startswith('win32') or
+            sys.platform.startswith('cygwin')
+    ):
+        os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
+
+    # Linux kill command
+    os.kill(os.getpid(), signal.SIGKILL)
+
+
 def shutDownBot(wait=True, shutdownExitCode=0):
+    """Shut down the bot"""
+
     if wait:
         __mainLogger.info(
             'Shutting down the bot. Please wait a bit wait while the '
@@ -640,7 +687,7 @@ def shutDownBot(wait=True, shutdownExitCode=0):
             )
         )
         try:
-            __programsExecutor.shutdown(True)
+            __programsExecutor.shutDown(True)
             __mainLogger.info('Bot successfully shut down')
             if shutdownExitCode != 0:
                 sys.exit(shutdownExitCode)
@@ -648,46 +695,30 @@ def shutDownBot(wait=True, shutdownExitCode=0):
         # Handle keyboard interrupt midway through graceful shutdown
         except KeyboardInterrupt:
 
-            __programsExecutor.shutdown(False)
+            __programsExecutor.shutDown(False)
             __mainLogger.warning(
                 'Graceful shutdown aborted.'
             )
             __mainLogger.info('Bot shut down')
 
-            # Process killers (only way to effectively stop all threads)
-
-            # Windows kill command
-            if (
-                    sys.platform.startswith('win32') or
-                    sys.platform.startswith('cygwin')
-            ):
-                os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
-
-            # Linux kill command
-            os.kill(os.getpid(), signal.SIGKILL)
+            # Killing the process (only way to effectively stop all threads)
+            __killBot()
 
     else:
-        __programsExecutor.shutdown(False)
+        __programsExecutor.shutDown(False)
         __mainLogger.info('Bot shut down')
 
-        # Windows kill command
-        if (
-                sys.platform.startswith('win32') or
-                sys.platform.startswith('cygwin')
-        ):
-            os.kill(os.getpid(), signal.CTRL_BREAK_EVENT)
-
-        # Linux kill command
-        os.kill(os.getpid(), signal.SIGKILL)
+        __killBot()
 
 
-# Check if bot is shutdown
 def isBotShutDown():
+    """Check if bot is shutdown"""
+
     return __programsExecutor and __programsExecutor.isShutDown()
 
 
-# Start up the bot
 def startBot(args=[]):
+    """Start up the bot"""
 
     # Initializing the bot
     __initializeBot()
@@ -762,7 +793,7 @@ if __name__ == "__main__":
         startBot()
     else:
         startBot(sys.argv)
-        
+
     try:
         # Wait for tasks to complete before shutdown
         while True:

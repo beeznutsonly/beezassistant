@@ -10,8 +10,11 @@ from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissio
     SceneInfoSubmissionWithSceneInfo
 
 
-# Retrieve scene info submissions from provided submissions
-def retrieveSceneInfoSubmissions(submissions, sceneInfoFlairID):
+def retrieveSceneInfoSubmissions(
+        submissions, sceneInfoFlairID
+):
+    """Retrieve scene info submissions from provided submissions"""
+
     sceneInfoSubmissions = []
     for submission in submissions:
         try:
@@ -22,12 +25,15 @@ def retrieveSceneInfoSubmissions(submissions, sceneInfoFlairID):
     return sceneInfoSubmissions
 
 
-# Retrieve SceneInfoSubmissionWithSceneInfo objects
-# from provided scene info submissions
 def retrieveSceneInfoSubmissionsWithSceneInfo(
     sceneInfoSubmissions, sceneInfoTextMatcher,
     movieNameExtractor, starNamesExtractor
 ):
+    """
+    Retrieve SceneInfoSubmissionWithSceneInfo objects
+    from provided scene info submissions
+    """
+
     sceneInfoSubmissionsWithSceneInfo = []
     for sceneInfoSubmission in sceneInfoSubmissions:
 
@@ -56,14 +62,16 @@ def retrieveSceneInfoSubmissionsWithSceneInfo(
     return sceneInfoSubmissionsWithSceneInfo
 
 
-# Save SceneInfoSubmissionsWithSceneInfo data to storage
-# through provided DAOs
 def saveSceneInfoSubmissionsWithSceneInfoToStorage(
         sceneInfoSubmissionsWithSceneInfo,
         sceneInfoSubmissionDAO,
         sceneInfoDAO,
         sceneInfoSubmissionWithSceneInfoDAO
 ):
+    """
+    Save SceneInfoSubmissionsWithSceneInfo data to storage
+    through provided DAOs
+    """
 
     # Saving submission-specific data
     for sceneInfoSubmissionWithSceneInfo in \
@@ -71,7 +79,7 @@ def saveSceneInfoSubmissionsWithSceneInfoToStorage(
 
         sceneInfoDAO.refreshCursor()
         sceneInfoSubmissionDAO.add(
-            sceneInfoSubmissionWithSceneInfo.getSceneInfoSubmission()
+            sceneInfoSubmissionWithSceneInfo.getSceneInfoSubmission
         )
     sceneInfoSubmissionDAO.saveChanges()
     sceneInfoSubmissionDAO.closeCursor()
@@ -82,7 +90,7 @@ def saveSceneInfoSubmissionsWithSceneInfoToStorage(
 
         sceneInfoDAO.refreshCursor()
         sceneInfoDAO.add(
-            sceneInfoSubmissionWithSceneInfo.getSceneInfo()
+            sceneInfoSubmissionWithSceneInfo.getSceneInfo
         )
     sceneInfoDAO.saveChanges()
     sceneInfoDAO.closeCursor()

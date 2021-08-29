@@ -1,27 +1,22 @@
 # -*- coding: utf-8 -*-
 
-"""
-BotCredentials' sqlite DAO
-"""
-
-import sqlite3
-
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
 
 
 class BotCredentialsDAO:
+    """BotCredentials' DAO"""
 
     __connection = None
 
     def __init__(self, connection):
         self.__connection = connection
 
-    # Save bot credentials to database
     def saveBotCredentials(
             self,
             botCredentials,
             connection=__connection
     ):
+        """Save bot credentials to database"""
 
         if connection is None:
             cursor = self.__connection.cursor()
@@ -44,21 +39,25 @@ class BotCredentialsDAO:
         try:
             cursor.execute(
                 sqlString, (
-                    botCredentials.getUserAgent(),
-                    botCredentials.getClientId(),
-                    botCredentials.getClientSecret(),
-                    botCredentials.getUsername(),
-                    botCredentials.getPassword()
+                    botCredentials.getUserAgent,
+                    botCredentials.getClientId,
+                    botCredentials.getClientSecret,
+                    botCredentials.getUsername,
+                    botCredentials.getPassword
                 )
             )
             self.__saveChanges()
 
         # Handle database error
-        except sqlite3.DatabaseError as er:
+        except Exception as er:
             raise er
+        finally:
+            cursor.close()
 
-    # Retrieving bot credentials from database
-    def getBotCredentials(self, connection=__connection):
+    def getBotCredentials(
+            self, connection=__connection
+    ) -> BotCredentials:
+        """Retrieving bot credentials from database"""
 
         sqlString = 'SELECT user_agent, client_id, client_secret,' \
                     ' username, password FROM BotCredentials'
@@ -84,26 +83,30 @@ class BotCredentialsDAO:
                     '', '', '', '', ''
                 )
 
-        # Handle of credential retrieval fails
-        except sqlite3.DatabaseError(
+        # Handle if credential retrieval fails
+        except Exception(
                 "Failed to load bot credentials "
                 "from database"
         ) as er:
             raise er
         finally:
             cursor.close()
+
         return botCredentials
 
-    # Commiting any changes to the database
     def __saveChanges(self):
+        """Committing any changes to the database"""
+
         if self.__connection is not None:
             self.__connection.commit()
 
-    # Closing the database connection
     def __closeConnection(self):
+        """Closing the database connection"""
+
         if self.__connection is not None:
             self.__connection.close()
 
-    # Close the DAO
     def closeDAO(self):
+        """Close the DAO"""
+
         self.__closeConnection()

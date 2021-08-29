@@ -1,49 +1,48 @@
 # -*- coding: utf-8 -*-
 
-"""
-Class responsible for asynchronously executing multiple programs
-"""
-
 import concurrent.futures
 import json
-import logging
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
+from typing import Dict, List
 
-from botapplicationtools.programsexecutors.exceptions.ProgramsExecutorInitializationError import \
+from botapplicationtools.programrunners.GenericProgramRunner \
+    import GenericProgramRunner
+from botapplicationtools.programsexecutors.ProgramsExecutor import \
+    ProgramsExecutor
+from botapplicationtools.programsexecutors.exceptions \
+    .ProgramsExecutorInitializationError import \
     ProgramsExecutorInitializationError
 
 
-class AsynchronousProgramsExecutor:
+class AsynchronousProgramsExecutor(ProgramsExecutor):
+    """
+    Class responsible for asynchronously executing
+    multiple programs in different threads
+    """
 
-    __isProgramsExecutorShutDown = None
-
-    __programsExecutorLogger: logging.Logger
-    __executor = None
-    __programRunners: dict
-    __programs = None
+    __executor: ThreadPoolExecutor
+    __programRunners: Dict[str, GenericProgramRunner]
+    __executedPrograms: Dict[str, Future]
 
     def __init__(
             self,
             programRunners,
             configReader,
-            executor=ThreadPoolExecutor(),
-            programs={}
+            executor=ThreadPoolExecutor()
     ):
-        self.__programsExecutorLogger = \
-            logging.getLogger("programsExecutor")
+        super().__init__()
         self.__executor = executor
         self.__programRunners = programRunners
-        self.__programs = programs
         self.__initializeProgramsExecutor(configReader)
 
-    # Initialize the programs executor
-    def __initializeProgramsExecutor(self, configReader):        
+    def __initializeProgramsExecutor(self, configReader):
+        """Initialize the programs executor"""
 
-        self.__programsExecutorLogger.debug('Initializing Programs Executor')
+        self._programsExecutorLogger.debug('Initializing Programs Executor')
 
         try: 
             # Retrieving initial program commands
-            self.__programsExecutorLogger.debug(
+            self._programsExecutorLogger.debug(
                 "Retrieving initial program commands"
             )
             initialProgramCommands = self.__getInitialProgramCommands(
@@ -51,26 +50,28 @@ class AsynchronousProgramsExecutor:
             )
 
             # Executing initial program commands 
-            self.__programsExecutorLogger.debug(
+            self._programsExecutorLogger.debug(
                 "Executing initial program commands"
             )
             self.executePrograms(initialProgramCommands)
         
         # Handle in case the programs executor fails to initialize
         except ProgramsExecutorInitializationError as ex:
-            self.__programsExecutorLogger.critical(
+            self._programsExecutorLogger.critical(
                 "A terminal error occurred while initializing the Programs "
                 "Executor. Error(s): " + str(ex)
             )
             raise ex
 
         self.__isProgramsExecutorShutDown = False
-        self.__programsExecutorLogger.info(
+        self._programsExecutorLogger.info(
             "Programs Executor initialized"
         )
 
-    # Retrieve initial program commands
-    def __getInitialProgramCommands(self, configReader):
+    @staticmethod
+    def __getInitialProgramCommands(configReader) \
+            -> List[str]:
+        """Retrieve initial program commands"""
 
         try:
             # Initial program commands
@@ -88,31 +89,30 @@ class AsynchronousProgramsExecutor:
 
         return initialProgramCommands
 
-    # Execute a single program
     def executeProgram(self, programCommand):
 
         # Confirm if shut down first
-        if self.__informIfShutdown():
+        if self._informIfShutDown():
             return
 
         # Checking if there are duplicate running programs
-        if programCommand in self.__programs.keys():
-            if not self.__programs[programCommand].done():
-                self.__programsExecutorLogger.warning(
+        if programCommand in self.__executedPrograms.keys():
+            if not self.__executedPrograms[programCommand].done():
+                self._programsExecutorLogger.warning(
                     "Did not run the '{}' program command "
                     "because an identical command is"
                     " still running".format(programCommand)
                 )
                 return
 
-        # Generating an asynchronous task for the program
+        # Generating an asynchronous worker thread for the program
         try:
             task = self.__executor.submit(
                 self.__processProgram,
                 programCommand
             )
         except RuntimeError:
-            self.__programsExecutorLogger.error(
+            self._programsExecutorLogger.error(
                 "Failed to execute '{}' because the executor is "
                 "shutting down or is shut down".format(programCommand)
             )
@@ -125,11 +125,11 @@ class AsynchronousProgramsExecutor:
         # Add to running programs if task was started successfully
         except concurrent.futures.TimeoutError:
 
-            self.__programs[programCommand] = task
+            self.__executedPrograms[programCommand] = task
 
         # Handle if provided program could not be parsed
         except ValueError as ex:
-            self.__programsExecutorLogger.error(
+            self._programsExecutorLogger.error(
                 "Did not run the '{}' program command "
                 "because there was an error parsing the "
                 "program command. Error(s): {}".format(
@@ -137,18 +137,18 @@ class AsynchronousProgramsExecutor:
                 )
             )
 
-    # Execute multiple programs
     def executePrograms(self, programs):
+        """Execute multiple programs"""
 
         # Confirm if shut down first
-        if self.__informIfShutdown():
+        if self._informIfShutDown():
             return
 
         for program in programs:
             self.executeProgram(program)
 
-    # Synthesize the provided program
     def __processProgram(self, programCommand):
+        """Synthesize the provided program"""
 
         programCommandBreakdown = programCommand.split()
         program = programCommandBreakdown[0]
@@ -156,7 +156,7 @@ class AsynchronousProgramsExecutor:
         try:
 
             if program in self.__programRunners.keys():
-                self.__programsExecutorLogger.info(
+                self._programsExecutorLogger.info(
                     "Running program '{}'".format(program)
                 )
                 self.__programRunners[program].run()
@@ -167,67 +167,36 @@ class AsynchronousProgramsExecutor:
                     "Program '{}' is not recognized".format(program)
                 )
 
-            # # Scene Info Archiver program
-            # if program == 'sceneinfoarchiver':
-            #     self.__programsExecutorLogger.info(
-            #         "Running program '{}'".format(program)
-            #     )
-            #     self.__programRunner.runSceneInfoArchiver()
-            #
-            # # Stars Archive Wiki Page Writer program
-            # elif program == 'starsarchivewikipagewriter':
-            #     self.__programsExecutorLogger.info(
-            #         "Running program '{}'".format(program)
-            #     )
-            #     self.__programRunner.runStarsArchiveWikiPageWriter()
-            #
-            # # (To be refactored) Temporary hack
-            # elif program == 'postsmanager':
-            #     self.__programRunner.runPostsManager()
-            #
-            # # Raise error if provided program does not exist
-            # else:
-            #     raise ValueError(
-            #         "Program '{}' is not recognized".format(program)
-            #     )
-        
-        # Handle if unexpected exception crashes a program
+        # Handle if provided program not found
         except ValueError as ex:
             raise ex
+
+        # Handle if unexpected exception crashes a program
         except Exception as ex:
-            self.__programsExecutorLogger.error(
+            self._programsExecutorLogger.error(
                 "An unexpected error just caused the '{}' "
                 "program to crash. Error: {}".format(
                     program, str(ex.args)
                 ), exc_info=True
             )
 
-    # Get the asynchronous program statuses
     def getProgramStatuses(self):
+        """Get the executed program statuses"""
+
         programStatuses = \
             {
                 program: ("RUNNING" if not task.done() else "DONE")
-                for (program, task) in self.__programs.items()
+                for (program, task) in self.__executedPrograms.items()
             }
         return programStatuses
 
-    def __informIfShutdown(self):
-        if self.__isProgramsExecutorShutDown:
-            self.__programsExecutorLogger.warning(
-                "The programs executor cannot execute any more programs "
-                "after it has been shut down"
-            )
+    def shutDown(self, wait):
+        """Shut down the programs executor"""
 
-    # Shut down the programs executor
-    def shutdown(self, wait):
-        self.__isProgramsExecutorShutDown = True
+        super().shutDown()
         for programRunner in self.__programRunners.values():
             programRunner.shutDown()
         self.__executor.shutdown(wait)
-        self.__programsExecutorLogger.info(
+        self._programsExecutorLogger.info(
             "Programs executor successfully shut down"
         )
-
-    # Check if Programs Executor is shut down
-    def isShutDown(self):
-        return self.__isProgramsExecutorShutDown 

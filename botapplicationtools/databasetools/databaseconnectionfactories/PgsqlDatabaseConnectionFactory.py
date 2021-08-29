@@ -1,12 +1,18 @@
+# -*- coding: utf-8 -*
+
 import psycopg2
 from psycopg2 import pool
 
-from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
-    DatabaseConnectionFactory
-from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError import DatabaseNotFoundError
+from botapplicationtools.databasetools.databaseconnectionfactories \
+    .DatabaseConnectionFactory import DatabaseConnectionFactory
+from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError \
+    import DatabaseNotFoundError
 
 
 class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
+    """
+    Connection Factory for the bot application's PostgresSQL database
+    """
 
     __connectionPool: pool.ThreadedConnectionPool
 
@@ -30,8 +36,12 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
     def getConnection(self):
         return self.__connectionPool.getconn()
 
-    @classmethod
-    def __databaseExists(cls, databaseName):
+    @staticmethod
+    def __databaseExists(databaseName):
+        """
+        Convenience method to check the existence
+        of the given database
+        """
 
         if databaseName is None or databaseName == '':
             return False
@@ -44,8 +54,11 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         ) as connection:
 
             connection.autocommit = True
-            with connection.cursor() as cursor:
+            try:
+                cursor = connection.cursor()
                 cursor.execute("SELECT datname FROM pg_database;")
                 databaseList = cursor.fetchall()
 
                 return databaseName in databaseList
+            finally:
+                cursor.close()

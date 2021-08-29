@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*
 
-"""
-SceneInfoSubmissionWithSceneInfo type's sqlite DAO
-"""
-
-import sqlite3
-
-
 class SceneInfoSubmissionWithSceneInfoDAO:
+    """
+    SceneInfoSubmissionWithSceneInfo type's DAO
+    """
 
     __connection = None
     __cursor = None
@@ -16,9 +12,12 @@ class SceneInfoSubmissionWithSceneInfoDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    # Inserting new submission and scene info data
-    # to the database
     def add(self, sceneInfoSubmissionWithSceneInfo):
+        """
+        Inserting new submission and scene info data
+        to the database
+        """
+
         sqlString = '''
                     INSERT INTO SubmissionsAndInfo(submission_id,Movie,Star1,Star2)
                     VALUES (?,?,?,?) ON CONFLICT(submission_id) DO
@@ -30,46 +29,51 @@ class SceneInfoSubmissionWithSceneInfoDAO:
                 sqlString,
                 (
                      sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfoSubmission().id,
+                         .getSceneInfoSubmission.id,
 
                      sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfo().getMovieName(),
+                         .getSceneInfo.getMovieName,
 
                      sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfo().getStars()[0],
+                         .getSceneInfo.getStars[0],
 
                      sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfo().getStars()[1]
+                         .getSceneInfo.getStars[1]
                 )
             )
-        except sqlite3.DatabaseError(
+        except Exception(
                 "Failed to insert new submission and "
                 "scene info data into the database"
         ) as er:
             raise er
 
-    # Reset cursor for the DAO
     def refreshCursor(self):
+        """Reset cursor for the DAO"""
+
         self.closeCursor()
         self.__cursor = self.__connection.cursor()
 
-    # Commiting any changes to the database
     def saveChanges(self):
+        """Committing any changes to the database"""
+
         if self.__connection is not None:
             self.__connection.commit()
             self.refreshCursor()
 
-    # Close cursor
     def closeCursor(self):
+        """Close cursor"""
+
         if self.__cursor is not None:
             self.__cursor.close()
 
-    # Close connection to database
     def closeConnection(self):
+        """Close connection to database"""
+
         if self.__connection is not None:
             self.__connection.close()
 
-    # Closing the DAO
     def closeDAO(self):
+        """Closing the DAO"""
+
         self.closeCursor()
         self.closeConnection()

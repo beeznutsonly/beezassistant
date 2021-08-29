@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Module responsible for initializing the application's sqlite databases
+Module responsible for initializing the application's database
 """
 
 
-# Initialize the database
 def initializeDatabase(connection, sqlScriptFileName):
+    """Initialize the database"""
 
     cursor = connection.cursor()
     # Reading and executing the sql script file

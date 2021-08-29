@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*
 
-"""
-Connection factory for Bot Application's sqlite database
-"""
-
 import sqlite3
 
 from os.path import isfile
@@ -14,8 +10,11 @@ from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConne
 
 
 class SqliteDatabaseConnectionFactory(DatabaseConnectionFactory):
+    """
+    Connection factory for Bot Application's sqlite database
+    """
 
-    __databaseString = None
+    __databaseString: str
 
     def __init__(self, databaseString):
 

@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*
 
-"""
-Class holding a submission's scene info
-"""
+from typing import List
 
 
 class SceneInfo:
-    
-    __movieName = None
-    __stars = None
+    """
+    Class holding a submission's scene info
+    """
+
+    __movieName: str
+    __stars: List[str]
 
     def __init__(self, movieName, *stars):
         self.__movieName = movieName
         self.__stars = list(stars)
 
+    @property
     def getMovieName(self):
+        """Retrieve the movie name"""
+
         return str(self.__movieName)
 
+    @property
     def getStars(self):
+        """Retrieve the list of stars from the scene"""
+
         return list(self.__stars)

@@ -1,8 +1,13 @@
+# -*- coding: utf-8 -*
+
 from abc import ABC, abstractmethod
 
 
 class DatabaseConnectionFactory(ABC):
+    """Factory class for database connections"""
 
     @abstractmethod
     def getConnection(self):
-        pass
+        """Retrieve a database connection"""
+
+        raise NotImplementedError

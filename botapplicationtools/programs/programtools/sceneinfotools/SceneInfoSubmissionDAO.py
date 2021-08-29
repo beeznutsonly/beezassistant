@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*
 
-"""
-Class representing a SceneInfoSubmission
-(currently just wrapper for a PRAW Submission)
-type's sqlite DAO
-"""
-
-import sqlite3
-
-
 class SceneInfoSubmissionDAO:
+    """
+    Class representing a SceneInfoSubmission
+    (currently just wrapper for a PRAW Submission)
+    type's DAO
+    """
 
     __connection = None
     __cursor = None
@@ -18,8 +14,9 @@ class SceneInfoSubmissionDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    # Inserting new submission data to the database
     def add(self, sceneInfoSubmission):
+        """Inserting new submission data to the database"""
+
         sqlString = '''
                     INSERT OR IGNORE INTO PostInfo (id,Title,TimeCreated)
                     VALUES (?,?,?)
@@ -35,33 +32,38 @@ class SceneInfoSubmissionDAO:
             )
 
         # Handle database error
-        except sqlite3.DatabaseError(
+        except Exception(
                 "Failed to insert a new submission into the database"
         ) as er:
             raise er
 
-    # Reset cursor for the DAO
     def refreshCursor(self):
+        """Reset cursor for the DAO"""
+
         self.closeCursor()
         self.__cursor = self.__connection.cursor()
-    
-    # Commiting any changes to the database
+
     def saveChanges(self):
+        """Committing any changes to the database"""
+
         if self.__connection is not None:
             self.__connection.commit()
             self.refreshCursor()
 
-    # Closing the cursor
     def closeCursor(self):
+        """Closing the cursor"""
+
         if self.__cursor is not None:
             self.__cursor.close()
 
-    # Closing the database connection
     def closeConnection(self):
+        """Closing the database connection"""
+
         if self.__connection is not None:
             self.__connection.close()
 
-    # Closing the DAO
     def closeDAO(self):
+        """Closing the database connection"""
+
         self.closeCursor()
         self.closeConnection()
