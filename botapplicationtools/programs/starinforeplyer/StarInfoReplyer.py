@@ -69,7 +69,7 @@ def __refreshStarInfoGroups(individualStarViewDAO):
     )
 
 
-def __replyWithStarInfo(comment, star, records, limit=None):
+def __replyWithStarInfo(comment, star, records, limit=5):
     """Reply to the comment with relevant star info"""
 
     recordsIncluded = []
