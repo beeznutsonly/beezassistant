@@ -5,11 +5,11 @@ from typing import List
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.programtools.generaltools.RedditInterface import RedditInterface
 from botapplicationtools.programs.starinforeplyer import StarInfoReplyer
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO import StarInfoReplyerCommentedDAO
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerStorage import StarInfoReplyerStorage
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarViewDAO import IndividualStarViewDAO
+from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
 class StarInfoReplyerRunner(ProgramRunner):
@@ -19,7 +19,7 @@ class StarInfoReplyerRunner(ProgramRunner):
     """
 
     __databaseConnectionFactory: DatabaseConnectionFactory
-    __redditInterface: RedditInterface
+    __redditInterfaceFactory: RedditInterfaceFactory
 
     __refreshInterval: int
     __subreddits: List[str]
@@ -27,12 +27,12 @@ class StarInfoReplyerRunner(ProgramRunner):
     def __init__(
             self,
             databaseConnectionFactory,
-            redditInterface,
+            redditInterfaceFactory,
             configReader
     ):
         super().__init__()
         self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__redditInterface = redditInterface
+        self.__redditInterfaceFactory = redditInterfaceFactory
         self.__initializeStarInfoReplyerRunner(configReader)
 
     def __initializeStarInfoReplyerRunner(self, configReader):
@@ -59,7 +59,9 @@ class StarInfoReplyerRunner(ProgramRunner):
     def run(self):
         """Execute the Star Info Replyer"""
 
-        prawReddit = self.__redditInterface.getPrawReddit
+        prawReddit = self.__redditInterfaceFactory \
+            .getRedditInterface() \
+            .getPrawReddit
         commentStream = prawReddit.subreddit(
             '+'.join(self.__subreddits)
         ).stream.comments(pause_after=0)

@@ -15,14 +15,12 @@ import time
 from logging.handlers import TimedRotatingFileHandler
 from typing import Dict
 
-import praw
 import psycopg2
-from praw.exceptions import ReadOnlyException
-from prawcore import ResponseException
 
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
 from botapplicationtools.botcredentials.BotCredentialsDAO import \
     BotCredentialsDAO
+from botapplicationtools.botcredentials.InvalidBotCredentialsError import InvalidBotCredentialsError
 from botapplicationtools.databasetools.databaseconnectionfactories \
     .DatabaseConnectionFactory import DatabaseConnectionFactory
 from botapplicationtools.databasetools.databaseconnectionfactories \
@@ -52,6 +50,7 @@ from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
 from botapplicationtools.programsexecutors.ProgramsExecutor import ProgramsExecutor
 from botapplicationtools.programsexecutors.exceptions \
     .ProgramsExecutorInitializationError import ProgramsExecutorInitializationError
+from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 __RESOURCES_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -324,18 +323,6 @@ def __getInitialBotCredentials(databaseConnection)\
     return botCredentials
 
 
-def ___authenticated(redditInstance) -> bool:
-    """
-    Convenience method to authenticate bot credentials
-    provided to Reddit instance
-    """
-
-    try:
-        return not (redditInstance.user.me() is None)
-    except ResponseException or ReadOnlyException:
-        return False
-
-
 def ___getNewBotCredentials() -> BotCredentials:
     """Convenience method to retrieve bot credentials from user input"""
 
@@ -367,36 +354,39 @@ def ___getNewBotCredentials() -> BotCredentials:
         raise ex
 
 
-def __getInitialRedditInterface(botCredentials, databaseConnection)\
-        -> RedditInterface:
-    """ Initialize Reddit Interface"""
+def __getInitialRedditInterfaceFactory(botCredentials, databaseConnection) \
+        -> RedditInterfaceFactory:
+    """ Initialize Reddit Interface Factory"""
 
-    # Attempting to retrieve a valid Praw instance from
-    # provided credentials
+    # Attempting to retrieve a valid RedditInterfaceFactory
+    # instance from provided credentials
 
-    prawReddit = praw.Reddit(
-        user_agent=botCredentials.getUserAgent,
-        client_id=botCredentials.getClientId,
-        client_secret=botCredentials.getClientSecret,
-        username=botCredentials.getUsername,
-        password=botCredentials.getPassword
-    )
+    try:
+        redditInterfaceFactory = RedditInterface(botCredentials)
 
-    __mainLogger.debug("Authenticating credentials ...")
+        # Saving the valid bot credentials to storage
+        try:
+            botCredentialsDAO = BotCredentialsDAO(
+                databaseConnection
+            )
+            botCredentialsDAO.saveBotCredentials(botCredentials)
 
-    if ___authenticated(prawReddit):
-
-        __mainLogger.debug("Credentials authenticated.")
-        redditInterface = RedditInterface(prawReddit)
-
+        # Handle if save operation fails
+        except Exception as ex:
+            __mainLogger.error(
+                "Failed to save bot credentials"
+                " to database. Error: {}".format(
+                    str(ex.args)
+                )
+            )
     # Handle if credential authentication fails
-    else:
+    except InvalidBotCredentialsError:
         __mainLogger.error(
             "The provided credentials are invalid. "
             "Please enter new valid credentials"
         )
         try:
-            redditInterface = __getInitialRedditInterface(
+            redditInterfaceFactory = __getInitialRedditInterfaceFactory(
                 ___getNewBotCredentials(), databaseConnection
             )
         except KeyboardInterrupt or EOFError:
@@ -405,28 +395,12 @@ def __getInitialRedditInterface(botCredentials, databaseConnection)\
                 "aborted"
             )
 
-    # Saving the valid bot credentials to storage
-    try:
-        botCredentialsDAO = BotCredentialsDAO(
-            databaseConnection
-        )
-        botCredentialsDAO.saveBotCredentials(botCredentials)
-
-    # Handle if save operation fails
-    except Exception as ex:
-        __mainLogger.error(
-            "Failed to save bot credentials"
-            " to database. Error: {}".format(
-                str(ex.args)
-            )
-        )
-
-    return redditInterface
+    return redditInterfaceFactory
 
 
 def __loadInitialProgramRunners(
         databaseConnectionFactory,
-        redditInterface,
+        redditInterfaceFactory,
         configReader
 ) -> Dict[str, ProgramRunner]:
     """Load initial Program Runners"""
@@ -437,22 +411,22 @@ def __loadInitialProgramRunners(
         programRunners['starsarchivewikipagewriter'] = \
             StarsArchiveWikiPageWriterRunner(
                 databaseConnectionFactory=databaseConnectionFactory,
-                redditInterface=redditInterface,
+                redditInterfaceFactory=redditInterfaceFactory,
                 configReader=configReader
             )
         programRunners['sceneinfoarchiver'] = SceneInfoArchiverRunner(
             databaseConnectionFactory=databaseConnectionFactory,
-            redditInterface=redditInterface,
+            redditInterfaceFactory=redditInterfaceFactory,
             configReader=configReader
         )
         programRunners['postsmanager'] = PostsManagerRunner(
             databaseConnectionFactory=databaseConnectionFactory,
-            redditInterface=redditInterface,
+            redditInterfaceFactory=redditInterfaceFactory,
             configReader=configReader
         )
         programRunners['starinforeplyer'] = StarInfoReplyerRunner(
             databaseConnectionFactory=databaseConnectionFactory,
-            redditInterface=redditInterface,
+            redditInterfaceFactory=redditInterfaceFactory,
             configReader=configReader
         )
 
@@ -533,18 +507,16 @@ def __initializeBot():
         with databaseConnectionFactory.getConnection() as databaseConnection:
             botCredentials = __getInitialBotCredentials(databaseConnection)
 
-        # Initializing the Reddit Interface
-        __mainLogger.debug("Initializing the Reddit Interface")
+        # Initializing the Reddit Interface Factory
+        __mainLogger.debug("Initializing the Reddit Interface Factory")
         with databaseConnectionFactory.getConnection() as databaseConnection:
-            redditInterface = __getInitialRedditInterface(
+            redditInterfaceFactory = __getInitialRedditInterfaceFactory(
                 botCredentials, databaseConnection
             )
 
         # Initializing the Program Runners
         programRunners = __loadInitialProgramRunners(
-            databaseConnectionFactory,
-            redditInterface,
-            configReader
+            databaseConnectionFactory, redditInterfaceFactory, configReader
         )
 
         # Initializing the Programs Executor

@@ -3,13 +3,12 @@
 import json
 from typing import List
 
-import praw.models
-
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.starsarchivewikipagewriter import StarsArchiveWikiPageWriter, StarViewFactory
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarView import IndividualStarView
+from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
 class StarsArchiveWikiPageWriterRunner(ProgramRunner):
@@ -19,25 +18,28 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
     """
     
     __databaseConnectionFactory: DatabaseConnectionFactory
+    __redditInterfaceFactory: RedditInterfaceFactory
 
-    __wikiPage: praw.models.WikiPage
+    __wikiName: str
+    __subredditName: str
     # TODO: Replace generic with StarView
     __defaultStarViews: List[IndividualStarView]
 
     def __init__(
             self,
             databaseConnectionFactory,
-            redditInterface,
+            redditInterfaceFactory,
             configReader
     ):
         super(StarsArchiveWikiPageWriterRunner, self).__init__()
+        self.__redditInterfaceFactory = redditInterfaceFactory
         self.__databaseConnectionFactory = databaseConnectionFactory
         self.__initializeStarsArchiveWikiPageWriterRunner(
-            redditInterface.getPrawReddit, configReader
+            configReader
         )
 
     def __initializeStarsArchiveWikiPageWriterRunner(
-            self, prawReddit, configReader
+            self, configReader
     ):
         """Initializing the Stars Archive Wiki Page Writer"""
 
@@ -66,9 +68,8 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
             "Initializing Stars Archive Wiki Page Writer variables"
         )
 
-        self.__wikiPage = prawReddit \
-            .subreddit(subredditName) \
-            .wiki[wikiName]
+        self.__subredditName = subredditName
+        self.__wikiName = wikiName
         # Setting up default StarViews
         validStarViewList = []
         for defaultStarView in defaultStarViews:
@@ -106,6 +107,12 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
         programRunnerLogger = \
             self._programRunnerLogger
 
+        wikiPage = self.__redditInterfaceFactory \
+            .getRedditInterface() \
+            .getPrawReddit \
+            .subreddit(self.__subredditName) \
+            .wiki[self.__wikiName]
+
         with self.__databaseConnectionFactory.getConnection() \
                 as databaseConnection:
 
@@ -118,7 +125,7 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
             'Stars Archive Wiki Page Writer is now running'
         )
         StarsArchiveWikiPageWriter.execute(
-            self.__wikiPage, starViewObjects
+            wikiPage, starViewObjects
         )
         programRunnerLogger.info(
             'Stars Archive Wiki Page Writer completed'

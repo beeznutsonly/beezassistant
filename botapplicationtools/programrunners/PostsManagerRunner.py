@@ -15,14 +15,14 @@ class PostsManagerRunner(ProgramRunner):
     def __init__(
             self,
             databaseConnectionFactory,
-            redditInterface,
+            redditInterfaceFactory,
             configReader
     ):
 
         super(PostsManagerRunner, self).__init__()
         self.__programRunnerLogger = logging.getLogger('postsManager')
         self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__prawReddit = redditInterface.getPrawReddit
+        self.__prawReddit = redditInterfaceFactory.getRedditInterface().getPrawReddit
 
     def run(self):
         try:

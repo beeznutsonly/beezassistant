@@ -6,9 +6,6 @@ import time
 from datetime import datetime, timedelta
 from typing import List
 
-from praw.models import WikiPage
-from psaw import PushshiftAPI
-
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
@@ -25,6 +22,7 @@ from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsW
     SceneInfoSubmissionsWithSceneInfoStorage
 from botapplicationtools.programs.sceneinfostoragearchiver.SubredditSearchParameters import SubredditSearchParameters
 from botapplicationtools.programs.starsarchivewikipagewriter import StarViewFactory
+from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
 class SceneInfoArchiverRunner(ProgramRunner):
@@ -34,28 +32,30 @@ class SceneInfoArchiverRunner(ProgramRunner):
     """
 
     __databaseConnectionFactory: DatabaseConnectionFactory
+    __redditInterfaceFactory: RedditInterfaceFactory
     __refreshInterval: int
 
     # Scene Info Storage Archiver variables
     __subredditSearchParameters: SubredditSearchParameters
-    __pushShiftAPI: PushshiftAPI
 
     # Stars Archive Wiki Page Writer variables
-    __wikiPage: WikiPage
+    __wikiName: str
+    __subredditName: str
     __defaultStarViews: List[str]
 
     def __init__(
             self,
             databaseConnectionFactory,
-            redditInterface,
+            redditInterfaceFactory,
             configReader
     ):
         super(SceneInfoArchiverRunner, self).__init__()
         self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__initializeSceneInfoArchiverRunner(redditInterface, configReader)
+        self.__redditInterfaceFactory = redditInterfaceFactory
+        self.__initializeSceneInfoArchiverRunner(configReader)
 
     def __initializeSceneInfoArchiverRunner(
-            self, redditInterface, configReader
+            self, configReader
     ):
         """Initializing the scene info archiver"""
 
@@ -68,7 +68,7 @@ class SceneInfoArchiverRunner(ProgramRunner):
         refreshInterval = configReader.getint(
             section, 'refreshInterval'
         )
-        subredditName = configReader.get(
+        sceneInfoStorageArchiverSubredditName = configReader.get(
             section, 'subredditName'
         )
         fromTime = configReader.get(
@@ -109,9 +109,8 @@ class SceneInfoArchiverRunner(ProgramRunner):
         )
 
         self.__refreshInterval = refreshInterval
-        self.__pushShiftAPI = redditInterface.getPushShiftAPI
         self.__subredditSearchParameters = SubredditSearchParameters(
-            subredditName,
+            sceneInfoStorageArchiverSubredditName,
             fromTime,
             Extractors(
                 sceneInfoFlairID,
@@ -126,9 +125,8 @@ class SceneInfoArchiverRunner(ProgramRunner):
             "Initializing Stars Archive Wiki Page Writer variables"
         )
 
-        self.__wikiPage = redditInterface.getPrawReddit \
-            .subreddit(starsArchiveWikiPageWriterSubredditName) \
-            .wiki[wikiName]
+        self.__subredditName = starsArchiveWikiPageWriterSubredditName
+        self.__wikiName = wikiName
         # Setting up default StarViews
         validStarViewList = []
         for defaultStarView in defaultStarViews:
@@ -179,6 +177,9 @@ class SceneInfoArchiverRunner(ProgramRunner):
                 # Check if next archiving job is due
                 if datetime.now() >= nextArchiveOperationTime:
 
+                    redditInterface = self.__redditInterfaceFactory \
+                        .getRedditInterface()
+
                     with self.__databaseConnectionFactory.getConnection() as \
                             storageDatabaseConnection:
 
@@ -200,8 +201,11 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
                         sceneInfoStorageArchiverTools = \
                             SceneInfoStorageArchiverTools(
-                                self.__pushShiftAPI,
+
+                                redditInterface.getPushShiftAPI,
+
                                 self.__subredditSearchParameters,
+
                                 sceneInfoSubmissionsWithSceneInfoStorage
                             )
 
@@ -215,7 +219,11 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
                             starsArchiveWikiPageWriterTools = \
                                 StarsArchiveWikiPageWriterTools(
-                                    self.__wikiPage,
+                                    redditInterface
+                                    .getPrawReddit
+                                    .subreddit(self.__subredditName)
+                                    .wiki[self.__wikiName],
+
                                     starViewObjects
                                 )
 
