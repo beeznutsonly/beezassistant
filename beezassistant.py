@@ -23,8 +23,8 @@ from prawcore import ResponseException
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
 from botapplicationtools.botcredentials.BotCredentialsDAO import \
     BotCredentialsDAO
-from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
-    DatabaseConnectionFactory
+from botapplicationtools.databasetools.databaseconnectionfactories \
+    .DatabaseConnectionFactory import DatabaseConnectionFactory
 from botapplicationtools.databasetools.databaseconnectionfactories \
     .PgsqlDatabaseConnectionFactory import PgsqlDatabaseConnectionFactory
 from botapplicationtools.databasetools.databaseconnectionfactories \
@@ -40,6 +40,7 @@ from botapplicationtools.programrunners.PostsManagerRunner import \
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programrunners.SceneInfoArchiverRunner import \
     SceneInfoArchiverRunner
+from botapplicationtools.programrunners.StarInfoReplyerRunner import StarInfoReplyerRunner
 from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import \
     StarsArchiveWikiPageWriterRunner
 from botapplicationtools.programrunners.exceptions \
@@ -435,19 +436,24 @@ def __loadInitialProgramRunners(
     try:
         programRunners['starsarchivewikipagewriter'] = \
             StarsArchiveWikiPageWriterRunner(
-                databaseConnectionFactory,
-                redditInterface,
-                configReader
+                databaseConnectionFactory=databaseConnectionFactory,
+                redditInterface=redditInterface,
+                configReader=configReader
             )
         programRunners['sceneinfoarchiver'] = SceneInfoArchiverRunner(
-            databaseConnectionFactory,
-            redditInterface,
-            configReader
+            databaseConnectionFactory=databaseConnectionFactory,
+            redditInterface=redditInterface,
+            configReader=configReader
         )
         programRunners['postsmanager'] = PostsManagerRunner(
-            databaseConnectionFactory,
-            redditInterface,
-            configReader
+            databaseConnectionFactory=databaseConnectionFactory,
+            redditInterface=redditInterface,
+            configReader=configReader
+        )
+        programRunners['starinforeplyer'] = StarInfoReplyerRunner(
+            databaseConnectionFactory=databaseConnectionFactory,
+            redditInterface=redditInterface,
+            configReader=configReader
         )
 
     # Handle if there is an error initializing any of the Program Runners

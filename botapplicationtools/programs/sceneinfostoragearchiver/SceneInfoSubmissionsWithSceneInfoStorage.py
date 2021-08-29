@@ -4,10 +4,8 @@ from botapplicationtools.programs.programtools.sceneinfotools \
     .SceneInfoDAO import SceneInfoDAO
 from botapplicationtools.programs.programtools.sceneinfotools \
     .SceneInfoSubmissionDAO import SceneInfoSubmissionDAO
-
-
-class SceneInfoSubmissionsWithSceneInfoDAO:
-    pass
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfoDAO import \
+    SceneInfoSubmissionWithSceneInfoDAO
 
 
 class SceneInfoSubmissionsWithSceneInfoStorage:
@@ -20,7 +18,7 @@ class SceneInfoSubmissionsWithSceneInfoStorage:
     __sceneInfoDAO: SceneInfoDAO
     __sceneInfoSubmissionDAO: SceneInfoSubmissionDAO
     __sceneInfoSubmissionWithSceneInfoDAO: \
-        SceneInfoSubmissionsWithSceneInfoDAO
+        SceneInfoSubmissionWithSceneInfoDAO
 
     def __init__(
         self,

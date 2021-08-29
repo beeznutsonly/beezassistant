@@ -50,6 +50,10 @@ CREATE TABLE SubmissionsAndInfo (
            ON UPDATE CASCADE
 );
 
+CREATE TABLE StarInfoReplyerCommented(
+    commentId VARCHAR NOT NULL PRIMARY KEY
+);
+
 CREATE VIEW StarPairView AS
     SELECT SubmissionsAndInfo.submission_id,
            SubmissionsAndInfo.Star1,

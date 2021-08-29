@@ -7,12 +7,12 @@ import praw.models
 
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
-from botapplicationtools.programrunners.GenericProgramRunner import GenericProgramRunner
+from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.starsarchivewikipagewriter import StarsArchiveWikiPageWriter, StarViewFactory
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarView import IndividualStarView
 
 
-class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
+class StarsArchiveWikiPageWriterRunner(ProgramRunner):
     """
     Class responsible for running StarsArchiveWikiPageWriter 
     program instances
@@ -48,8 +48,8 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
             "Retrieving Program Runner initial values from the config. reader"
         )
 
-        section = 'StarsArchiveWikiPageWriter'
-        starsArchiveWikiPageWriterSubredditName = configReader.get(
+        section = 'StarsArchiveWikiPageWriterRunner'
+        subredditName = configReader.get(
             section, 'subredditName'
         )
         wikiName = configReader.get(
@@ -67,7 +67,7 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
         )
 
         self.__wikiPage = prawReddit \
-            .subreddit(starsArchiveWikiPageWriterSubredditName) \
+            .subreddit(subredditName) \
             .wiki[wikiName]
         # Setting up default StarViews
         validStarViewList = []
@@ -123,4 +123,3 @@ class StarsArchiveWikiPageWriterRunner(GenericProgramRunner):
         programRunnerLogger.info(
             'Stars Archive Wiki Page Writer completed'
         )
-        

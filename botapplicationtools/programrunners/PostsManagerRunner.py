@@ -3,10 +3,10 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 
-from botapplicationtools.programrunners.GenericProgramRunner import GenericProgramRunner
+from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 
 
-class PostsManagerRunner(GenericProgramRunner):
+class PostsManagerRunner(ProgramRunner):
 
     __programRunnerLogger = None
     __databaseConnectionFactory = None

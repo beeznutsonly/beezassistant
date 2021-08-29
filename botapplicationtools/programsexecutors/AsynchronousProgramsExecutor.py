@@ -5,8 +5,8 @@ import json
 from concurrent.futures import ThreadPoolExecutor, Future
 from typing import Dict, List
 
-from botapplicationtools.programrunners.GenericProgramRunner \
-    import GenericProgramRunner
+from botapplicationtools.programrunners.ProgramRunner \
+    import ProgramRunner
 from botapplicationtools.programsexecutors.ProgramsExecutor import \
     ProgramsExecutor
 from botapplicationtools.programsexecutors.exceptions \
@@ -21,7 +21,7 @@ class AsynchronousProgramsExecutor(ProgramsExecutor):
     """
 
     __executor: ThreadPoolExecutor
-    __programRunners: Dict[str, GenericProgramRunner]
+    __programRunners: Dict[str, ProgramRunner]
     __executedPrograms: Dict[str, Future]
 
     def __init__(

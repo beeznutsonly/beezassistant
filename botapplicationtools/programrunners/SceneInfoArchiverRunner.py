@@ -11,7 +11,7 @@ from psaw import PushshiftAPI
 
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
-from botapplicationtools.programrunners.GenericProgramRunner import GenericProgramRunner
+from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoDAO import SceneInfoDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionDAO import SceneInfoSubmissionDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfoDAO import \
@@ -27,8 +27,11 @@ from botapplicationtools.programs.sceneinfostoragearchiver.SubredditSearchParame
 from botapplicationtools.programs.starsarchivewikipagewriter import StarViewFactory
 
 
-class SceneInfoArchiverRunner(GenericProgramRunner):
-    """Class responsible for running the SceneInfoArchiver program"""
+class SceneInfoArchiverRunner(ProgramRunner):
+    """
+    Class responsible for running multiple
+    SceneInfoArchiver program instances
+    """
 
     __databaseConnectionFactory: DatabaseConnectionFactory
     __refreshInterval: int
@@ -61,7 +64,7 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
 
         # Scene Info Storage Archiver values
 
-        section = 'SceneInfoArchiver'
+        section = 'SceneInfoArchiverRunner'
         refreshInterval = configReader.getint(
             section, 'refreshInterval'
         )
@@ -86,7 +89,7 @@ class SceneInfoArchiverRunner(GenericProgramRunner):
 
         # Stars Archive Wiki Page Writer values
 
-        section = 'StarsArchiveWikiPageWriter'
+        section = 'StarsArchiveWikiPageWriterRunner'
         starsArchiveWikiPageWriterSubredditName = configReader.get(
             section, 'subredditName'
         )
