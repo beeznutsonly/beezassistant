@@ -148,7 +148,11 @@ def ___initializeDatabase(connection, database):
 
 
 def ___getInitialPgsqlDatabaseConnectionFactory(
-        user, password, databaseName
+        user, 
+        password, 
+        databaseName,
+        host='localhost',
+        port=5432
 ) -> PgsqlDatabaseConnectionFactory:
     """Retrieve an initial postgresql database connection factory"""
 
@@ -163,11 +167,6 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
         user = credentials[0]
         password = passwordAndHost[0]
         host = passwordAndHost[1]
-        port = int(credentials[1])
-    
-    else:
-        host = 'localhost'
-        port = 5432
 
     try:
         databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
