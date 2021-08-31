@@ -159,7 +159,7 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
         credentials = breakdown.netloc.split(":")
         passwordAndHost = credentials[1].split("@")
 
-        databaseName = breakdown.path[1,]
+        databaseName = breakdown.path[1:]
         user = credentials[0]
         password = passwordAndHost[0]
         host = passwordAndHost[1]
