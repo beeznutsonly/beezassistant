@@ -64,8 +64,8 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
             return False
 
         with psycopg2.connect(
-            user, password, 
-            host, port
+            user=user, password=password, 
+            host=host, port=port
         ) as connection:
 
             connection.autocommit = True
