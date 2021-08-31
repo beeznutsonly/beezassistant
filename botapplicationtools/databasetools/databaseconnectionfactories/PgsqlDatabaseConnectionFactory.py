@@ -16,9 +16,18 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
 
     __connectionPool: pool.ThreadedConnectionPool
 
-    def __init__(self, user, password, databaseName):
+    def __init__(
+        self, user, password, databaseName, 
+        host='localhost', port='5432'
+    ):
 
-        if not self.__databaseExists(databaseName):
+        if not self.__databaseExists(
+            databaseName, 
+            user,
+            password,
+            host,
+            port
+        ):
             raise DatabaseNotFoundError(
                 'The provided database, "{}", '
                 'does not exist'.format(
@@ -30,7 +39,8 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
             5, 20,
             user=user,
             password=password,
-            host='localhost',
+            host=host,
+            port=port,
             dbname=databaseName
         )
 
@@ -38,7 +48,13 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         return self.__connectionPool.getconn()
 
     @staticmethod
-    def __databaseExists(databaseName):
+    def __databaseExists(
+        databaseName, 
+        user,
+        password,
+        host,
+        port
+    ):
         """
         Convenience method to check the existence
         of the given database
@@ -48,9 +64,8 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
             return False
 
         with psycopg2.connect(
-                "user=postgres "
-                "password=postgres "
-                "host=127.0.0.1"
+            user, password, 
+            host, port
         ) as connection:
 
             connection.autocommit = True

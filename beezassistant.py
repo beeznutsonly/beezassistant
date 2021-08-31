@@ -152,8 +152,20 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
 ) -> PgsqlDatabaseConnectionFactory:
     """Retrieve an initial postgresql database connection factory"""
 
-    try:
+    if os.getenv("DATABASE_URL"):
+        from urllib.parse import urlparse
 
+        breakdown = urlparse(os.getenv("DATABASE_URL"))
+        credentials = breakdown.netloc.split(":")
+        passwordAndHost = credentials[1].split("@")
+
+        databaseName = breakdown.path[1,]
+        user = credentials[0]
+        password = passwordAndHost[0]
+        host = passwordAndHost[1]
+        port = credentials[1]
+
+    try:
         databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
             user, password, databaseName
         )
