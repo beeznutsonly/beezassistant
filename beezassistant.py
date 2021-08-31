@@ -163,11 +163,15 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
         user = credentials[0]
         password = passwordAndHost[0]
         host = passwordAndHost[1]
-        port = credentials[1]
+        port = int(credentials[1])
+    
+    else:
+        host = 'localhost'
+        port = 5432
 
     try:
         databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
-            user, password, databaseName
+            user, password, databaseName, host, port
         )
 
     # Handle when database is not found
@@ -181,8 +185,7 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
         # Creating new database
         with psycopg2.connect(
                 user=user, password=password,
-                dbname='postgres',
-                host='localhost'
+                host=host, port=port
         ) as databaseCreationConnection:
 
             databaseCreationConnection.autocommit = True
@@ -196,7 +199,7 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
         with psycopg2.connect(
                 user=user, password=password,
                 dbname=databaseName,
-                host='localhost'
+                host=host, port=port
         ) as databaseInitializationConnection:
             ___initializeDatabase(
                 databaseInitializationConnection, "pgsql"
