@@ -33,6 +33,7 @@ class AsynchronousProgramsExecutor(ProgramsExecutor):
         super().__init__()
         self.__executor = executor
         self.__programRunners = programRunners
+        self.__executedPrograms = {}
         self.__initializeProgramsExecutor(configReader)
 
     def __initializeProgramsExecutor(self, configReader):

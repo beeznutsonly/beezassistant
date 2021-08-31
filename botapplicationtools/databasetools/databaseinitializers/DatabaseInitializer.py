@@ -5,15 +5,19 @@ Module responsible for initializing the application's database
 """
 
 
-def initializeDatabase(connection, sqlScriptFileName):
+def initializeDatabase(connection, database, sqlScriptFileName):
     """Initialize the database"""
 
     cursor = connection.cursor()
     # Reading and executing the sql script file
     with open(sqlScriptFileName) as sqlFile:
         sql = sqlFile.read()
-    cursor.executescript(sql)
-    connection.commit()
+    if database == 'sqlite':
+        cursor.executescript(sql)
+        connection.commit()
+    else:
+        connection.autocommit = True
+        cursor.execute(sql)
     cursor.close()
 
 

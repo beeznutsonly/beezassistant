@@ -18,15 +18,15 @@ class SceneInfoSubmissionDAO:
         """Inserting new submission data to the database"""
 
         sqlString = '''
-                    INSERT OR IGNORE INTO PostInfo (id,Title,TimeCreated)
-                    VALUES (?,?,?)
+                    INSERT INTO PostInfo (id,Title,TimeCreated)
+                    VALUES (%s,%s,%s) ON CONFLICT (id) DO NOTHING
                     '''
         try:
             self.__cursor.execute(
                 sqlString,
                 (
-                    sceneInfoSubmission.id,
-                    sceneInfoSubmission.title,
+                    str(sceneInfoSubmission.id),
+                    str(sceneInfoSubmission.title),
                     sceneInfoSubmission.created_utc
                 )
             )

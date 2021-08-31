@@ -4,9 +4,11 @@
 Program to automatically reply with Star Info to comments
 mentioning a star with scene info archived
 """
+import time
 from datetime import datetime, timedelta
 from itertools import groupby
 
+import prawcore
 
 def execute(
         commentStream,
@@ -25,29 +27,50 @@ def execute(
 
     nextRefreshDue = datetime.now() + timedelta(hours=refreshInterval)
 
-    for comment in commentStream:
+    try:
+        for comment in commentStream:
+            if comment is None:
+                if stopCondition():
+                    break
+                if datetime.now() >= nextRefreshDue:
+                    individualStarViewGroups = __refreshStarInfoGroups(
+                        starInfoReplyerStorage.getIndividualStarViewDAO
+                    )
+                    nextRefreshDue = datetime.now() + timedelta(
+                        hours=refreshInterval
+                    )
+                continue
 
-        if comment is None:
-            if stopCondition():
-                break
-            if datetime.now() >= nextRefreshDue:
-                individualStarViewGroups = __refreshStarInfoGroups(
-                    starInfoReplyerStorage.getIndividualStarViewDAO
-                )
-                nextRefreshDue = datetime.now() + timedelta(
-                    hours=refreshInterval
-                )
-            continue
+            if (
+                    __isRemoved(comment) or
+                    comment.author.name == 'beezassistant' or
+                    comment.author.name == 'importantreplies'
+            ):
+                continue
 
-        if starInfoReplyerCommentedDAO.checkExists(comment.id):
-            continue
+            if starInfoReplyerCommentedDAO.checkExists(comment.id):
+                print("It exists!")
+                continue
 
-        for star, records in individualStarViewGroups:
-            if star.lower() in comment.body.lower():
-                __replyWithStarInfo(comment, star, records)
-                starInfoReplyerCommentedDAO.acknowledgeComment(
-                    comment.id
-                )
+            for star, records in individualStarViewGroups.items():
+                if star.lower() in comment.body.lower():
+
+                    generatedReply = __replyWithStarInfo(comment, star, records)
+                    starInfoReplyerCommentedDAO.acknowledgeComment(
+                        comment.id
+                    )
+                    if generatedReply:
+                        starInfoReplyerCommentedDAO.acknowledgeComment(
+                            generatedReply.id
+                        )
+    except prawcore.exceptions.RequestException:
+        time.sleep(10)
+        execute(
+            commentStream, 
+            starInfoReplyerStorage,
+            refreshInterval,
+            stopCondition
+        )
 
 
 def __refreshStarInfoGroups(individualStarViewDAO):
@@ -63,52 +86,67 @@ def __refreshStarInfoGroups(individualStarViewDAO):
         key=lambda record: record.getStar
     )
 
-    return groupby(
-        sortedIndividualStarViewRecords,
-        key=lambda record: record.getStar
-    )
+    return {
+        star: list(records)
+        for (star, records) in
+        groupby(
+            sortedIndividualStarViewRecords,
+            key=lambda record: record.getStar
+        )
+    }
 
 
 def __replyWithStarInfo(comment, star, records, limit=5):
     """Reply to the comment with relevant star info"""
 
-    recordsIncluded = []
     if limit:
         recordCount = len(records) if len(records) < limit else limit
     else:
         recordCount = len(records)
 
-    for index in range(0, recordCount - 1):
-        if records[index].getSubmissionId == comment.submission.id:
-            continue
-        recordsIncluded.append(records[index])
-
-    recordCount = len(recordsIncluded)
-
     if recordCount > 0:
         if recordCount == 1:
-            header = '**{}**? We have one other post ' \
+            header = '**{}**? We have one post ' \
                      'of theirs here if you would like to ' \
                      'check it out:\n\n'.format(star)
         else:
-            header = '**{}**? We have {} other posts ' \
+            header = '**{}**? We have {} posts ' \
                      'of theirs here if you would like to ' \
                      'check them out:\n\n'.format(
                         star,
-                        str(recordCount) if not limit or (
+                        str(recordCount) if (not limit) or (
                                 recordCount < limit
                         ) else 'at least ' + str(recordCount)
                      )
 
         mainBody = ''
 
-        for record in recordsIncluded:
+        for index in range(0, recordCount):
             mainBody += '- [{}]({})\n'.format(
-                record.getTitle,
+                records[index].getTitle,
                 'https://www.reddit.com/comments/' +
-                record.getSubmissionId
+                records[index].getSubmissionId
             )
+        mainBody += '\n See our entire Stars Archive [here](' \
+                    'https://reddit.com/r/romanticxxx/wiki/stars_archive' \
+                    ')'
 
-        replyMarkDown = header + mainBody
+        footer = '\n\n_This message was automatically generated by ' \
+                 'the u/beezassistant bot for r/romanticxxx_'
 
-        comment.reply(replyMarkDown)
+        replyMarkDown = header + mainBody + footer
+
+        return comment.reply(replyMarkDown)
+
+
+def __isRemoved(comment):
+    """Checking if a comment is removed"""
+
+    try:
+        author = str(comment.author.name)
+    except Exception:
+        author = '[Deleted]'
+    if not (comment.banned_by is None) or author == '[Deleted]':
+        return True
+    else:
+        return False

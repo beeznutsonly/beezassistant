@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*
 
+from typing import Tuple
 from .IndividualStarViewRecord import IndividualStarViewRecord
 
 
@@ -16,40 +17,58 @@ class IndividualStarViewDAO:
     def getIndividualStarViewRecords(self, limit: int = None):
         """Retrieving star view records from the database"""
 
-        limitString = '' if limit is None else ' LIMIT = {}'.format(
-            str(limit)
-        )
-        sqlString = 'SELECT submission_id, Star, Title FROM StarView{};'.format(
-            limitString
-        )
-        self.__retrieveFromSql(sqlString)
+        if limit:
+            sqlString = '''
+                        SELECT submission_id, Star, Title FROM StarView LIMIT %s;
+                        '''
+            values = (limit)
+        else:
+            sqlString = '''
+                        SELECT submission_id, Star, Title FROM StarView;  
+                        '''
+            values = None
 
-    def retrieveSelected(self, star=None, title=None, limit: int = None):
+        return self.__retrieveFromSql(sqlString, values)
+
+    def retrieveSelected(
+        self, 
+        star: str = None,
+        title: str = None, 
+        limit: int = None
+    ):
         if star or title or limit:
             if star or title:
+                values: list
                 if star and title:
                     sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
-                                'WHERE star={} AND title={}'.format(star, title)
+                                'WHERE Star=%s AND title=%s'
+                    values = [star, title]
                 elif star:
                     sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
-                                'WHERE star={}'.format(star)
+                                'WHERE Star=%s'
+                    values = [star]
                 else:
                     sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
-                                'WHERE title={}'.format(title)
+                                'WHERE Title=%s'
+                    values = [title]
                 if limit:
-                    sqlString += ' LIMIT = {}'.format(str(limit))
+                    sqlString += ' LIMIT %s'
+                    values.append(limit)
 
-                return self.__retrieveFromSql(sqlString)
+                return self.__retrieveFromSql(sqlString, tuple(values))
             else:
                 return self.getIndividualStarViewRecords(limit=limit)
         else:
             return self.getIndividualStarViewRecords()
 
-    def __retrieveFromSql(self, sqlString):
+    def __retrieveFromSql(self, sqlString, values: Tuple):
         individualStarViewRecords = []
         cursor = self.__connection.cursor()
         try:
-            cursor.execute(sqlString)
+            if values:
+                cursor.execute(sqlString, values)
+            else:
+                cursor.execute(sqlString)
             for row in cursor.fetchall():
                 individualStarViewRecords.append(
                     IndividualStarViewRecord(

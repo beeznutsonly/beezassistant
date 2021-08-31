@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*
 
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfo \
+    import SceneInfo
+
+
 class SceneInfoDAO:
     """SceneInfo type's DAO"""
 
@@ -10,12 +14,12 @@ class SceneInfoDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    def add(self, sceneInfo):
+    def add(self, sceneInfo: SceneInfo):
         """Inserting new scene info data into database"""
 
         sqlString = (
             'INSERT INTO SceneInfo(Movie,Star1,Star2) ' +
-            'VALUES (?,?,?) ON CONFLICT DO NOTHING'
+            'VALUES (%s,%s,%s) ON CONFLICT DO NOTHING'
         )
         try:
             self.__cursor.execute(

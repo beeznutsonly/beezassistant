@@ -13,7 +13,7 @@ class BotCredentialsDAO:
 
     def saveBotCredentials(
             self,
-            botCredentials,
+            botCredentials: BotCredentials,
             connection=__connection
     ):
         """Save bot credentials to database"""
@@ -27,7 +27,7 @@ class BotCredentialsDAO:
                 'INSERT INTO BotCredentials'
                 '(user_agent,client_id,client_secret,'
                 'username,password) '
-                'VALUES (?,?,?,?,?) '
+                'VALUES (%s,%s,%s,%s,%s) '
                 'ON CONFLICT'
                 '(client_id,client_secret) '
                 'DO '

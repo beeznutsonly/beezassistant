@@ -30,7 +30,8 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
             5, 20,
             user=user,
             password=password,
-            dbName=databaseName
+            host='localhost',
+            dbname=databaseName
         )
 
     def getConnection(self):
@@ -47,10 +48,9 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
             return False
 
         with psycopg2.connect(
-                "user='postgres' "
-                "host='localhost' "
-                "password='postgres' "
-                "port='5432'"
+                "user=postgres "
+                "password=postgres "
+                "host=127.0.0.1"
         ) as connection:
 
             connection.autocommit = True
@@ -58,7 +58,6 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
                 cursor = connection.cursor()
                 cursor.execute("SELECT datname FROM pg_database;")
                 databaseList = cursor.fetchall()
-
-                return databaseName in databaseList
+                return (databaseName,) in databaseList
             finally:
                 cursor.close()

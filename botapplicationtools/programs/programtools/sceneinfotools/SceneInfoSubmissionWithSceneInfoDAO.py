@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*
 
+from botapplicationtools.programs.programtools.sceneinfotools\
+    .SceneInfoSubmissionWithSceneInfo import SceneInfoSubmissionWithSceneInfo
+
 class SceneInfoSubmissionWithSceneInfoDAO:
     """
     SceneInfoSubmissionWithSceneInfo type's DAO
@@ -12,7 +15,10 @@ class SceneInfoSubmissionWithSceneInfoDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    def add(self, sceneInfoSubmissionWithSceneInfo):
+    def add(
+        self, 
+        sceneInfoSubmissionWithSceneInfo: SceneInfoSubmissionWithSceneInfo
+    ):
         """
         Inserting new submission and scene info data
         to the database
@@ -20,7 +26,7 @@ class SceneInfoSubmissionWithSceneInfoDAO:
 
         sqlString = '''
                     INSERT INTO SubmissionsAndInfo(submission_id,Movie,Star1,Star2)
-                    VALUES (?,?,?,?) ON CONFLICT(submission_id) DO
+                    VALUES (%s,%s,%s,%s) ON CONFLICT(submission_id) DO
                     UPDATE SET 
                     Movie=excluded.Movie, Star1=excluded.Star1, Star2=excluded.Star2
                     '''

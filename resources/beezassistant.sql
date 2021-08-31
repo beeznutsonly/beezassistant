@@ -1,9 +1,9 @@
 CREATE TABLE BotCredentials (
-    user_agent     NOT NULL,
-    client_id      NOT NULL,
-    client_secret  NOT NULL,
-    username       NOT NULL,
-    password       NOT NULL,
+    user_agent    VARCHAR  NOT NULL,
+    client_id     VARCHAR  NOT NULL,
+    client_secret VARCHAR  NOT NULL,
+    username      VARCHAR  NOT NULL,
+    password      VARCHAR  NOT NULL,
     PRIMARY KEY (
         client_id,
         client_secret
@@ -54,6 +54,20 @@ CREATE TABLE StarInfoReplyerCommented(
     commentId VARCHAR NOT NULL PRIMARY KEY
 );
 
+CREATE TABLE SubmissionReplyDetails (
+    url    VARCHAR NOT NULL
+                   PRIMARY KEY,
+    reply  VARCHAR NOT NULL,
+    oneoff BOOLEAN NOT NULL
+);
+
+CREATE TABLE SubmissionReplyerCommented (
+    commentId VARCHAR PRIMARY KEY
+                      NOT NULL,
+    url       VARCHAR REFERENCES SubmissionReplyDetails (url) ON DELETE CASCADE
+                                                         ON UPDATE CASCADE
+);
+
 CREATE VIEW StarPairView AS
     SELECT SubmissionsAndInfo.submission_id,
            SubmissionsAndInfo.Star1,
@@ -81,5 +95,5 @@ CREATE VIEW StarView AS
                  FROM SubmissionsAndInfo
                       INNER JOIN
                       PostInfo ON SubmissionsAndInfo.submission_id = PostInfo.id
-           )
+           ) AS UnorderedStarView
      ORDER BY Star ASC;

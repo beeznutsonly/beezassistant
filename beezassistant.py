@@ -136,14 +136,14 @@ def __getInitialConfigReader(configFileName) -> configparser.ConfigParser:
     return configParser
 
 
-def ___initializeDatabase(connection):
+def ___initializeDatabase(connection, database):
     """Convenience method to initialize the bot's database"""
 
     sqliteScriptPath = os.path.join(
         __RESOURCES_PATH, 'beezassistant.sql'
     )
     DatabaseInitializer.initializeDatabase(
-        connection, sqliteScriptPath
+        connection, database, sqliteScriptPath
     )
 
 
@@ -168,7 +168,9 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
 
         # Creating new database
         with psycopg2.connect(
-                user=user, password=password
+                user=user, password=password,
+                dbname='postgres',
+                host='localhost'
         ) as databaseCreationConnection:
 
             databaseCreationConnection.autocommit = True
@@ -180,11 +182,13 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
 
         # Initializing the new database
         with psycopg2.connect(
-                user=user,
-                password=password,
-                dbName=databaseName
+                user=user, password=password,
+                dbname=databaseName,
+                host='localhost'
         ) as databaseInitializationConnection:
-            ___initializeDatabase(databaseInitializationConnection)
+            ___initializeDatabase(
+                databaseInitializationConnection, "pgsql"
+            )
 
         __mainLogger.info("Database successfully created")
 
@@ -215,7 +219,7 @@ def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName)\
 
         # Creating and initializing new database
         with sqlite3.connect(databaseFileName) as connection:
-            ___initializeDatabase(connection)
+            ___initializeDatabase(connection, "sqlite")
 
         __mainLogger.info("Database successfully created")
         databaseConnectionFactory = SqliteDatabaseConnectionFactory(
@@ -242,7 +246,7 @@ def __getInitialDatabaseConnectionFactory(database, configReader)\
 
         # For PostgresSQL database
         elif database == 'pgsql':
-            section = 'PgsqlDatabase'
+            section = 'PostgresqlDatabase'
             user = configReader.get(
                 section, 'user'
             )
@@ -277,7 +281,7 @@ def __getInitialDatabaseConnectionFactory(database, configReader)\
         )
 
 
-def __getInitialBotCredentials(databaseConnection)\
+def __getInitialBotCredentials(databaseConnection) \
         -> BotCredentials:
     """Retrieve initial bot credentials"""
 
@@ -362,7 +366,7 @@ def __getInitialRedditInterfaceFactory(botCredentials, databaseConnection) \
     # instance from provided credentials
 
     try:
-        redditInterfaceFactory = RedditInterface(botCredentials)
+        redditInterfaceFactory = RedditInterfaceFactory(botCredentials)
 
         # Saving the valid bot credentials to storage
         try:
@@ -377,7 +381,7 @@ def __getInitialRedditInterfaceFactory(botCredentials, databaseConnection) \
                 "Failed to save bot credentials"
                 " to database. Error: {}".format(
                     str(ex.args)
-                )
+                ), exc_info=True
             )
     # Handle if credential authentication fails
     except InvalidBotCredentialsError:

@@ -7,28 +7,28 @@ class StarInfoReplyerCommentedDAO:
     def __init__(self, connection):
         self.__connection = connection
 
-    def acknowledgeComment(self, commentId):
+    def acknowledgeComment(self, commentId: str):
 
         sqlString = "INSERT INTO StarInfoReplyerCommented(commentId)" \
-                    " VALUES {};".format(commentId)
+                    " VALUES (%s) ON CONFLICT DO NOTHING;"
 
         cursor = self.__connection.cursor()
         try:
-            cursor.execute(sqlString)
+            cursor.execute(sqlString, (commentId,))
             self.__connection.commit()
         finally:
             cursor.close()
 
-    def checkExists(self, commentId) -> bool:
+    def checkExists(self, commentId: str) -> bool:
 
-        sqlString = "SELECT commentId from StarInfoReplyerCommented" \
-                    "WHERE commentId = {};".format(commentId)
+        sqlString = 'SELECT commentId FROM ' \
+                    'StarInfoReplyerCommented ' \
+                    'WHERE commentId=%s;'
 
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(sqlString)
-            result = cursor.fetchall()
-            return commentId in result
+            cursor.execute(sqlString, (commentId,))
+            return bool(cursor.fetchone())
         finally:
             cursor.close()

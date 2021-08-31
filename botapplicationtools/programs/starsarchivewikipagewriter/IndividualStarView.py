@@ -12,6 +12,7 @@ class IndividualStarView:
     __individualStarViewDAO: IndividualStarViewDAO
 
     def __init__(self, individualStarViewDAO):
+        self.__viewMarkdown = None
         self.__individualStarViewDAO = individualStarViewDAO
 
     @classmethod
