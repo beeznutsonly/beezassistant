@@ -146,32 +146,25 @@ def ___initializeDatabase(connection, database):
         connection, database, sqliteScriptPath
     )
 
+def ___getDsnPgsqlDatabaseConnectionFactory(dsn):
+    return PgsqlDatabaseConnectionFactory.getFactoryFromDsn(
+        dsn
+    )
 
-def ___getInitialPgsqlDatabaseConnectionFactory(
-        user, 
-        password, 
+def ___getCredentialPgsqlDatabaseConnectionFactory(
         databaseName,
+        user, 
+        password,
         host='localhost',
         port=5432
 ) -> PgsqlDatabaseConnectionFactory:
     """Retrieve an initial postgresql database connection factory"""
 
-    if os.getenv("DATABASE_URL"):
-        from urllib.parse import urlparse
-
-        breakdown = urlparse(os.getenv("DATABASE_URL"))
-        credentials = breakdown.netloc.split(":")
-        passwordAndHost = credentials[1].split("@")
-
-        databaseName = breakdown.path[1:]
-        user = credentials[0]
-        password = passwordAndHost[0]
-        host = passwordAndHost[1]
-
     try:
-        databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
-            user, password, databaseName, host, port
-        )
+        databaseConnectionFactory = PgsqlDatabaseConnectionFactory \
+            .getFactoryFromCredentials(
+                databaseName, user, password, host, port
+            )
 
     # Handle when database is not found
     except DatabaseNotFoundError:
@@ -206,9 +199,10 @@ def ___getInitialPgsqlDatabaseConnectionFactory(
 
         __mainLogger.info("Database successfully created")
 
-        databaseConnectionFactory = PgsqlDatabaseConnectionFactory(
-            user, password, databaseName
-        )
+        databaseConnectionFactory = PgsqlDatabaseConnectionFactory \
+            .getFactoryFromCredentials(
+                user, password, databaseName, host, port
+            )
 
     return databaseConnectionFactory
 
@@ -261,18 +255,26 @@ def __getInitialDatabaseConnectionFactory(database, configReader)\
         # For PostgresSQL database
         elif database == 'pgsql':
             section = 'PostgresqlDatabase'
-            user = configReader.get(
-                section, 'user'
+            dsn = configReader.get(
+                section, 'dsn'
             )
-            password = configReader.get(
-                section, 'password'
-            )
-            databaseName = configReader.get(
-                section, 'databaseName'
-            )
-            return ___getInitialPgsqlDatabaseConnectionFactory(
-                user, password, databaseName
-            )
+            if dsn == "True":
+                return ___getDsnPgsqlDatabaseConnectionFactory(
+                    os.getenv("DATABASE_URL")
+                )
+            else:
+                user = configReader.get(
+                    section, 'user'
+                )
+                password = configReader.get(
+                    section, 'password'
+                )
+                databaseName = configReader.get(
+                    section, 'databaseName'
+                )
+                return ___getCredentialPgsqlDatabaseConnectionFactory(
+                    databaseName, user, password
+                )
 
         # Handle if database provided is not catered for
         else:

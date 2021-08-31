@@ -49,7 +49,6 @@ def execute(
                 continue
 
             if starInfoReplyerCommentedDAO.checkExists(comment.id):
-                print("It exists!")
                 continue
 
             for star, records in individualStarViewGroups.items():
