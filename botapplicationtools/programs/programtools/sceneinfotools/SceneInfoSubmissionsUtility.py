@@ -4,14 +4,27 @@
 Utility module providing various functions to retrieve,
 manipulate, or store scene info and scene info submissions
 """
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
+import re
+from typing import List
 
-from botapplicationtools.programs.programtools.sceneinfotools.SceneInfo import SceneInfo
-from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfo import \
-    SceneInfoSubmissionWithSceneInfo
+from praw.models import Submission
+
+from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfo \
+    import SimpleSceneInfo
+from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfoDAO \
+    import SimpleSceneInfoDAO
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionDAO \
+    import SceneInfoSubmissionDAO
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfo \
+    import SceneInfoSubmissionWithSceneInfo
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfoDAO \
+    import SceneInfoSubmissionWithSceneInfoDAO
 
 
 def retrieveSceneInfoSubmissions(
-        submissions, sceneInfoFlairID
+        submissions: List[Submission],
+        sceneInfoFlairID: str
 ):
     """Retrieve scene info submissions from provided submissions"""
 
@@ -26,9 +39,11 @@ def retrieveSceneInfoSubmissions(
 
 
 def retrieveSceneInfoSubmissionsWithSceneInfo(
-    sceneInfoSubmissions, sceneInfoTextMatcher,
-    movieNameExtractor, starNamesExtractor
-):
+    sceneInfoSubmissions: List[Submission],
+    sceneInfoTextMatcher: re.Pattern,
+    movieNameExtractor: re.Pattern,
+    starNamesExtractor: re.Pattern
+) -> List[SceneInfoSubmissionWithSceneInfo]:
     """
     Retrieve SceneInfoSubmissionWithSceneInfo objects
     from provided scene info submissions
@@ -44,15 +59,20 @@ def retrieveSceneInfoSubmissionsWithSceneInfo(
         for topComment in sceneInfoSubmission.comments:
 
             # Extract the info and stop search once match is found
-            if sceneInfoTextMatcher.match(str(topComment.body)):
+            if sceneInfoTextMatcher.match(topComment.body):
 
-                movieName = movieNameExtractor.search(str(topComment.body)).group()
-                starNames = starNamesExtractor.findall(str(topComment.body))
+                movieName = movieNameExtractor.search(topComment.body).group()
+                starNames = starNamesExtractor.findall(topComment.body)
 
                 sceneInfoSubmissionsWithSceneInfo.append(
                     SceneInfoSubmissionWithSceneInfo(
-                        sceneInfoSubmission,
-                        SceneInfo(
+                        
+                        SceneInfoSubmission
+                        .getSceneInfoSubmissionFromPrawSubmission(
+                            sceneInfoSubmission
+                        ),
+
+                        SimpleSceneInfo(
                             movieName, starNames[0], starNames[1]
                         )
                     )
@@ -63,10 +83,17 @@ def retrieveSceneInfoSubmissionsWithSceneInfo(
 
 
 def saveSceneInfoSubmissionsWithSceneInfoToStorage(
-        sceneInfoSubmissionsWithSceneInfo,
-        sceneInfoSubmissionDAO,
-        sceneInfoDAO,
-        sceneInfoSubmissionWithSceneInfoDAO
+        sceneInfoSubmissionsWithSceneInfo:
+        SceneInfoSubmissionWithSceneInfo,
+
+        sceneInfoSubmissionDAO:
+        SceneInfoSubmissionDAO,
+
+        sceneInfoDAO:
+        SimpleSceneInfoDAO,
+
+        sceneInfoSubmissionWithSceneInfoDAO:
+        SceneInfoSubmissionWithSceneInfoDAO
 ):
     """
     Save SceneInfoSubmissionsWithSceneInfo data to storage

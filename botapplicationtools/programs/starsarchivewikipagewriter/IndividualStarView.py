@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*
-from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarViewDAO import IndividualStarViewDAO
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
+    import StarSceneInfoSubmissionDetailDAO
 
 
 class IndividualStarView:
@@ -9,61 +10,74 @@ class IndividualStarView:
     """
 
     __viewMarkdown: str
-    __individualStarViewDAO: IndividualStarViewDAO
+    __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
 
-    def __init__(self, individualStarViewDAO):
+    def __init__(
+            self,
+            starSceneInfoSubmissionDetailDAO:
+            StarSceneInfoSubmissionDetailDAO
+    ):
         self.__viewMarkdown = None
-        self.__individualStarViewDAO = individualStarViewDAO
+        self.__starSceneInfoSubmissionDetailDAO = starSceneInfoSubmissionDetailDAO
 
     @classmethod
-    def __generateViewMarkdown(cls, individualStarViewDAO):
+    def __generateViewMarkdown(
+            cls,
+            starSceneInfoSubmissionDetailDAO:
+            StarSceneInfoSubmissionDetailDAO
+    ):
         """
         Utility method for generating the markdown
         for the view from provided data
         """
 
-        starViewRecords = individualStarViewDAO.getIndividualStarViewRecords()
+        starViewRecords = starSceneInfoSubmissionDetailDAO.retrieveAll()
         pageData = ''
 
         if len(starViewRecords) > 0:
+            sceneInfoSubmission = starViewRecords[0].getSceneInfoSubmission
             # Generating markdown for each star
             pageData += (
-                '## ' + starViewRecords[0].getStar[0].upper() +
+                '## ' + starViewRecords[0].getStarName[0].upper() +
                 '\n---\n\n'
             )
             pageData += (
-                '### ' + starViewRecords[0].getStar + '\n'
+                '### ' + starViewRecords[0].getStarName + '\n'
             )
             pageData += (
-                '- [' + starViewRecords[0].getTitle + ']' +
+                '- [' + sceneInfoSubmission.getTitle + ']' +
                 '(https://www.reddit.com/comments/' +
-                starViewRecords[0].getSubmissionId + ')\n'
+                sceneInfoSubmission.getSubmissionId + ')\n'
             )
             
             for index in range(1, len(starViewRecords) - 1):
+
+                sceneInfoSubmission = starViewRecords[index] \
+                    .getSceneInfoSubmission
+
                 # Paragraphing once all of a star's individual
                 # posts have been traversed
                 if (
-                    starViewRecords[index].getStar !=
-                    starViewRecords[index - 1].getStar
+                    starViewRecords[index].getStarName !=
+                    starViewRecords[index - 1].getStarName
                 ):
                     # Creating a character heading to demarcate
                     # a change (if there is one) in the first letter 
                     # of the subsequent star names 
                     if (
-                        starViewRecords[index].getStar[0].upper() !=
-                        starViewRecords[index - 1].getStar[0].upper()
+                        starViewRecords[index].getStarName[0].upper() !=
+                        starViewRecords[index - 1].getStarName[0].upper()
                     ):
                         pageData += (
-                            '\n\n## ' + starViewRecords[index].getStar[0].upper() +
+                            '\n\n## ' + starViewRecords[index].getStarName[0].upper() +
                             '\n\n---\n'
                         )
-                    pageData += ('\n\n### ' + starViewRecords[index].getStar + '\n')
+                    pageData += ('\n\n### ' + starViewRecords[index].getStarName + '\n')
 
                 pageData += (
-                    '- [' + starViewRecords[index].getTitle + ']' +
+                    '- [' + sceneInfoSubmission.getTitle + ']' +
                     '(https://www.reddit.com/comments/' +
-                    starViewRecords[index].getSubmissionId + ')\n'
+                    sceneInfoSubmission.getSubmissionId + ')\n'
                 )
 
         return pageData
@@ -72,7 +86,7 @@ class IndividualStarView:
         """Update the view's markdown"""
 
         self.__viewMarkdown = self.__generateViewMarkdown(
-            self.__individualStarViewDAO
+            self.__starSceneInfoSubmissionDetailDAO
         )
 
     @property
@@ -81,6 +95,6 @@ class IndividualStarView:
 
         if self.__viewMarkdown is None:
             self.__viewMarkdown = self.__generateViewMarkdown(
-                self.__individualStarViewDAO
+                self.__starSceneInfoSubmissionDetailDAO
             )
         return self.__viewMarkdown

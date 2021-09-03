@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*
 
-from typing import Tuple
-from .IndividualStarViewRecord import IndividualStarViewRecord
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
+from botapplicationtools.programs.programtools.generaltools.SimpleSubmission import SimpleSubmission
+from typing import Tuple, List
+from .StarSceneInfoSubmissionDetail import StarSceneInfoSubmissionDetail
 
 
-class IndividualStarViewDAO:
+class StarSceneInfoSubmissionDetailDAO:
     """
-    IndividualStarView type's DAO
+    Class representing a StarSceneInfoSubmissionDetail's DAO
     """
 
     __connection = None
@@ -14,14 +16,17 @@ class IndividualStarViewDAO:
     def __init__(self, connection):
         self.__connection = connection
 
-    def getIndividualStarViewRecords(self, limit: int = None):
-        """Retrieving star view records from the database"""
+    def retrieveAll(
+            self,
+            limit: int = None
+    ) -> List[StarSceneInfoSubmissionDetail]:
+        """Retrieve StarSceneInfoSubmissions from the database"""
 
         if limit:
             sqlString = '''
                         SELECT submission_id, Star, Title FROM StarView LIMIT %s;
                         '''
-            values = (limit)
+            values = (limit,)
         else:
             sqlString = '''
                         SELECT submission_id, Star, Title FROM StarView;  
@@ -35,13 +40,18 @@ class IndividualStarViewDAO:
         star: str = None,
         title: str = None, 
         limit: int = None
-    ):
+    ) -> List[StarSceneInfoSubmissionDetail]:
+        """
+        Retrieve StarSceneInfoSubmissionDetails according to
+        the given arguments
+        """
+
         if star or title or limit:
             if star or title:
                 values: list
                 if star and title:
                     sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
-                                'WHERE Star=%s AND title=%s'
+                                'WHERE Star=%s AND Title=%s'
                     values = [star, title]
                 elif star:
                     sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
@@ -57,12 +67,15 @@ class IndividualStarViewDAO:
 
                 return self.__retrieveFromSql(sqlString, tuple(values))
             else:
-                return self.getIndividualStarViewRecords(limit=limit)
+                return self.retrieveAll(limit=limit)
         else:
-            return self.getIndividualStarViewRecords()
+            return self.retrieveAll()
 
-    def __retrieveFromSql(self, sqlString, values: Tuple):
-        individualStarViewRecords = []
+    def __retrieveFromSql(
+            self, sqlString: str, values: Tuple
+    ) -> List[StarSceneInfoSubmissionDetail]:
+
+        starSceneInfoSubmissionDetails = []
         cursor = self.__connection.cursor()
         try:
             if values:
@@ -70,18 +83,22 @@ class IndividualStarViewDAO:
             else:
                 cursor.execute(sqlString)
             for row in cursor.fetchall():
-                individualStarViewRecords.append(
-                    IndividualStarViewRecord(
-                        str(row[0]),
-                        str(row[1]),
-                        str(row[2])
+                starSceneInfoSubmissionDetails.append(
+                    StarSceneInfoSubmissionDetail(
+                        str(row[1]), 
+                        SceneInfoSubmission(
+                            str(row[0]),
+                            str(row[2]),
+                            None
+                        )
                     )
                 )
-        except Exception(
-                "Failed to retrieve star view "
-                "records from database"
-        ) as er:
-            raise er
+        except Exception as ex:
+            raise Exception(
+                "Failed to retrieve star scene info submission "
+                "details from the database",
+                ex
+            )
         finally:
             cursor.close()
-        return individualStarViewRecords
+        return starSceneInfoSubmissionDetails

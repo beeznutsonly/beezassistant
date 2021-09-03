@@ -4,106 +4,167 @@
 Program to automatically reply with Star Info to comments
 mentioning a star with scene info archived
 """
+
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import StarSceneInfoSubmissionDetailDAO
 import time
 from datetime import datetime, timedelta
 from itertools import groupby
+from typing import List, Callable
 
 import prawcore
+from praw import Reddit
+from praw.models import Comment
+
+from botapplicationtools.programs.programtools.generaltools import ContributionsUtility
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetail import \
+    StarSceneInfoSubmissionDetail
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerIO import StarInfoReplyerIO
+
 
 def execute(
-        commentStream,
-        starInfoReplyerStorage,
-        refreshInterval,
-        stopCondition
+        starInfoReplyerIO: StarInfoReplyerIO,
+        refreshInterval: int,
+        stopCondition: Callable,
+        replyFooter: str
 ):
     """Execute the program"""
+
+    # Program variable initialization
+
+    starInfoReplyerStorage = starInfoReplyerIO.getStarInfoReplyerStorage
+    redditTools = starInfoReplyerIO.getRedditTools
 
     starInfoReplyerCommentedDAO = starInfoReplyerStorage \
         .getStarInfoReplyerCommentedDAO
 
-    individualStarViewGroups = __refreshStarInfoGroups(
-        starInfoReplyerStorage.getIndividualStarViewDAO
+    starInfoGroups = __refreshStarInfoGroups(
+        starInfoReplyerStorage
+        .getStarSceneInfoSubmissionDetailDAO
     )
 
-    nextRefreshDue = datetime.now() + timedelta(hours=refreshInterval)
+    nextGroupsRefreshDue = datetime.now() + timedelta(hours=refreshInterval)
 
-    try:
-        for comment in commentStream:
-            if comment is None:
-                if stopCondition():
-                    break
-                if datetime.now() >= nextRefreshDue:
-                    individualStarViewGroups = __refreshStarInfoGroups(
-                        starInfoReplyerStorage.getIndividualStarViewDAO
-                    )
-                    nextRefreshDue = datetime.now() + timedelta(
-                        hours=refreshInterval
-                    )
-                continue
+    # Program loop
+    while not stopCondition():
 
-            if (
-                    __isRemoved(comment) or
-                    comment.author.name == 'beezassistant' or
-                    comment.author.name == 'importantreplies'
-            ):
-                continue
+        # Unpacking Reddit tools
+        prawReddit = redditTools.getPrawReddit
+        commentStream = redditTools.getCommentStream
+        excludedUsers = redditTools.getExcludedUsers
 
-            if starInfoReplyerCommentedDAO.checkExists(comment.id):
-                continue
+        try:
+            # "New comment listener" loop
+            for comment in commentStream:
 
-            for star, records in individualStarViewGroups.items():
-                if star.lower() in comment.body.lower():
+                # Handle "pause token"
+                if comment is None:
 
-                    generatedReply = __replyWithStarInfo(comment, star, records)
-                    starInfoReplyerCommentedDAO.acknowledgeComment(
-                        comment.id
-                    )
-                    if generatedReply:
-                        starInfoReplyerCommentedDAO.acknowledgeComment(
-                            generatedReply.id
+                    # Exit the loop if stop condition satisfied 
+                    if stopCondition():
+                        break
+                    
+                    # Refresh stored star info groups if due
+                    if datetime.now() >= nextGroupsRefreshDue:
+                        starInfoGroups = __refreshStarInfoGroups(
+                            starInfoReplyerStorage.
+                            getStarSceneInfoSubmissionDetailDAO
                         )
-    except prawcore.exceptions.RequestException:
-        time.sleep(10)
-        execute(
-            commentStream, 
-            starInfoReplyerStorage,
-            refreshInterval,
-            stopCondition
-        )
+                        nextGroupsRefreshDue = datetime.now() + timedelta(
+                            hours=refreshInterval
+                        )
+                    continue
+
+                # Skip processing for removed comments
+                if ContributionsUtility.isRemoved(comment):
+                    continue
+                
+                # Skip processing for excluded users
+                if (
+                        comment.author.name == prawReddit.user.me() or
+                        comment.author.name in (
+                            [] if excludedUsers is None
+                            else excludedUsers
+                        )
+                ):
+                    continue
+                
+                # Skip processing if comment was previously acknowledged
+                if starInfoReplyerCommentedDAO.checkExists(comment.id):
+                    continue
+
+                # Iterate through each star for match 
+                for star, records in starInfoGroups.items():
+                    if star.lower() in comment.body.lower():
+                        generatedReply = __replyWithStarInfo(
+                            comment, star, records, prawReddit, replyFooter
+                        )
+                        starInfoReplyerCommentedDAO.acknowledgeComment(
+                            comment.id
+                        )
+                        # Acknowledge bot's generated reply if one is returned
+                        if generatedReply:
+                            starInfoReplyerCommentedDAO.acknowledgeComment(
+                                generatedReply.id
+                            )
+
+        # Handle if connection to the Reddit API is lost
+        except prawcore.exceptions.RequestException:
+            
+            time.sleep(10)
 
 
-def __refreshStarInfoGroups(individualStarViewDAO):
+def __refreshStarInfoGroups(
+    starSceneInfoSubmissionDetailDAO: 
+    StarSceneInfoSubmissionDetailDAO
+):
     """
     Update the star info groups with fresh information
     from storage
     """
 
-    individualStarViewRecords = individualStarViewDAO \
-        .getIndividualStarViewRecords()
-    sortedIndividualStarViewRecords = sorted(
-        individualStarViewRecords,
-        key=lambda record: record.getStar
+    starSceneInfoSubmissionDetails = starSceneInfoSubmissionDetailDAO \
+        .retrieveAll()
+
+    sortedStarSceneInfoSubmissionDetails = sorted(
+        starSceneInfoSubmissionDetails,
+        key=lambda record: record.getStarName
     )
 
     return {
         star: list(records)
         for (star, records) in
         groupby(
-            sortedIndividualStarViewRecords,
-            key=lambda record: record.getStar
+            sortedStarSceneInfoSubmissionDetails,
+            key=lambda record: record.getStarName
         )
     }
 
 
-def __replyWithStarInfo(comment, star, records, limit=5):
-    """Reply to the comment with relevant star info"""
+def __replyWithStarInfo(
+        comment: Comment,
+        star: str,
+        records: List[StarSceneInfoSubmissionDetail],
+        prawReddit: Reddit,
+        footer='',
+        limit=5
+) -> Comment:
+    """
+    Replies to the provided comment with relevant 
+    star info (if available)
+    """
 
+    # Cap the record count according to the limit if 
+    # necessary
     if limit:
         recordCount = len(records) if len(records) < limit else limit
     else:
         recordCount = len(records)
 
+    # Process if there are any existing records # TODO: (artifact)
     if recordCount > 0:
+
+        # Header determination
+
         if recordCount == 1:
             header = '**{}**? We have one post ' \
                      'of theirs here if you would like to ' \
@@ -118,34 +179,28 @@ def __replyWithStarInfo(comment, star, records, limit=5):
                         ) else 'at least ' + str(recordCount)
                      )
 
+        # Main body determination
+
         mainBody = ''
 
+        sortedRecords = sorted(
+            records,
+            key=lambda record:
+            prawReddit.submission(
+                record.getSceneInfoSubmission.getSubmissionId
+            ).score,
+            reverse=True
+        )
         for index in range(0, recordCount):
+            sceneInfoSubmission = sortedRecords[index] \
+                .getSceneInfoSubmission
             mainBody += '- [{}]({})\n'.format(
-                records[index].getTitle,
+                sceneInfoSubmission.getTitle,
                 'https://www.reddit.com/comments/' +
-                records[index].getSubmissionId
+                sceneInfoSubmission.getSubmissionId
             )
-        mainBody += '\n See our entire Stars Archive [here](' \
-                    'https://reddit.com/r/romanticxxx/wiki/stars_archive' \
-                    ')'
-
-        footer = '\n\n_This message was automatically generated by ' \
-                 'the u/beezassistant bot for r/romanticxxx_'
+        mainBody += '\n'
 
         replyMarkDown = header + mainBody + footer
 
         return comment.reply(replyMarkDown)
-
-
-def __isRemoved(comment):
-    """Checking if a comment is removed"""
-
-    try:
-        author = str(comment.author.name)
-    except Exception:
-        author = '[Deleted]'
-    if not (comment.banned_by is None) or author == '[Deleted]':
-        return True
-    else:
-        return False

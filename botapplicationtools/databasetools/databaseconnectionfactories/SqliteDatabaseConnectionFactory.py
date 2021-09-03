@@ -27,5 +27,8 @@ class SqliteDatabaseConnectionFactory(DatabaseConnectionFactory):
         self.__databaseString = databaseString
 
     def getConnection(self):
-        return sqlite3.connect(self.__databaseString, check_same_thread=False)
-
+        """Get a new database connection"""
+        return sqlite3.connect(
+            self.__databaseString,
+            check_same_thread=False
+        )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*
 
 from botapplicationtools.programs.programtools.sceneinfotools \
-    .SceneInfoDAO import SceneInfoDAO
+    .SimpleSceneInfoDAO import SimpleSceneInfoDAO
 from botapplicationtools.programs.programtools.sceneinfotools \
     .SceneInfoSubmissionDAO import SceneInfoSubmissionDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfoDAO import \
@@ -15,7 +15,7 @@ class SceneInfoSubmissionsWithSceneInfoStorage:
     info data
     """
 
-    __sceneInfoDAO: SceneInfoDAO
+    __sceneInfoDAO: SimpleSceneInfoDAO
     __sceneInfoSubmissionDAO: SceneInfoSubmissionDAO
     __sceneInfoSubmissionWithSceneInfoDAO: \
         SceneInfoSubmissionWithSceneInfoDAO

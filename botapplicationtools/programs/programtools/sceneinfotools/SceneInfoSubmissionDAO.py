@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
+
 
 class SceneInfoSubmissionDAO:
     """
@@ -14,7 +16,10 @@ class SceneInfoSubmissionDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    def add(self, sceneInfoSubmission):
+    def add(
+            self,
+            sceneInfoSubmission: SceneInfoSubmission
+    ):
         """Inserting new submission data to the database"""
 
         sqlString = '''
@@ -25,17 +30,18 @@ class SceneInfoSubmissionDAO:
             self.__cursor.execute(
                 sqlString,
                 (
-                    str(sceneInfoSubmission.id),
-                    str(sceneInfoSubmission.title),
-                    sceneInfoSubmission.created_utc
+                    sceneInfoSubmission.getSubmissionId,
+                    sceneInfoSubmission.getTitle,
+                    sceneInfoSubmission.getTimeCreated
                 )
             )
 
         # Handle database error
-        except Exception(
-                "Failed to insert a new submission into the database"
-        ) as er:
-            raise er
+        except Exception as ex:
+            raise Exception(
+                "Failed to insert a new submission into the database",
+                ex
+            )
 
     def refreshCursor(self):
         """Reset cursor for the DAO"""

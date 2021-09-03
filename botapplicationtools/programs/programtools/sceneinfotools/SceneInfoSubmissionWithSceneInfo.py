@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from praw.models import Submission
-
-from botapplicationtools.programs.programtools.sceneinfotools.SceneInfo import SceneInfo
+from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfo \
+    import SimpleSceneInfo
+from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission \
+    import SceneInfoSubmission
 
 
 class SceneInfoSubmissionWithSceneInfo:
@@ -12,10 +13,14 @@ class SceneInfoSubmissionWithSceneInfo:
     scene-specific information for the submission
     """
 
-    __sceneInfoSubmission: Submission
-    __sceneInfo: SceneInfo
+    __sceneInfoSubmission: SceneInfoSubmission
+    __sceneInfo: SimpleSceneInfo
 
-    def __init__(self, sceneInfoSubmission, sceneInfo):
+    def __init__(
+            self,
+            sceneInfoSubmission: SceneInfoSubmission,
+            sceneInfo: SimpleSceneInfo
+    ):
         self.__sceneInfoSubmission = sceneInfoSubmission
         self.__sceneInfo = sceneInfo
 

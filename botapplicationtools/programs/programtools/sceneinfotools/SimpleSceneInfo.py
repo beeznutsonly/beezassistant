@@ -3,7 +3,7 @@
 from typing import List
 
 
-class SceneInfo:
+class SimpleSceneInfo:
     """
     Class holding a submission's scene info
     """

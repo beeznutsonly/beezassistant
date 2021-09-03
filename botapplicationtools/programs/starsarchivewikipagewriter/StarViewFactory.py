@@ -4,8 +4,7 @@
 
 from botapplicationtools.programs.starsarchivewikipagewriter \
     .IndividualStarView import IndividualStarView
-from botapplicationtools.programs.starsarchivewikipagewriter \
-    .IndividualStarViewDAO import IndividualStarViewDAO
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import StarSceneInfoSubmissionDetailDAO
 
 
 def getStarView(databaseConnection, starViewArgument):
@@ -15,7 +14,7 @@ def getStarView(databaseConnection, starViewArgument):
 
     if starViewArgument == 'individual':
         return IndividualStarView(
-            IndividualStarViewDAO(
+            StarSceneInfoSubmissionDetailDAO(
                 databaseConnection
             )
         )

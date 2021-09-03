@@ -20,8 +20,9 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         self.__connectionPool = connectionPool
 
     def getConnection(self):
+        """Get new database connection"""
+        
         return self.__connectionPool.getconn()
-
 
     @classmethod
     def __databaseExists(
@@ -46,11 +47,14 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         ) as connection:
 
             connection.autocommit = True
+
             try:
+                # Retrieve list of all databases on the cluster
                 cursor = connection.cursor()
-                cursor.execute("SELECT datname FROM pg_database;")
+                cursor.execute(
+                    "SELECT datname FROM pg_database;"
+                )
                 databaseList = cursor.fetchall()
-                print(databaseList)
                 return (databaseName,) in databaseList
             finally:
                 cursor.close()
@@ -58,13 +62,20 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
     @classmethod
     def getFactoryFromCredentials(
         cls,
-        databaseName, 
-        user, 
-        password, 
+        databaseName: str,
+        user: str,
+        password: str,
         host='localhost', 
         port='5432'
     ):
+        """
+        Create a Database Connection Factory using
+        the provided database credentials. Raises
+        a DatabaseNotFoundError if the provided
+        database is not found on the cluster
+        """
 
+        # Check for existence of database first
         if not cls.__databaseExists(
             databaseName, 
             user,
@@ -91,7 +102,12 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         )
 
     @classmethod
-    def getFactoryFromDsn(cls, dsn):
+    def getFactoryFromDsn(cls, dsn: str):
+        """
+        Create a Database Connection Factory using
+        the provided dsn
+        """
+
         return PgsqlDatabaseConnectionFactory(
-            pool.ThreadedConnectionPool(5,20, dsn)
+            pool.ThreadedConnectionPool(5, 20, dsn)
         )

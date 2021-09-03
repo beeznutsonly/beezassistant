@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*
 
-from botapplicationtools.programs.programtools.sceneinfotools.SceneInfo \
-    import SceneInfo
+from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfo \
+    import SimpleSceneInfo
 
 
-class SceneInfoDAO:
+class SimpleSceneInfoDAO:
     """SceneInfo type's DAO"""
 
     __connection = None
@@ -14,7 +14,7 @@ class SceneInfoDAO:
         self.__connection = connection
         self.__cursor = connection.cursor()
 
-    def add(self, sceneInfo: SceneInfo):
+    def add(self, sceneInfo: SimpleSceneInfo):
         """Inserting new scene info data into database"""
 
         sqlString = (
@@ -31,11 +31,12 @@ class SceneInfoDAO:
             )
 
         # Handle database error
-        except Exception(
+        except Exception as er:
+            raise Exception(
                 "Failed to insert new scene info "
-                "into the database"
-        ) as er:
-            raise er
+                "into the database",
+                er
+            )
 
     def refreshCursor(self):
         """Reset cursor for the DAO"""

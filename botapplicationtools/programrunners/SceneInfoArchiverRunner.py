@@ -9,7 +9,7 @@ from typing import List
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoDAO import SceneInfoDAO
+from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfoDAO import SimpleSceneInfoDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionDAO import SceneInfoSubmissionDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfoDAO import \
     SceneInfoSubmissionWithSceneInfoDAO
@@ -171,7 +171,9 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
                 # Quick shutdown check before going forward
                 if self.isShutDown():
-                    programRunnerLogger.info('Scene Info Archiver shut down')
+                    programRunnerLogger.info(
+                        'Scene Info Archiver successfully shut down'
+                    )
                     break
 
                 # Check if next archiving job is due
@@ -186,7 +188,7 @@ class SceneInfoArchiverRunner(ProgramRunner):
                         sceneInfoSubmissionsWithSceneInfoStorage = \
                             SceneInfoSubmissionsWithSceneInfoStorage(
 
-                                SceneInfoDAO(
+                                SimpleSceneInfoDAO(
                                     storageDatabaseConnection
                                 ),
 
@@ -234,12 +236,16 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
                     # Another quick shutdown check after task completo
                     if self.isShutDown():
-                        programRunnerLogger.info('Scene Info Archiver shut down')
+                        programRunnerLogger.info(
+                            'Scene Info Archiver successfully shut down'
+                        )
                         break
 
                     # Check if task is one-off (i.e. if refresh interval < 0)
                     if self.__refreshInterval < 0:
-                        programRunnerLogger.info('Scene Info Archiver completed')
+                        programRunnerLogger.info(
+                            'Scene Info Archiver completed'
+                        )
                         break
 
                     # Scheduling next archiving task

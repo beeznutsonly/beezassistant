@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO import StarInfoReplyerCommentedDAO
-from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarViewDAO import IndividualStarViewDAO
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
+    import StarInfoReplyerCommentedDAO
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
+    import StarSceneInfoSubmissionDetailDAO
 
 
 class StarInfoReplyerStorage:
@@ -10,20 +12,22 @@ class StarInfoReplyerStorage:
     """
 
     __starInfoReplyerCommentedDAO: StarInfoReplyerCommentedDAO
-    __individualStarViewDAO: IndividualStarViewDAO
+    __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
 
     def __init__(
             self,
             starInfoReplyerCommentedDAO,
-            individualStarViewDAO
+            starSceneInfoSubmissionDetailDAO
     ):
-        self.__starInfoReplyerCommentedDAO = starInfoReplyerCommentedDAO
-        self.__individualStarViewDAO = individualStarViewDAO
+        self.__starInfoReplyerCommentedDAO = \
+            starInfoReplyerCommentedDAO
+        self.__starSceneInfoSubmissionDetailDAO = \
+            starSceneInfoSubmissionDetailDAO
 
     @property
     def getStarInfoReplyerCommentedDAO(self):
         return self.__starInfoReplyerCommentedDAO
 
     @property
-    def getIndividualStarViewDAO(self):
-        return self.__individualStarViewDAO
+    def getStarSceneInfoSubmissionDetailDAO(self):
+        return self.__starSceneInfoSubmissionDetailDAO

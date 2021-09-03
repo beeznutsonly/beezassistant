@@ -17,7 +17,8 @@ class SceneInfoSubmissionWithSceneInfoDAO:
 
     def add(
         self, 
-        sceneInfoSubmissionWithSceneInfo: SceneInfoSubmissionWithSceneInfo
+        sceneInfoSubmissionWithSceneInfo:
+        SceneInfoSubmissionWithSceneInfo
     ):
         """
         Inserting new submission and scene info data
@@ -35,7 +36,8 @@ class SceneInfoSubmissionWithSceneInfoDAO:
                 sqlString,
                 (
                      sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfoSubmission.id,
+                         .getSceneInfoSubmission
+                         .getSubmissionId,
 
                      sceneInfoSubmissionWithSceneInfo
                          .getSceneInfo.getMovieName,
@@ -47,11 +49,12 @@ class SceneInfoSubmissionWithSceneInfoDAO:
                          .getSceneInfo.getStars[1]
                 )
             )
-        except Exception(
+        except Exception as ex:
+            raise Exception(
                 "Failed to insert new submission and "
-                "scene info data into the database"
-        ) as er:
-            raise er
+                "scene info data into the database",
+                ex
+            )
 
     def refreshCursor(self):
         """Reset cursor for the DAO"""

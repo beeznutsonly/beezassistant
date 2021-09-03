@@ -84,11 +84,11 @@ class BotCredentialsDAO:
                 )
 
         # Handle if credential retrieval fails
-        except Exception(
+        except Exception as er:
+            raise Exception(
                 "Failed to load bot credentials "
-                "from database"
-        ) as er:
-            raise er
+                "from database", er
+            )
         finally:
             cursor.close()
 
