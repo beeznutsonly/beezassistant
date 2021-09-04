@@ -65,8 +65,6 @@ class PostsManagerRunner(ProgramRunner):
                     postProcessExecutor.submit(self.__processPost, submission, post1)
                 elif submission.url == post2[0]:
                     postProcessExecutor.submit(self.__processPost, submission, post2)
-                elif submission.url == post3[0]:
-                    postProcessExecutor.submit(self.__processPost, submission, post3)
         except Exception as ex:
             self.__programRunnerLogger.critical('This is bad {}'.format(str(ex.args)), exc_info=True)
 
