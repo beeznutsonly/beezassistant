@@ -44,27 +44,12 @@ class PostsManagerRunner(ProgramRunner):
             ]
             post2 = [
                 'https://redgifs.com/watch/magnificentworstmayfly',
-                'Clip from [video](https://www.pornhub.com/view_video.php?viewkey=ph5f2a0f59c60b0) by [Darkwetdreemz](https://www.pornhub.com/model/darkwetdreemz)',
+                'Clip from [video](https://www.pornhub.com/view_video.php?viewkey=ph5f2a0f59c60b0) by the couple [Darkwetdreemz](https://www.pornhub.com/model/darkwetdreemz)',
                 ['nsfw'],
                 datetime(
                     2021,
                     9,
                     5,
-                    13,
-                    0,
-                    0
-                ).replace(
-                    tzinfo=timezone.utc
-                )
-            ]
-            post3 = [
-                'https://redgifs.com/watch/ethicalstarkhoneycreeper',
-                'Scene from *Raw 33* with **Abella Danger** and **Manuel Ferrara**',
-                ['nsfw', 'abelladanger', 'lostinthemoment'],
-                datetime(
-                    2021,
-                    8,
-                    30,
                     13,
                     0,
                     0
