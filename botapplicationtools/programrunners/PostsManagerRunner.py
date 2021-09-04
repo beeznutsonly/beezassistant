@@ -28,15 +28,13 @@ class PostsManagerRunner(ProgramRunner):
         try:
             postProcessExecutor = ThreadPoolExecutor()
             post1 = [
-                'https://redgifs.com/watch/illfatedmilkyturtle',
-                'Clip from [Husband Gets Seconds And Cums Quick]'
-                '(https://www.pornhub.com/view_video.php?viewkey=ph5d0590feca9e6) '
-                'by [Jane Dro](https://www.pornhub.com/model/jane-dro)',
-                ['nsfw', 'forgottopullout', 'lostinthemoment'],
+                'https://redgifs.com/watch/cuteincrediblequoll',
+                'Scene from *MILF Pact* with **Dana Vespoli** and **Lucas Frost**',
+                ['nsfw', 'lostinthemoment'],
                 datetime(
                     2021,
-                    8,
-                    28,
+                    9,
+                    4,
                     13,
                     0,
                     0
@@ -45,13 +43,13 @@ class PostsManagerRunner(ProgramRunner):
                 )
             ]
             post2 = [
-                'https://redgifs.com/watch/aridcraftybufeo',
-                'Scene from *Lesbian Adventures: Strap-On Specialists 15* with **Lena Paul** and **Sinn Sage**',
-                ['nsfw', 'lesbians', 'lenapaul'],
+                'https://redgifs.com/watch/magnificentworstmayfly',
+                'Clip from [video](https://www.pornhub.com/view_video.php?viewkey=ph5f2a0f59c60b0) by [Darkwetdreemz](https://www.pornhub.com/model/darkwetdreemz)',
+                ['nsfw'],
                 datetime(
                     2021,
-                    8,
-                    29,
+                    9,
+                    5,
                     13,
                     0,
                     0
@@ -96,14 +94,16 @@ class PostsManagerRunner(ProgramRunner):
                         ))
         ):
             submission.reply(postArgs[1])
-            submission.crosspost(
-                subreddit='porn',
-                title='[/r/romanticxxx] {}'.format(
-                    submission.title
-                )
-            )
             for subreddit in postArgs[2]:
                 time.sleep(600)
-                submission.crosspost(
-                    subreddit=subreddit
-                )
+                if subreddit=='porn':
+                    submission.crosspost(
+                        subreddit='porn',
+                        title='[/r/romanticxxx] {}'.format(
+                            submission.title
+                        )
+                    )
+                else:
+                    submission.crosspost(
+                        subreddit=subreddit
+                    )
