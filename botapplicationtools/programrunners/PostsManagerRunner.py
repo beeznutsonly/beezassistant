@@ -34,7 +34,7 @@ class PostsManagerRunner(ProgramRunner):
                 datetime(
                     2021,
                     9,
-                    4,
+                    5,
                     13,
                     0,
                     0
@@ -43,13 +43,13 @@ class PostsManagerRunner(ProgramRunner):
                 )
             ]
             post2 = [
-                'https://redgifs.com/watch/cuteincrediblequoll',
-                'Scene from *MILF Pact* with **Dana Vespoli** and **Lucas Frost**',
-                ['nsfw', 'lostinthemoment'],
+                'https://redgifs.com/watch/orchidornategrosbeak',
+                'Scene from *Raw 11* with **Liza Del Sierra** and **Manuel Ferrara**',
+                ['porn','nsfw', 'lostinthemoment'],
                 datetime(
                     2021,
                     9,
-                    5,
+                    4,
                     13,
                     0,
                     0
