@@ -28,9 +28,9 @@ class PostsManagerRunner(ProgramRunner):
         try:
             postProcessExecutor = ThreadPoolExecutor()
             post1 = [
-                'https://redgifs.com/watch/cuteincrediblequoll',
-                'Scene from *MILF Pact* with **Dana Vespoli** and **Lucas Frost**',
-                ['nsfw', 'lostinthemoment'],
+                'https://redgifs.com/watch/cooperativeadeptsiberiantiger',
+                'Scene from *Charity Case* with **Lisey Sweet** and **Will Pounder**',
+                ['porn', 'nsfw', 'lostinthemoment'],
                 datetime(
                     2021,
                     9,
@@ -43,9 +43,9 @@ class PostsManagerRunner(ProgramRunner):
                 )
             ]
             post2 = [
-                'https://redgifs.com/watch/magnificentworstmayfly',
-                'Clip from [video](https://www.pornhub.com/view_video.php?viewkey=ph5f2a0f59c60b0) by the couple [Darkwetdreemz](https://www.pornhub.com/model/darkwetdreemz)',
-                ['nsfw'],
+                'https://redgifs.com/watch/cuteincrediblequoll',
+                'Scene from *MILF Pact* with **Dana Vespoli** and **Lucas Frost**',
+                ['nsfw', 'lostinthemoment'],
                 datetime(
                     2021,
                     9,
