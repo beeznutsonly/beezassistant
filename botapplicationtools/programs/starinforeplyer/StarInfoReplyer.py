@@ -5,7 +5,8 @@ Program to automatically reply with Star Info to comments
 mentioning a star with scene info archived
 """
 
-from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import StarSceneInfoSubmissionDetailDAO
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
+    import StarSceneInfoSubmissionDetailDAO
 import time
 from datetime import datetime, timedelta
 from itertools import groupby
@@ -36,6 +37,9 @@ def execute(
 
     starInfoReplyerCommentedDAO = starInfoReplyerStorage \
         .getStarInfoReplyerCommentedDAO
+
+    starInfoReplyerExcludedDAO = starInfoReplyerStorage \
+        .getStarInfoReplyerExcludedDAO
 
     starInfoGroups = __refreshStarInfoGroups(
         starInfoReplyerStorage
@@ -84,6 +88,9 @@ def execute(
                         comment.author.name in (
                             [] if excludedUsers is None
                             else excludedUsers
+                        ) or
+                        starInfoReplyerExcludedDAO.checkExists(
+                            comment.author.name
                         )
                 ):
                     continue

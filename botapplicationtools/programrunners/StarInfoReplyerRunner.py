@@ -9,6 +9,7 @@ from botapplicationtools.programs.starinforeplyer import StarInfoReplyer
 from botapplicationtools.programs.starinforeplyer.RedditTools import RedditTools
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
     import StarInfoReplyerCommentedDAO
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO import StarInfoReplyerExcludedDAO
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerIO import StarInfoReplyerIO
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerStorage \
     import StarInfoReplyerStorage
@@ -106,6 +107,9 @@ class StarInfoReplyerRunner(ProgramRunner):
                 starInfoReplyerCommentedDAO = StarInfoReplyerCommentedDAO(
                     connection
                 )
+                starInfoReplyerExcludedDAO = StarInfoReplyerExcludedDAO(
+                    connection
+                )
                 starSceneInfoSubmissionDetailDAO = StarSceneInfoSubmissionDetailDAO(
                     connection
                 )
@@ -113,6 +117,7 @@ class StarInfoReplyerRunner(ProgramRunner):
                 starInfoReplyerIO = StarInfoReplyerIO(
                     StarInfoReplyerStorage(
                         starInfoReplyerCommentedDAO,
+                        starInfoReplyerExcludedDAO,
                         starSceneInfoSubmissionDetailDAO
                     ),
                     redditTools

@@ -33,6 +33,7 @@ from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError \
     import DatabaseNotFoundError
 from botapplicationtools.exceptions.BotInitializationError import \
     BotInitializationError
+from botapplicationtools.programrunners.MessageCommandProcessorRunner import MessageCommandProcessorRunner
 from botapplicationtools.programrunners.PostsManagerRunner import \
     PostsManagerRunner
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
@@ -451,6 +452,12 @@ def __loadInitialProgramRunners(
             redditInterfaceFactory=redditInterfaceFactory,
             configReader=configReader
         )
+        programRunners['messagecommandprocessor'] = \
+            MessageCommandProcessorRunner(
+                databaseConnectionFactory=databaseConnectionFactory,
+                redditInterfaceFactory=redditInterfaceFactory,
+                configReader=configReader
+            )
 
     # Handle if there is an error initializing any of the Program Runners
     except ProgramRunnerInitializationError as ex:
@@ -748,15 +755,15 @@ def startBot(args=[]):
             botCommand = ''
 
             # Retrieve and execute bot command if present
-            if len(args) > 1:
+            if len(args) > 2:
                 botCommand = " ".join(args[2:])
 
             __processBotCommand(botCommand)
             __mainLogger.info('The bot is now running')
 
             try:
-
-                listen = int(args[0])  # Command listening setting
+                # Command listening setting
+                listen = int(args[1]) if len(args) > 1 else None
 
                 # Check if command listening is set
                 if listen:
