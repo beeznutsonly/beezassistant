@@ -4,6 +4,7 @@ import sqlite3
 
 from os.path import isfile
 
+from botapplicationtools.databasetools.exceptions.DatabaseConnectionFailureError import DatabaseConnectionFailureError
 from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError import DatabaseNotFoundError
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
@@ -15,6 +16,7 @@ class SqliteDatabaseConnectionFactory(DatabaseConnectionFactory):
     """
 
     __databaseString: str
+    __isClosed: bool
 
     def __init__(self, databaseString):
 
@@ -25,8 +27,13 @@ class SqliteDatabaseConnectionFactory(DatabaseConnectionFactory):
             )
 
         self.__databaseString = databaseString
+        self.__isClosed = False
 
     def getConnection(self):
+        if self.__isClosed:
+            raise DatabaseConnectionFailureError(
+                "The connection factory is closed"
+            )
         return sqlite3.connect(
             self.__databaseString,
             check_same_thread=False
@@ -34,3 +41,6 @@ class SqliteDatabaseConnectionFactory(DatabaseConnectionFactory):
 
     def yieldConnection(self, connection):
         connection.close()
+
+    def shutDown(self):
+        self.__isClosed = True

@@ -48,7 +48,8 @@ from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
 from botapplicationtools.programsexecutors.ProgramsExecutor import ProgramsExecutor
 from botapplicationtools.programsexecutors.exceptions \
     .ProgramsExecutorInitializationError import ProgramsExecutorInitializationError
-from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
+from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
+    import RedditInterfaceFactory
 
 __RESOURCES_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -57,6 +58,7 @@ __RESOURCES_PATH = os.path.join(
 __mainLogger: logging.Logger
 __defaultConsoleLoggingLevel: int
 __programsExecutor: ProgramsExecutor
+__databaseConnectionFactory: DatabaseConnectionFactory
 
 
 # Bot initialization commands
@@ -484,6 +486,7 @@ def __initializeProgramsExecutor(programRunners, configReader)\
 def __initializeBot():
     """Initialize the bot"""
 
+    global __databaseConnectionFactory
     global __programsExecutor
 
     # Setting up logging apparatus
@@ -514,7 +517,7 @@ def __initializeBot():
         database = configReader.get(
             section, 'database'
         )
-        databaseConnectionFactory = \
+        __databaseConnectionFactory = \
             __getInitialDatabaseConnectionFactory(database, configReader)
 
         # Bot attribute initialization
@@ -524,21 +527,21 @@ def __initializeBot():
 
         # Retrieving initial bot credentials
         __mainLogger.debug("Retrieving initial bot credentials")
-        with databaseConnectionFactory.getConnection() as databaseConnection:
+        with __databaseConnectionFactory.getConnection() as databaseConnection:
             botCredentials = __getInitialBotCredentials(databaseConnection)
-        databaseConnectionFactory.yieldConnection(databaseConnection)
+        __databaseConnectionFactory.yieldConnection(databaseConnection)
 
         # Initializing the Reddit Interface Factory
         __mainLogger.debug("Initializing the Reddit Interface Factory")
-        with databaseConnectionFactory.getConnection() as databaseConnection:
+        with __databaseConnectionFactory.getConnection() as databaseConnection:
             redditInterfaceFactory = __getInitialRedditInterfaceFactory(
                 botCredentials, databaseConnection
             )
-        databaseConnectionFactory.yieldConnection(databaseConnection)
+        __databaseConnectionFactory.yieldConnection(databaseConnection)
 
         # Initializing the Program Runners
         programRunners = __loadInitialProgramRunners(
-            databaseConnectionFactory, redditInterfaceFactory, configReader
+            __databaseConnectionFactory, redditInterfaceFactory, configReader
         )
 
         # Initializing the Programs Executor
@@ -688,6 +691,11 @@ def shutDownBot(wait=True, shutdownExitCode=0):
         )
         try:
             __programsExecutor.shutDown(True)
+            __databaseConnectionFactory.shutDown()
+            __mainLogger.info(
+                'Database connection factory successfully'
+                ' shut down'
+            )
             __mainLogger.info('Bot successfully shut down')
             if shutdownExitCode != 0:
                 sys.exit(shutdownExitCode)
@@ -695,17 +703,27 @@ def shutDownBot(wait=True, shutdownExitCode=0):
         # Handle keyboard interrupt midway through graceful shutdown
         except KeyboardInterrupt:
 
-            __programsExecutor.shutDown(False)
             __mainLogger.warning(
                 'Graceful shutdown aborted.'
             )
+            __programsExecutor.shutDown(False)
+            __databaseConnectionFactory.shutDown()
+            __mainLogger.info(
+                'Database connection factory successfully'
+                ' shut down'
+            )
             __mainLogger.info('Bot shut down')
 
-            # Killing the process (only way to effectively stop all threads)
+            # Killing the process (only way to essentially stop all threads)
             __killBot()
 
     else:
         __programsExecutor.shutDown(False)
+        __databaseConnectionFactory.shutDown()
+        __mainLogger.info(
+            'Database connection factory successfully'
+            ' shut down'
+        )
         __mainLogger.info('Bot shut down')
 
         __killBot()

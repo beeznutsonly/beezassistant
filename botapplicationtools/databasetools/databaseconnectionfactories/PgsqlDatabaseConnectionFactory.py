@@ -5,6 +5,7 @@ from psycopg2 import pool
 
 from botapplicationtools.databasetools.databaseconnectionfactories \
     .DatabaseConnectionFactory import DatabaseConnectionFactory
+from botapplicationtools.databasetools.exceptions.DatabaseConnectionFailureError import DatabaseConnectionFailureError
 from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError \
     import DatabaseNotFoundError
 
@@ -20,11 +21,17 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         self.__connectionPool = connectionPool
 
     def getConnection(self):
-        
+        if self.__connectionPool.closed:
+            raise DatabaseConnectionFailureError(
+                "The connection factory is closed"
+            )
         return self.__connectionPool.getconn()
 
     def yieldConnection(self, connection):
         self.__connectionPool.putconn(connection)
+
+    def shutDown(self):
+        self.__connectionPool.closeall()
 
     @classmethod
     def __databaseExists(

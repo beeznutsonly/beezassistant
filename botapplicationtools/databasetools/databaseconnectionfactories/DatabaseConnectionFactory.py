@@ -20,3 +20,9 @@ class DatabaseConnectionFactory(ABC):
         """
 
         raise NotImplementedError
+
+    @abstractmethod
+    def shutDown(self):
+        """Shut down the database connection factory"""
+
+        raise NotImplementedError

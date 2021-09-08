@@ -77,7 +77,7 @@ class AsynchronousProgramsExecutor(ProgramsExecutor):
         try:
             # Initial program commands
             initialProgramCommands = json.loads(configReader.get(
-                'ProgramsExecutor', 'initialprogramcommands'
+                'ProgramsExecutor', 'initialProgramCommands'
             ))
 
         # Handle when there is a problem parsing the config file
