@@ -20,9 +20,11 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
         self.__connectionPool = connectionPool
 
     def getConnection(self):
-        """Get new database connection"""
         
         return self.__connectionPool.getconn()
+
+    def yieldConnection(self, connection):
+        self.__connectionPool.putconn(connection)
 
     @classmethod
     def __databaseExists(

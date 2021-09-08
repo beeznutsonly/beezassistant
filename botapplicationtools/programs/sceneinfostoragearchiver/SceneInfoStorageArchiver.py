@@ -15,21 +15,35 @@ def execute(
 ):
     """Execute the program"""
 
+    allSubmissions = ContributionsUtility.retrieveSubmissionsFromSubreddit(
+            pushShiftAPI,
+            subredditSearchParameters.getSubredditName,
+            subredditSearchParameters.getFromTime,
+            [
+                'id',
+                'author',
+                'link_flair_template_id',
+                'title',
+                'created_utc'
+            ]
+    )
+
+    onlineSubmissions = list(filter(
+        lambda submission:
+        not ContributionsUtility.isRemoved(submission),
+        allSubmissions
+    ))
+
+    removedSubmissions = list(filter(
+        lambda submission:
+        ContributionsUtility.isRemoved(submission),
+        allSubmissions
+    ))
+
     # Retrieve all scene info submissions from a subreddit within given timeframe
     freshSceneInfoSubmissions = SceneInfoSubmissionsUtility \
         .retrieveSceneInfoSubmissions(
-                ContributionsUtility.retrieveSubmissionsFromSubreddit(
-                    pushShiftAPI,
-                    subredditSearchParameters.getSubredditName,
-                    subredditSearchParameters.getFromTime,
-                    [
-                        'id',
-                        'author',
-                        'link_flair_template_id',
-                        'title',
-                        'created_utc'
-                    ]
-                ),
+                onlineSubmissions,
                 subredditSearchParameters.getExtractors
                 .getSceneInfoFlairID
         )
@@ -62,5 +76,7 @@ def execute(
             .getSceneInfoDAO,
 
             sceneInfoSubmissionsWithSceneInfoStorage
-            .getSceneInfoSubmissionWithSceneInfoDAO
+            .getSceneInfoSubmissionWithSceneInfoDAO,
+
+            removedSubmissions
         )

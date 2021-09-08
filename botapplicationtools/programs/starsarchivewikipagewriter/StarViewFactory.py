@@ -27,9 +27,12 @@ def getStarViews(databaseConnection, starViewArguments):
 
     starViewObjects = []
     for starViewArgument in (
-            [] if starViewArguments is None else starViewArguments
+            [] if starViewArguments is None
+            else starViewArguments
     ):
-        starViewObject = getStarView(databaseConnection, starViewArgument)
+        starViewObject = getStarView(
+            databaseConnection, starViewArgument
+        )
         if starViewObject is not None:
             starViewObjects.append(starViewObject)
 

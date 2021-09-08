@@ -4,6 +4,7 @@
 Utility module providing various functions to retrieve,
 manipulate, or store scene info and scene info submissions
 """
+from botapplicationtools.programs.programtools.generaltools.SimpleSubmission import SimpleSubmission
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
 import re
 from typing import List
@@ -93,7 +94,10 @@ def saveSceneInfoSubmissionsWithSceneInfoToStorage(
         SimpleSceneInfoDAO,
 
         sceneInfoSubmissionWithSceneInfoDAO:
-        SceneInfoSubmissionWithSceneInfoDAO
+        SceneInfoSubmissionWithSceneInfoDAO,
+
+        removedSubmissions:
+        List[SimpleSubmission] = None,
 ):
     """
     Save SceneInfoSubmissionsWithSceneInfo data to storage
@@ -101,21 +105,25 @@ def saveSceneInfoSubmissionsWithSceneInfoToStorage(
     """
 
     # Saving submission-specific data
+    sceneInfoSubmissionDAO.refreshCursor()
     for sceneInfoSubmissionWithSceneInfo in \
             sceneInfoSubmissionsWithSceneInfo:
 
-        sceneInfoDAO.refreshCursor()
         sceneInfoSubmissionDAO.add(
             sceneInfoSubmissionWithSceneInfo.getSceneInfoSubmission
         )
+    # Optionally remove removed submissions
+    if removedSubmissions:
+        for removedSubmission in removedSubmissions:
+            sceneInfoSubmissionDAO.remove(removedSubmission)
     sceneInfoSubmissionDAO.saveChanges()
     sceneInfoSubmissionDAO.closeCursor()
 
     # Saving scene-specific info
+    sceneInfoDAO.refreshCursor()
     for sceneInfoSubmissionWithSceneInfo in \
             sceneInfoSubmissionsWithSceneInfo:
 
-        sceneInfoDAO.refreshCursor()
         sceneInfoDAO.add(
             sceneInfoSubmissionWithSceneInfo.getSceneInfo
         )
@@ -123,10 +131,10 @@ def saveSceneInfoSubmissionsWithSceneInfoToStorage(
     sceneInfoDAO.closeCursor()
 
     # Saving submission and scene info
+    sceneInfoSubmissionWithSceneInfoDAO.refreshCursor()
     for sceneInfoSubmissionWithSceneInfo in \
             sceneInfoSubmissionsWithSceneInfo:
 
-        sceneInfoDAO.refreshCursor()
         sceneInfoSubmissionWithSceneInfoDAO.add(
             sceneInfoSubmissionWithSceneInfo
         )

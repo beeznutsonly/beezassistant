@@ -94,7 +94,5 @@ class IndividualStarView:
         """Retrieve the view's markdown"""
 
         if self.__viewMarkdown is None:
-            self.__viewMarkdown = self.__generateViewMarkdown(
-                self.__starSceneInfoSubmissionDetailDAO
-            )
+            self.updateViewMarkdown()
         return self.__viewMarkdown

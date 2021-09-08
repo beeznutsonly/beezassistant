@@ -43,8 +43,6 @@ from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import 
     StarsArchiveWikiPageWriterRunner
 from botapplicationtools.programrunners.exceptions \
     .ProgramRunnerInitializationError import ProgramRunnerInitializationError
-from botapplicationtools.programs.programtools.generaltools.RedditInterface \
-    import RedditInterface
 from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
     import AsynchronousProgramsExecutor
 from botapplicationtools.programsexecutors.ProgramsExecutor import ProgramsExecutor
@@ -146,10 +144,12 @@ def ___initializeDatabase(connection, database):
         connection, database, sqliteScriptPath
     )
 
+
 def ___getDsnPgsqlDatabaseConnectionFactory(dsn):
     return PgsqlDatabaseConnectionFactory.getFactoryFromDsn(
         dsn
     )
+
 
 def ___getCredentialPgsqlDatabaseConnectionFactory(
         databaseName,
@@ -175,17 +175,17 @@ def ___getCredentialPgsqlDatabaseConnectionFactory(
         )
 
         # Creating new database
-        with psycopg2.connect(
+        databaseCreationConnection = psycopg2.connect(
                 user=user, password=password,
                 host=host, port=port
-        ) as databaseCreationConnection:
-
-            databaseCreationConnection.autocommit = True
-            cursor = databaseCreationConnection.cursor()
-            cursor.execute('create database {};'.format(
-                databaseName
-            ))
-            cursor.close()
+        )
+        databaseCreationConnection.autocommit = True
+        cursor = databaseCreationConnection.cursor()
+        cursor.execute('create database {};'.format(
+            databaseName
+        ))
+        cursor.close()
+        databaseCreationConnection.close()
 
         # Initializing the new database
         with psycopg2.connect(
@@ -201,7 +201,7 @@ def ___getCredentialPgsqlDatabaseConnectionFactory(
 
         databaseConnectionFactory = PgsqlDatabaseConnectionFactory \
             .getFactoryFromCredentials(
-                user, password, databaseName, host, port
+                databaseName, user, password, host, port
             )
 
     return databaseConnectionFactory
@@ -526,6 +526,7 @@ def __initializeBot():
         __mainLogger.debug("Retrieving initial bot credentials")
         with databaseConnectionFactory.getConnection() as databaseConnection:
             botCredentials = __getInitialBotCredentials(databaseConnection)
+        databaseConnectionFactory.yieldConnection(databaseConnection)
 
         # Initializing the Reddit Interface Factory
         __mainLogger.debug("Initializing the Reddit Interface Factory")
@@ -533,6 +534,7 @@ def __initializeBot():
             redditInterfaceFactory = __getInitialRedditInterfaceFactory(
                 botCredentials, databaseConnection
             )
+        databaseConnectionFactory.yieldConnection(databaseConnection)
 
         # Initializing the Program Runners
         programRunners = __loadInitialProgramRunners(

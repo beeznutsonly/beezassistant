@@ -234,6 +234,14 @@ class SceneInfoArchiverRunner(ProgramRunner):
                                 starsArchiveWikiPageWriterTools,
                             )
 
+                    # Disposing of database connections
+                    self.__databaseConnectionFactory.yieldConnection(
+                        wikiWriterDatabaseConnection
+                    )
+                    self.__databaseConnectionFactory.yieldConnection(
+                        storageDatabaseConnection
+                    )
+
                     # Another quick shutdown check after task completo
                     if self.isShutDown():
                         programRunnerLogger.info(

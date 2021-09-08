@@ -119,14 +119,19 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
             starViewObjects = StarViewFactory.getStarViews(
                 databaseConnection, self.__defaultStarViews
             )
+            # Executing the program
+            programRunnerLogger.info(
+                'Stars Archive Wiki Page Writer is now running'
+            )
+            StarsArchiveWikiPageWriter.execute(
+                wikiPage, starViewObjects
+            )
 
-        # Executing the program
-        programRunnerLogger.info(
-            'Stars Archive Wiki Page Writer is now running'
+        # Disposing of the database connection
+        self.__databaseConnectionFactory.yieldConnection(
+            databaseConnection
         )
-        StarsArchiveWikiPageWriter.execute(
-            wikiPage, starViewObjects
-        )
+
         programRunnerLogger.info(
             'Stars Archive Wiki Page Writer completed'
         )

@@ -11,3 +11,12 @@ class DatabaseConnectionFactory(ABC):
         """Retrieve a database connection"""
 
         raise NotImplementedError
+
+    @abstractmethod
+    def yieldConnection(self, connection):
+        """
+        Return connection to connection factory when
+        finished using it
+        """
+
+        raise NotImplementedError

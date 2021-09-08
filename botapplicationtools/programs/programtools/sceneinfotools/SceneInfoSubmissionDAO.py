@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*
+from botapplicationtools.programs.programtools.generaltools.SimpleSubmission import SimpleSubmission
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
 
 
@@ -40,6 +41,28 @@ class SceneInfoSubmissionDAO:
         except Exception as ex:
             raise Exception(
                 "Failed to insert a new submission into the database",
+                ex
+            )
+
+    def remove(
+            self,
+            submission: SimpleSubmission
+    ):
+        """Removing submission from the database"""
+
+        sqlString = '''
+                    DELETE FROM PostInfo WHERE id = %s
+                    '''
+        try:
+            self.__cursor.execute(
+                sqlString,
+                (submission.getSubmissionId,)
+            )
+
+        # Handle database error
+        except Exception as ex:
+            raise Exception(
+                "Failed to remove the submission from the database",
                 ex
             )
 

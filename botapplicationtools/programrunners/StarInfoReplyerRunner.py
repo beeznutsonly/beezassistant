@@ -125,6 +125,11 @@ class StarInfoReplyerRunner(ProgramRunner):
                     self.isShutDown,
                     self.__replyFooter
                 )
+
+            # Dispose of database connection
+            self.__databaseConnectionFactory.yieldConnection(
+                connection
+            )
             
             # Program termination message determination
             if self.isShutDown():

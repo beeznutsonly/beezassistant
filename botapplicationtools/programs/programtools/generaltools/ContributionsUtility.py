@@ -16,7 +16,7 @@ def retrieveSubmissionsFromSubreddit(
         filters: List[str]
 ) -> List[Submission]:
     """
-    Retrieves all (non-removed) submissions from a given subreddit
+    Retrieves all submissions from a given subreddit
     after the provided time containing only filtered info
     """
 

@@ -38,6 +38,30 @@ class SimpleSceneInfoDAO:
                 er
             )
 
+    def add(self, sceneInfo: SimpleSceneInfo):
+        """Inserting new scene info data into database"""
+
+        sqlString = (
+            'INSERT INTO SceneInfo(Movie,Star1,Star2) ' +
+            'VALUES (%s,%s,%s) ON CONFLICT DO NOTHING'
+        )
+        try:
+            self.__cursor.execute(
+                sqlString, (
+                    sceneInfo.getMovieName,
+                    sceneInfo.getStars[0],
+                    sceneInfo.getStars[1]
+                )
+            )
+
+        # Handle database error
+        except Exception as er:
+            raise Exception(
+                "Failed to insert new scene info "
+                "into the database",
+                er
+            )
+
     def refreshCursor(self):
         """Reset cursor for the DAO"""
 
