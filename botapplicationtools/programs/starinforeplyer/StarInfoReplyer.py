@@ -5,22 +5,23 @@ Program to automatically reply with Star Info to comments
 mentioning a star with scene info archived
 """
 
-from prawcore import ServerError, RequestException
-
-from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
-    import StarSceneInfoSubmissionDetailDAO
 import time
 from datetime import datetime, timedelta
 from itertools import groupby
-from typing import List, Callable
+from typing import Callable, List
+
+from botapplicationtools.programs.programtools.generaltools import \
+    ContributionsUtility
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetail import \
+    StarSceneInfoSubmissionDetail
+from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import \
+    StarSceneInfoSubmissionDetailDAO
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerIO import \
+    StarInfoReplyerIO
 
 from praw import Reddit
 from praw.models import Comment
-
-from botapplicationtools.programs.programtools.generaltools import ContributionsUtility
-from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetail import \
-    StarSceneInfoSubmissionDetail
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerIO import StarInfoReplyerIO
+from prawcore.exceptions import RequestException, ServerError
 
 
 def execute(
@@ -116,9 +117,9 @@ def execute(
                             )
 
         # Handle if connection to the Reddit API is lost
-        except RequestException or ServerError:
+        except (RequestException, ServerError):
             
-            time.sleep(10)
+            time.sleep(30)
 
 
 def __refreshStarInfoGroups(

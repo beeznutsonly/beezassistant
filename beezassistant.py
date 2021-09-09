@@ -372,7 +372,7 @@ def ___getNewBotCredentials() -> BotCredentials:
             )
 
     # Handle if listening interrupted
-    except KeyboardInterrupt or EOFError as ex:
+    except (KeyboardInterrupt, EOFError) as ex:
         __resumeConsoleLogging()
         raise ex
 
@@ -412,7 +412,7 @@ def __getInitialRedditInterfaceFactory(botCredentials, databaseConnection) \
             redditInterfaceFactory = __getInitialRedditInterfaceFactory(
                 ___getNewBotCredentials(), databaseConnection
             )
-        except KeyboardInterrupt or EOFError:
+        except (KeyboardInterrupt, EOFError):
             raise BotInitializationError(
                 "Retrieval of bot credentials from user input "
                 "aborted"
@@ -784,7 +784,7 @@ def startBot(args=[]):
             __startCommandListener()
 
     # Handle forced shutdown request
-    except KeyboardInterrupt or EOFError:
+    except (KeyboardInterrupt, EOFError):
         __mainLogger.warning(
             'Forced bot shutdown requested. Please wait a bit wait while '
             'a graceful shutdown is attempted or press '
