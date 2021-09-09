@@ -29,7 +29,7 @@ class SceneInfoSubmissionWithSceneInfoDAO:
                     INSERT INTO SubmissionsAndInfo(submission_id,Movie,Star1,Star2)
                     VALUES (%s,%s,%s,%s) ON CONFLICT(submission_id) DO
                     UPDATE SET 
-                    Movie=excluded.Movie, Star1=excluded.Star1, Star2=excluded.Star2
+                    Movie=excluded.Movie, Star1=excluded.Star1, Star2=excluded.Star2;
                     '''
         try:
             self.__cursor.execute(

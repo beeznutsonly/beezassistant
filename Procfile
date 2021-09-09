@@ -1,1 +1,1 @@
-worker: python beezassistant.py 0 run sceneinfoarchiver
+worker: python beezassistant.py 0

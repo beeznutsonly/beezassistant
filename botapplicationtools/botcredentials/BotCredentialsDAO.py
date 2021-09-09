@@ -34,7 +34,7 @@ class BotCredentialsDAO:
                 'UPDATE SET '
                 'user_agent=excluded.user_agent, '
                 'username=excluded.username, '
-                'password=excluded.password'
+                'password=excluded.password;'
         )
         try:
             cursor.execute(
@@ -60,7 +60,7 @@ class BotCredentialsDAO:
         """Retrieving bot credentials from database"""
 
         sqlString = 'SELECT user_agent, client_id, client_secret,' \
-                    ' username, password FROM BotCredentials'
+                    ' username, password FROM BotCredentials;'
 
         cursor = connection.cursor() \
             if connection is not None \

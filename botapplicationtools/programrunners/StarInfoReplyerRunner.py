@@ -9,7 +9,8 @@ from botapplicationtools.programs.starinforeplyer import StarInfoReplyer
 from botapplicationtools.programs.starinforeplyer.RedditTools import RedditTools
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
     import StarInfoReplyerCommentedDAO
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO import StarInfoReplyerExcludedDAO
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO \
+    import StarInfoReplyerExcludedDAO
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerIO import StarInfoReplyerIO
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerStorage \
     import StarInfoReplyerStorage
@@ -130,11 +131,6 @@ class StarInfoReplyerRunner(ProgramRunner):
                     self.isShutDown,
                     self.__replyFooter
                 )
-
-            # Dispose of database connection
-            self.__databaseConnectionFactory.yieldConnection(
-                connection
-            )
             
             # Program termination message determination
             if self.isShutDown():
@@ -151,4 +147,9 @@ class StarInfoReplyerRunner(ProgramRunner):
             programRunnerLogger.error(
                 "A terminal error occurred while running the Star "
                 "Info Replyer: " + str(er.args), exc_info=True
+            )
+        finally:
+            # Dispose of database connection
+            self.__databaseConnectionFactory.yieldConnection(
+                connection
             )

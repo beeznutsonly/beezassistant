@@ -51,7 +51,11 @@ CREATE TABLE SubmissionsAndInfo (
 );
 
 CREATE TABLE StarInfoReplyerCommented(
-    commentId VARCHAR NOT NULL PRIMARY KEY
+    commentId VARCHAR PRIMARY KEY NOT NULL
+);
+
+CREATE TABLE StarInfoReplyerExcluded(
+    username VARCHAR PRIMARY KEY NOT NULL
 );
 
 CREATE TABLE SubmissionReplyDetails (

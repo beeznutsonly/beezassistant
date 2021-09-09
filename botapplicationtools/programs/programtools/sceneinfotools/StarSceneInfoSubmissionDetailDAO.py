@@ -65,6 +65,8 @@ class StarSceneInfoSubmissionDetailDAO:
                     sqlString += ' LIMIT %s'
                     values.append(limit)
 
+                sqlString += ";"
+
                 return self.__retrieveFromSql(sqlString, tuple(values))
             else:
                 return self.retrieveAll(limit=limit)

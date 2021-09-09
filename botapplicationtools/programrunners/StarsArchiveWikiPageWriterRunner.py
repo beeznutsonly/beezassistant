@@ -47,7 +47,8 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
         # -------------------------------------------------------------------------------
 
         self._programRunnerLogger.debug(
-            "Retrieving Program Runner initial values from the config. reader"
+            "Retrieving Stars Archive Wiki Page Writer initial values "
+            "from the config. reader"
         )
 
         section = 'StarsArchiveWikiPageWriterRunner'

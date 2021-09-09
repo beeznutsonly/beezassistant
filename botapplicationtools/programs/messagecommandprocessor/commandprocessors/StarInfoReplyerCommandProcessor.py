@@ -7,7 +7,7 @@ from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO \
 class StarInfoReplyerCommandProcessor:
     """
     Class encapsulating objects responsible for
-    processing message commands
+    processing Star Info Replyer commands
     """
 
     __starInfoReplyerExcludedDAO: StarInfoReplyerExcludedDAO
@@ -20,10 +20,14 @@ class StarInfoReplyerCommandProcessor:
         self.__starInfoReplyerExcludedDAO = starInfoReplyerExcludedDAO
 
     def processMessage(self, message: Message):
+        """Process provided message command"""
 
         messageArguments = message.body.lower()
 
+        # Process if command is opt-out request
         if messageArguments == "opt-out":
+
+            # Proceed if user had not been previously excluded
             if not self.__starInfoReplyerExcludedDAO.checkExists(
                 message.author.name
             ):
@@ -41,7 +45,11 @@ class StarInfoReplyerCommandProcessor:
                     "message=opt-in"
                     ").\n\n Regards.\n\n The r/romanticxxx mod team"
                 )
+
+        # Process if command is opt-in request
         elif messageArguments == "opt-in":
+
+            # Proceed if user had been previously excluded
             if self.__starInfoReplyerExcludedDAO.checkExists(
                 message.author.name
             ):
@@ -54,10 +62,13 @@ class StarInfoReplyerCommandProcessor:
                     "whenever you mention any star we have stored in "
                     "our stars archive. To opt back out, [click here]("
                     "https://www.reddit.com/message/compose?"
-                    "to=/u/beezassistant&subject=!StarInfoReplyer&"
+                    "to=/u/beezassistant&"
+                    "subject=!StarInfoReplyer&"
                     "message=opt-out"
                     ").\n\n Regards.\n\n The r/romanticxxx mod team"
                 )
+
+        # Handle unsupported message command arguments
         else:
             message.reply(
                 "The bot could not process your message. Please check if "

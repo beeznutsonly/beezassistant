@@ -62,6 +62,11 @@ class SceneInfoArchiverRunner(ProgramRunner):
         # Retrieving values from config file
         # -------------------------------------------------------------------------------
 
+        self._programRunnerLogger.debug(
+            "Retrieving Scene Info Archiver initial values "
+            "from the config. reader"
+        )
+
         # Scene Info Storage Archiver values
 
         section = 'SceneInfoArchiverRunner'
@@ -103,10 +108,11 @@ class SceneInfoArchiverRunner(ProgramRunner):
         # Instance variable initialization
         # -------------------------------------------------------------------------------
 
-        # For Scene Info Storage Archiver
         self._programRunnerLogger.debug(
-            "Initializing Scene Info Storage Archiver variables"
+            "Initializing Scene Info Archiver variables"
         )
+
+        # For Scene Info Storage Archiver
 
         self.__refreshInterval = refreshInterval
         self.__subredditSearchParameters = SubredditSearchParameters(
@@ -121,9 +127,6 @@ class SceneInfoArchiverRunner(ProgramRunner):
         )
 
         # For Stars Archive Wiki Page Writer
-        self._programRunnerLogger.debug(
-            "Initializing Stars Archive Wiki Page Writer variables"
-        )
 
         self.__subredditName = starsArchiveWikiPageWriterSubredditName
         self.__wikiName = wikiName
@@ -272,7 +275,16 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
         # Handle if an error occurs while running the Scene Info Archiver
         except Exception as er:
+
             programRunnerLogger.error(
                 "A terminal error occurred while running the Scene "
                 "Info Archiver: " + str(er.args), exc_info=True
+            )
+
+            # Disposing of database connections
+            self.__databaseConnectionFactory.yieldConnection(
+                wikiWriterDatabaseConnection
+            )
+            self.__databaseConnectionFactory.yieldConnection(
+                storageDatabaseConnection
             )

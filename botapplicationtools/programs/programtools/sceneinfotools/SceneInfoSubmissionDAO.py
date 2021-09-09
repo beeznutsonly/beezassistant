@@ -25,7 +25,7 @@ class SceneInfoSubmissionDAO:
 
         sqlString = '''
                     INSERT INTO PostInfo (id,Title,TimeCreated)
-                    VALUES (%s,%s,%s) ON CONFLICT (id) DO NOTHING
+                    VALUES (%s,%s,%s) ON CONFLICT (id) DO NOTHING;
                     '''
         try:
             self.__cursor.execute(
@@ -51,7 +51,7 @@ class SceneInfoSubmissionDAO:
         """Removing submission from the database"""
 
         sqlString = '''
-                    DELETE FROM PostInfo WHERE id = %s
+                    DELETE FROM PostInfo WHERE id = %s;
                     '''
         try:
             self.__cursor.execute(

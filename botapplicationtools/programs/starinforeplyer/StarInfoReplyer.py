@@ -5,6 +5,8 @@ Program to automatically reply with Star Info to comments
 mentioning a star with scene info archived
 """
 
+from prawcore import ServerError, RequestException
+
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
     import StarSceneInfoSubmissionDetailDAO
 import time
@@ -12,7 +14,6 @@ from datetime import datetime, timedelta
 from itertools import groupby
 from typing import List, Callable
 
-import prawcore
 from praw import Reddit
 from praw.models import Comment
 
@@ -48,16 +49,16 @@ def execute(
 
     nextGroupsRefreshDue = datetime.now() + timedelta(hours=refreshInterval)
 
+    # Unpacking Reddit tools
+    prawReddit = redditTools.getPrawReddit
+    commentStream = redditTools.getCommentStream
+    excludedUsers = redditTools.getExcludedUsers
+
     # Program loop
     while not stopCondition():
 
-        # Unpacking Reddit tools
-        prawReddit = redditTools.getPrawReddit
-        commentStream = redditTools.getCommentStream
-        excludedUsers = redditTools.getExcludedUsers
-
         try:
-            # "New comment listener" loop
+            # "Comment listener" loop
             for comment in commentStream:
 
                 # Handle "pause token"
@@ -115,7 +116,7 @@ def execute(
                             )
 
         # Handle if connection to the Reddit API is lost
-        except prawcore.exceptions.RequestException:
+        except RequestException or ServerError:
             
             time.sleep(10)
 

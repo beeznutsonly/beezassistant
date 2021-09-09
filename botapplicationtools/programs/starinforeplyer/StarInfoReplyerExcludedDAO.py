@@ -14,7 +14,7 @@ class StarInfoReplyerExcludedDAO:
         self.__connection = connection
 
     def addUser(self, username: str):
-        """Add excluded user"""
+        """Add provided excluded user"""
 
         sqlString = "INSERT INTO StarInfoReplyerExcluded(username)" \
                     " VALUES (%s) ON CONFLICT DO NOTHING;"
@@ -29,7 +29,7 @@ class StarInfoReplyerExcludedDAO:
             cursor.close()
 
     def removeUser(self, username: str):
-        """Remove excluded user"""
+        """Remove provided excluded user"""
 
         sqlString = "DELETE FROM StarInfoReplyerExcluded " \
                     "WHERE username = %s;"
@@ -46,7 +46,7 @@ class StarInfoReplyerExcludedDAO:
     def retrieve(self) -> List[str]:
         """Retrieve a list of all excluded users"""
 
-        sqlString = "SELECT username FROM StarInfoReplyerExcluded"
+        sqlString = "SELECT username FROM StarInfoReplyerExcluded;"
 
         cursor = self.__connection.cursor()
         try:
