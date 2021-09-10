@@ -45,6 +45,8 @@ def execute(
                         # Process if command is included in
                         # provided commands
                         if command in commandProcessors.keys():
+                            print(command)
+                            print(commandProcessors.keys())
                             commandProcessors[command].processMessage(
                                 message
                             )
