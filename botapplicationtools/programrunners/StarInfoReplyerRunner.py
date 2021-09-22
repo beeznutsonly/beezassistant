@@ -5,7 +5,10 @@ from typing import List
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory \
     import DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
+from botapplicationtools.programs.programtools.starprofiletools.StarDAO import StarDAO
+from botapplicationtools.programs.programtools.starprofiletools.StarLinkDAO import StarLinkDAO
 from botapplicationtools.programs.starinforeplyer import StarInfoReplyer
+from botapplicationtools.programs.starinforeplyer.CustomAddenda import CustomAddenda
 from botapplicationtools.programs.starinforeplyer.RedditTools import RedditTools
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
     import StarInfoReplyerCommentedDAO
@@ -16,6 +19,7 @@ from botapplicationtools.programs.starinforeplyer.StarInfoReplyerStorage \
     import StarInfoReplyerStorage
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
     import StarSceneInfoSubmissionDetailDAO
+from botapplicationtools.programs.starinforeplyer.StarStorage import StarStorage
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
     import RedditInterfaceFactory
 
@@ -32,7 +36,7 @@ class StarInfoReplyerRunner(ProgramRunner):
     __groupsRefreshInterval: int
     __subreddits: List[str]
     __excludedUsers: List[str]
-    __replyFooter: str
+    __customAddenda: CustomAddenda
 
     def __init__(
             self,
@@ -61,9 +65,12 @@ class StarInfoReplyerRunner(ProgramRunner):
         excludedUsers = json.loads(configReader.get(
             section, "excludedUsers"
         ))
-        replyFooter = str(configReader.get(
+        submissionSummaryAddendum = configReader.get(
+            section, "submissionSummaryAddendum"
+        )
+        replyFooter = configReader.get(
             section, "replyFooter"
-        ))
+        )
         groupsRefreshInterval = configReader.getint(
             section, "groupsRefreshInterval"
         )
@@ -72,9 +79,15 @@ class StarInfoReplyerRunner(ProgramRunner):
 
         self.__subreddits = subreddits
         self.__excludedUsers = excludedUsers
-        self.__replyFooter = bytes(
-            replyFooter, "utf-8"
-        ).decode("unicode_escape")
+        self.__customAddenda = CustomAddenda(
+            bytes(
+                submissionSummaryAddendum,
+                "utf-8"
+            ).decode("unicode_escape"),
+            bytes(
+                replyFooter, "utf-8"
+            ).decode("unicode_escape")
+        )
         self.__groupsRefreshInterval = groupsRefreshInterval
 
     def run(self):
@@ -114,12 +127,15 @@ class StarInfoReplyerRunner(ProgramRunner):
                 starSceneInfoSubmissionDetailDAO = StarSceneInfoSubmissionDetailDAO(
                     connection
                 )
+                starDAO = StarDAO(connection)
+                starLinkDAO = StarLinkDAO(connection)
 
                 starInfoReplyerIO = StarInfoReplyerIO(
                     StarInfoReplyerStorage(
                         starInfoReplyerCommentedDAO,
                         starInfoReplyerExcludedDAO,
-                        starSceneInfoSubmissionDetailDAO
+                        starSceneInfoSubmissionDetailDAO,
+                        StarStorage(starDAO, starLinkDAO)
                     ),
                     redditTools
                 )
@@ -129,7 +145,7 @@ class StarInfoReplyerRunner(ProgramRunner):
                     starInfoReplyerIO,
                     self.__groupsRefreshInterval,
                     self.isShutDown,
-                    self.__replyFooter
+                    self.__customAddenda
                 )
             
             # Program termination message determination

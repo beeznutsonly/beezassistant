@@ -1,0 +1,1 @@
+insert into Star(name, birthPlace, nationality) values('Angela White', 'Sydney, Australia', Australian);

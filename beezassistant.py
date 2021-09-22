@@ -263,7 +263,7 @@ def __getInitialDatabaseConnectionFactory(database, configReader)\
             )
             if dsn == "True":
                 return ___getDsnPgsqlDatabaseConnectionFactory(
-                    os.getenv("DATABASE_URL")
+                    os.getenv("DATABASE_URL").strip()
                 )
             else:
                 user = configReader.get(

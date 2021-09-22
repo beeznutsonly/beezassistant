@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
-    import StarInfoReplyerCommentedDAO
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO \
     import StarSceneInfoSubmissionDetailDAO
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO import StarInfoReplyerExcludedDAO
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
+    import StarInfoReplyerCommentedDAO
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO \
+    import StarInfoReplyerExcludedDAO
+from botapplicationtools.programs.starinforeplyer.StarStorage import StarStorage
 
 
 class StarInfoReplyerStorage:
@@ -15,12 +17,14 @@ class StarInfoReplyerStorage:
     __starInfoReplyerCommentedDAO: StarInfoReplyerCommentedDAO
     __starInfoReplyerExcludedDAO: StarInfoReplyerExcludedDAO
     __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
+    __starStorage: StarStorage
 
     def __init__(
             self,
             starInfoReplyerCommentedDAO,
             starInfoReplyerExcludedDAO,
-            starSceneInfoSubmissionDetailDAO
+            starSceneInfoSubmissionDetailDAO,
+            starStorage
     ):
         self.__starInfoReplyerCommentedDAO = \
             starInfoReplyerCommentedDAO
@@ -28,6 +32,7 @@ class StarInfoReplyerStorage:
             starInfoReplyerExcludedDAO
         self.__starSceneInfoSubmissionDetailDAO = \
             starSceneInfoSubmissionDetailDAO
+        self.__starStorage = starStorage
 
     @property
     def getStarInfoReplyerCommentedDAO(self):
@@ -40,3 +45,7 @@ class StarInfoReplyerStorage:
     @property
     def getStarSceneInfoSubmissionDetailDAO(self):
         return self.__starSceneInfoSubmissionDetailDAO
+
+    @property
+    def getStarStorage(self):
+        return self.__starStorage
