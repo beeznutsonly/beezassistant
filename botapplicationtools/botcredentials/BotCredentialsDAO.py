@@ -29,11 +29,10 @@ class BotCredentialsDAO:
                 'username,password) '
                 'VALUES (%s,%s,%s,%s,%s) '
                 'ON CONFLICT'
-                '(client_id,client_secret) '
+                '(client_id,client_secret,username) '
                 'DO '
                 'UPDATE SET '
                 'user_agent=excluded.user_agent, '
-                'username=excluded.username, '
                 'password=excluded.password;'
         )
         try:
@@ -55,19 +54,19 @@ class BotCredentialsDAO:
             cursor.close()
 
     def getBotCredentials(
-            self, connection=__connection
+            self,
+            userProfile: str
     ) -> BotCredentials:
         """Retrieving bot credentials from database"""
 
         sqlString = 'SELECT user_agent, client_id, client_secret,' \
-                    ' username, password FROM BotCredentials;'
+                    ' username, password FROM BotCredentials ' \
+                    'WHERE username = %s;'
 
-        cursor = connection.cursor() \
-            if connection is not None \
-            else self.__connection.cursor()
+        cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(sqlString)
+            cursor.execute(sqlString, (userProfile,))
             credentials = cursor.fetchone()
 
             if credentials is not None:
@@ -76,7 +75,7 @@ class BotCredentialsDAO:
                     str(credentials[1]),
                     str(credentials[2]),
                     str(credentials[3]),
-                    str(credentials[4]),
+                    str(credentials[4])
                 )
             else:
                 botCredentials = BotCredentials(

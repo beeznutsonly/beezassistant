@@ -32,6 +32,7 @@ class StarInfoReplyerRunner(ProgramRunner):
 
     __databaseConnectionFactory: DatabaseConnectionFactory
     __redditInterfaceFactory: RedditInterfaceFactory
+    __userProfile: str
 
     __groupsRefreshInterval: int
     __subreddits: List[str]
@@ -74,6 +75,9 @@ class StarInfoReplyerRunner(ProgramRunner):
         groupsRefreshInterval = configReader.getint(
             section, "groupsRefreshInterval"
         )
+        userProfile = configReader.get(
+            section, "userProfile"
+        )
 
         # Setting up relevant instance variables
 
@@ -89,6 +93,7 @@ class StarInfoReplyerRunner(ProgramRunner):
             ).decode("unicode_escape")
         )
         self.__groupsRefreshInterval = groupsRefreshInterval
+        self.__userProfile = userProfile
 
     def run(self):
         """Execute the Star Info Replyer"""
@@ -106,7 +111,7 @@ class StarInfoReplyerRunner(ProgramRunner):
 
             # Setting up the Replyer's Reddit Tools
             prawReddit = self.__redditInterfaceFactory \
-                .getRedditInterface() \
+                .getRedditInterface(self.__userProfile) \
                 .getPrawReddit
             redditTools = RedditTools(
                 prawReddit,

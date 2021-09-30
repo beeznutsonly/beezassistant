@@ -5,7 +5,9 @@
 
 __author__ = "u/beeznutsonly"
 
-import configparser
+from configparser import ConfigParser
+
+import json
 import logging
 import os
 import signal
@@ -33,15 +35,7 @@ from botapplicationtools.databasetools.exceptions.DatabaseNotFoundError \
     import DatabaseNotFoundError
 from botapplicationtools.exceptions.BotInitializationError import \
     BotInitializationError
-from botapplicationtools.programrunners.MessageCommandProcessorRunner import MessageCommandProcessorRunner
-from botapplicationtools.programrunners.PostsManagerRunner import \
-    PostsManagerRunner
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programrunners.SceneInfoArchiverRunner import \
-    SceneInfoArchiverRunner
-from botapplicationtools.programrunners.StarInfoReplyerRunner import StarInfoReplyerRunner
-from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import \
-    StarsArchiveWikiPageWriterRunner
 from botapplicationtools.programrunners.exceptions \
     .ProgramRunnerInitializationError import ProgramRunnerInitializationError
 from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
@@ -49,6 +43,7 @@ from botapplicationtools.programsexecutors.AsynchronousProgramsExecutor \
 from botapplicationtools.programsexecutors.ProgramsExecutor import ProgramsExecutor
 from botapplicationtools.programsexecutors.exceptions \
     .ProgramsExecutorInitializationError import ProgramsExecutorInitializationError
+from botapplicationtools.programsexecutors.programsexecutortools.ProgramRunnerFactory import ProgramRunnerFactory
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
     import RedditInterfaceFactory
 
@@ -119,10 +114,10 @@ def __initializeLogging(logFileName):
     __defaultConsoleLoggingLevel = consoleHandler.level
 
 
-def __getInitialConfigReader(configFileName) -> configparser.ConfigParser:
+def __getInitialConfigReader(configFileName) -> ConfigParser:
     """Retrieve the bot's config. file reader"""
 
-    configParser = configparser.ConfigParser()
+    configParser = ConfigParser()
     try:
         with open(configFileName) as configFile:
             configParser.read_file(configFile)
@@ -300,8 +295,10 @@ def __getInitialDatabaseConnectionFactory(database, configReader)\
         )
 
 
-def __getInitialBotCredentials(databaseConnection) \
-        -> BotCredentials:
+def __getInitialBotCredentials(
+        databaseConnection,
+        configReader: ConfigParser
+) -> BotCredentials:
     """Retrieve initial bot credentials"""
 
     # Checking for bot credentials in environment variables first
@@ -331,9 +328,14 @@ def __getInitialBotCredentials(databaseConnection) \
     else:
 
         try:
+            defaultUserProfile = configReader.get(
+                "BotApplication", "defaultUserProfile"
+            )
             # Loading bot credentials from the database
             botCredentialsDAO = BotCredentialsDAO(databaseConnection)
-            botCredentials = botCredentialsDAO.getBotCredentials()
+            botCredentials = botCredentialsDAO.getBotCredentials(
+                defaultUserProfile
+            )
 
         # Handle if there is a problem loading
         # bot credentials from database
@@ -385,13 +387,16 @@ def __getInitialRedditInterfaceFactory(botCredentials, databaseConnection) \
     # instance from provided credentials
 
     try:
-        redditInterfaceFactory = RedditInterfaceFactory(botCredentials)
+
+        botCredentialsDAO = BotCredentialsDAO(
+            databaseConnection
+        )
+        redditInterfaceFactory = RedditInterfaceFactory(
+            botCredentials, botCredentialsDAO
+        )
 
         # Saving the valid bot credentials to storage
         try:
-            botCredentialsDAO = BotCredentialsDAO(
-                databaseConnection
-            )
             botCredentialsDAO.saveBotCredentials(botCredentials)
 
         # Handle if save operation fails
@@ -428,48 +433,47 @@ def __loadInitialProgramRunners(
 ) -> Dict[str, ProgramRunner]:
     """Load initial Program Runners"""
 
+    section = 'ProgramsExecutor'
+    loadedPrograms = json.loads(
+        configReader.get(
+            section, "loadedPrograms"
+        )
+    )
     programRunners = {}
+    programRunnerFactory = ProgramRunnerFactory(
+        redditInterfaceFactory,
+        databaseConnectionFactory,
+        configReader
+    )
 
     try:
-        programRunners['starsarchivewikipagewriter'] = \
-            StarsArchiveWikiPageWriterRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
-                redditInterfaceFactory=redditInterfaceFactory,
-                configReader=configReader
-            )
-        programRunners['sceneinfoarchiver'] = SceneInfoArchiverRunner(
-            databaseConnectionFactory=databaseConnectionFactory,
-            redditInterfaceFactory=redditInterfaceFactory,
-            configReader=configReader
-        )
-        programRunners['postsmanager'] = PostsManagerRunner(
-            databaseConnectionFactory=databaseConnectionFactory,
-            redditInterfaceFactory=redditInterfaceFactory,
-            configReader=configReader
-        )
-        programRunners['starinforeplyer'] = StarInfoReplyerRunner(
-            databaseConnectionFactory=databaseConnectionFactory,
-            redditInterfaceFactory=redditInterfaceFactory,
-            configReader=configReader
-        )
-        programRunners['messagecommandprocessor'] = \
-            MessageCommandProcessorRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
-                redditInterfaceFactory=redditInterfaceFactory,
-                configReader=configReader
-            )
 
-    # Handle if there is an error initializing any of the Program Runners
+        for loadedProgram in loadedPrograms:
+            programRunner = programRunnerFactory.getProgramRunner(
+                loadedProgram
+            )
+            if programRunner is None:
+                __mainLogger.warning(
+                    "The provided program '{}' was not recognized "
+                    "therefore the program runner was not loaded.".format(
+                        loadedProgram
+                    )
+                )
+            else:
+                programRunners[loadedProgram] = programRunner
+                __mainLogger.debug("Loaded '{}' runner".format(loadedProgram))
+
+    # Handle if there is an error loading any of the Program Runners
     except ProgramRunnerInitializationError as ex:
         raise BotInitializationError(
-            "An error occurred while initializing "
+            "An error occurred while loading "
             "the Program Runners.", ex
         )
 
     return programRunners
 
 
-def __initializeProgramsExecutor(programRunners, configReader)\
+def __initializeProgramsExecutor(programRunners, configReader) \
         -> ProgramsExecutor:
     """Initialize the Programs Executor"""
 
@@ -535,7 +539,9 @@ def __initializeBot():
         # Retrieving initial bot credentials
         __mainLogger.debug("Retrieving initial bot credentials")
         with __databaseConnectionFactory.getConnection() as databaseConnection:
-            botCredentials = __getInitialBotCredentials(databaseConnection)
+            botCredentials = __getInitialBotCredentials(
+                databaseConnection, configReader
+            )
         __databaseConnectionFactory.yieldConnection(databaseConnection)
 
         # Initializing the Reddit Interface Factory
@@ -822,7 +828,10 @@ if __name__ == "__main__":
     try:
         # Wait for tasks to complete before shutdown
         while True:
-            if not ("RUNNING" in __programsExecutor.getProgramStatuses().values()):
+            if not (
+                "RUNNING" in __programsExecutor
+                .getProgramStatuses().values()
+            ):
                 break
             time.sleep(1)
     finally:

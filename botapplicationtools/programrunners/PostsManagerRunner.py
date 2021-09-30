@@ -1,5 +1,6 @@
 import logging
 import time
+
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 
@@ -22,7 +23,7 @@ class PostsManagerRunner(ProgramRunner):
         super(PostsManagerRunner, self).__init__()
         self.__programRunnerLogger = logging.getLogger('postsManager')
         self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__prawReddit = redditInterfaceFactory.getRedditInterface().getPrawReddit
+        self.__prawReddit = redditInterfaceFactory.getRedditInterface("beeznutsonly").getPrawReddit
 
     def run(self):
         try:

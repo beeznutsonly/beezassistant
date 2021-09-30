@@ -19,6 +19,7 @@ class MessageCommandProcessorRunner(ProgramRunner):
 
     __databaseConnectionFactory: DatabaseConnectionFactory
     __redditInterfaceFactory: RedditInterfaceFactory
+    __userProfile: str
 
     __commands = None
 
@@ -51,9 +52,13 @@ class MessageCommandProcessorRunner(ProgramRunner):
                 section, "commands"
             )
         )
+        userProfile = configReader.get(
+            section, "userProfile"
+        )
 
         # Instance variable initialization
         self.__commands = commands
+        self.__userProfile = userProfile
 
     def run(self):
 
@@ -68,7 +73,7 @@ class MessageCommandProcessorRunner(ProgramRunner):
                 "Message Command Processor is now running."
             )
             prawReddit = self.__redditInterfaceFactory \
-                .getRedditInterface() \
+                .getRedditInterface(self.__userProfile) \
                 .getPrawReddit
 
             with self.__databaseConnectionFactory.getConnection() as \

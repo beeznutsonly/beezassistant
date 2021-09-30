@@ -19,6 +19,7 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
     
     __databaseConnectionFactory: DatabaseConnectionFactory
     __redditInterfaceFactory: RedditInterfaceFactory
+    __userProfile: str
 
     __wikiName: str
     __subredditName: str
@@ -61,6 +62,9 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
         defaultStarViews = json.loads(configReader.get(
             section, 'defaultStarViews'
         ))
+        userProfile = configReader.get(
+            section, "userProfile"
+        )
 
         # Instance variable initialization
         # -------------------------------------------------------------------------------
@@ -69,6 +73,7 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
             "Initializing Stars Archive Wiki Page Writer variables"
         )
 
+        self.__userProfile = userProfile
         self.__subredditName = subredditName
         self.__wikiName = wikiName
         # Setting up default StarViews
@@ -109,7 +114,7 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
             self._programRunnerLogger
 
         wikiPage = self.__redditInterfaceFactory \
-            .getRedditInterface() \
+            .getRedditInterface(self.__userProfile) \
             .getPrawReddit \
             .subreddit(self.__subredditName) \
             .wiki[self.__wikiName]

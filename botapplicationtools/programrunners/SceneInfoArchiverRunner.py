@@ -33,6 +33,7 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
     __databaseConnectionFactory: DatabaseConnectionFactory
     __redditInterfaceFactory: RedditInterfaceFactory
+    __userProfile: str
     __refreshInterval: int
 
     # Scene Info Storage Archiver variables
@@ -104,6 +105,9 @@ class SceneInfoArchiverRunner(ProgramRunner):
         defaultStarViews = json.loads(configReader.get(
             section, 'defaultStarViews'
         ))
+        userProfile = configReader.get(
+            section, "userProfile"
+        )
 
         # Instance variable initialization
         # -------------------------------------------------------------------------------
@@ -112,9 +116,13 @@ class SceneInfoArchiverRunner(ProgramRunner):
             "Initializing Scene Info Archiver variables"
         )
 
+        # General
+
+        self.__userProfile = userProfile
+        self.__refreshInterval = refreshInterval
+
         # For Scene Info Storage Archiver
 
-        self.__refreshInterval = refreshInterval
         self.__subredditSearchParameters = SubredditSearchParameters(
             sceneInfoStorageArchiverSubredditName,
             fromTime,

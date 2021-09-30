@@ -3,6 +3,7 @@ from praw.exceptions import ReadOnlyException
 from prawcore import ResponseException
 
 from botapplicationtools.botcredentials.BotCredentials import BotCredentials
+from botapplicationtools.botcredentials.BotCredentialsDAO import BotCredentialsDAO
 from botapplicationtools.botcredentials.InvalidBotCredentialsError import InvalidBotCredentialsError
 from botapplicationtools.programs.programtools.generaltools.RedditInterface import RedditInterface
 
@@ -10,23 +11,26 @@ from botapplicationtools.programs.programtools.generaltools.RedditInterface impo
 class RedditInterfaceFactory:
     """Factory for RedditInterface objects"""
 
-    __botCredentials: BotCredentials
+    __defaultBotCredentials: BotCredentials
+    __botCredentialsDAO: BotCredentialsDAO
 
     def __init__(
             self,
-            botCredentials
+            defaultBotCredentials: BotCredentials,
+            botCredentialsDAO: BotCredentialsDAO
     ):
         prawReddit = praw.Reddit(
-            user_agent=botCredentials.getUserAgent,
-            client_id=botCredentials.getClientId,
-            client_secret=botCredentials.getClientSecret,
-            username=botCredentials.getUsername,
-            password=botCredentials.getPassword
+            user_agent=defaultBotCredentials.getUserAgent,
+            client_id=defaultBotCredentials.getClientId,
+            client_secret=defaultBotCredentials.getClientSecret,
+            username=defaultBotCredentials.getUsername,
+            password=defaultBotCredentials.getPassword
         )
         if not self.__authenticated(prawReddit):
             raise InvalidBotCredentialsError
 
-        self.__botCredentials = botCredentials
+        self.__defaultBotCredentials = defaultBotCredentials
+        self.__botCredentialsDAO = botCredentialsDAO
 
     @staticmethod
     def __authenticated(prawRedditInstance) -> bool:
@@ -40,15 +44,20 @@ class RedditInterfaceFactory:
         except ResponseException or ReadOnlyException:
             return False
 
-    def getRedditInterface(self) -> RedditInterface:
+    def getRedditInterface(self, userProfile: str = None) -> RedditInterface:
         """Retrieve new Reddit Interface"""
 
+        if not bool(userProfile):
+            botCredentials = self.__defaultBotCredentials
+        else:
+            botCredentials = self.__botCredentialsDAO.getBotCredentials(
+                userProfile
+            )
         prawReddit = praw.Reddit(
-            user_agent=self.__botCredentials.getUserAgent,
-            client_id=self.__botCredentials.getClientId,
-            client_secret=self.__botCredentials.getClientSecret,
-            username=self.__botCredentials.getUsername,
-            password=self.__botCredentials.getPassword
+            user_agent=botCredentials.getUserAgent,
+            client_id=botCredentials.getClientId,
+            client_secret=botCredentials.getClientSecret,
+            username=botCredentials.getUsername,
+            password=botCredentials.getPassword
         )
-
         return RedditInterface(prawReddit)
