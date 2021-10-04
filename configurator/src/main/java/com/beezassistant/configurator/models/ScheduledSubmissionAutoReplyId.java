@@ -5,28 +5,32 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class ScheduledCrosspostId implements Serializable {
+public class ScheduledSubmissionAutoReplyId implements Serializable {
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -9010912996681070010L;
+	private static final long serialVersionUID = -2610425133675625398L;
 	private String url;
 	private String subreddit;
+	private String commentBody;
 	
-	public ScheduledCrosspostId() {
+	public ScheduledSubmissionAutoReplyId() {
 		super();
 	}
 
-	public ScheduledCrosspostId(
-			String url, 
-			String subreddit
+	public ScheduledSubmissionAutoReplyId(
+			String url,
+			String subreddit,
+			String commentBody
 	) {
 		super();
 		this.url = url;
 		this.subreddit = subreddit;
+		this.commentBody = commentBody;
 	}
 
+	
 	public String getUrl() {
 		return url;
 	}
@@ -43,12 +47,21 @@ public class ScheduledCrosspostId implements Serializable {
 		this.subreddit = subreddit;
 	}
 
+	public String getCommentBody() {
+		return commentBody;
+	}
+
+	public void setCommentBody(String commentBody) {
+		this.commentBody = commentBody;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + ((commentBody == null) ? 0 : commentBody.hashCode());
 		result = prime * result + ((subreddit == null) ? 0 : subreddit.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		return result;
 	}
 
@@ -60,20 +73,23 @@ public class ScheduledCrosspostId implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScheduledCrosspostId other = (ScheduledCrosspostId) obj;
-		if (url == null) {
-			if (other.url != null)
+		ScheduledSubmissionAutoReplyId other = (ScheduledSubmissionAutoReplyId) obj;
+		if (commentBody == null) {
+			if (other.commentBody != null)
 				return false;
-		} else if (!url.equals(other.url))
+		} else if (!commentBody.equals(other.commentBody))
 			return false;
 		if (subreddit == null) {
 			if (other.subreddit != null)
 				return false;
 		} else if (!subreddit.equals(other.subreddit))
 			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
 		return true;
 	}
-	
-	
 	
 }

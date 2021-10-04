@@ -5,24 +5,27 @@
 <title>Add New Star</title>
 <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.js"></script>
+<script src="/webjars/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 </head>
 <body>
-	<form >
+	<h1>Add Star</h1>
+	<form id="starForm">
 	  <label for="name">Name:</label><br>
 	  <input type="text" id="name" name="name"><br>
 	  <label for="birthday">Birthday:</label><br>
-	  <input type="text" id="birthdayPicker" name="birthday">
+	  <input type="text" id="birthday" name="birthday" data-provide="datepicker"><br>
 	  <label for="nationality">Nationality:</label><br>
-	  <input type="text" id="nationality" name="nationality">
-	  <label for="birthplace">Birth place:</label><br>
-	  <input type="text" id="birthPlace" name="birthPlace">
+	  <input type="text" id="nationality" name="nationality"><br>
+	  <label for="birthPlace">Birth place:</label><br>
+	  <input type="text" id="birthPlace" name="birthPlace"><br>
 	  <label for="yearsactive">Years Active:</label><br>
-	  <input type="text" id="yearsActive" name="yearsActive">
+	  <input type="text" id="yearsActive" name="yearsActive"><br>
 	  <label for="description">Description:</label><br>
-	  <input type="text" id="description" name="description">
+	  <input type="text" id="description" name="description"><br>
+	  <button type="submit" class="btn btn-primary">Submit</button>
 	</form>
 </body>
-<link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/jquery.datetimepicker.css"/>
+<link rel="stylesheet" type="text/css" href="/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css"/>
 <script src="javascript.js"></script>
+<script src="addnewstar.js"></script>
 </html>

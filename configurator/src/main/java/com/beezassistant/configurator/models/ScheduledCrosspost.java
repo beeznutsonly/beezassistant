@@ -1,99 +1,75 @@
 package com.beezassistant.configurator.models;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.ManyToOne;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Table;
 
 @Entity
-@IdClass(ScheduledCrosspostId.class)
+@Table(name="scheduledcrosspost")
 public class ScheduledCrosspost implements Serializable {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2838696620487828191L;
-
-	@Id
-	@ManyToOne
-	private ScheduledSubmission scheduledSubmission;
 	
-	@Id
-	private String subreddit;
+	@EmbeddedId
+	private ScheduledCrosspostId scheduledCrosspostId;
 	
-	private Instant scheduledTime;
+	private ZonedDateTime scheduledTime;
+	private String title;
 	
 	public ScheduledCrosspost() {
 		super();
+		scheduledCrosspostId = new ScheduledCrosspostId();
+	}
+	
+	
+	public ScheduledCrosspostId getScheduledCrosspostId() {
+		return scheduledCrosspostId;
 	}
 
-	public ScheduledCrosspost(
-			ScheduledSubmission scheduledSubmission, 
-			String subreddit, 
-			Instant scheduledTime
-	) {
-		super();
-		this.scheduledSubmission = scheduledSubmission;
-		this.subreddit = subreddit;
-		this.scheduledTime = scheduledTime;
-	}
 
-	public ScheduledSubmission getscheduledSubmission() {
-		return scheduledSubmission;
+	public void setScheduledCrosspostId(ScheduledCrosspostId scheduledCrosspostId) {
+		this.scheduledCrosspostId = scheduledCrosspostId;
 	}
-
-	public void setscheduledSubmission(ScheduledSubmission scheduledSubmission) {
-		this.scheduledSubmission = scheduledSubmission;
-	}
-
+	
 	public String getSubreddit() {
-		return subreddit;
+		return scheduledCrosspostId.getSubreddit();
 	}
+
 
 	public void setSubreddit(String subreddit) {
-		this.subreddit = subreddit;
+		scheduledCrosspostId.setSubreddit(subreddit);
 	}
-
-	public Instant getScheduledTime() {
+	
+	public ZonedDateTime getScheduledTime() {
 		return scheduledTime;
 	}
 
-	public void setScheduledTime(Instant scheduledTime) {
+	public void setScheduledTime(ZonedDateTime scheduledTime) {
 		this.scheduledTime = scheduledTime;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((scheduledSubmission == null) ? 0 : scheduledSubmission.hashCode());
-		result = prime * result + ((subreddit == null) ? 0 : subreddit.hashCode());
-		return result;
+	public String getTitle() {
+		return title;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ScheduledCrosspost other = (ScheduledCrosspost) obj;
-		if (scheduledSubmission == null) {
-			if (other.scheduledSubmission != null)
-				return false;
-		} else if (!scheduledSubmission.equals(other.scheduledSubmission))
-			return false;
-		if (subreddit == null) {
-			if (other.subreddit != null)
-				return false;
-		} else if (!subreddit.equals(other.subreddit))
-			return false;
-		return true;
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+
+	public String getUrl() {
+		return scheduledCrosspostId.getUrl();
+	}
+
+
+	public void setUrl(String url) {
+		scheduledCrosspostId.setUrl(url);
 	}
 	
 }

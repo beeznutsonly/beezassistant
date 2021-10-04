@@ -1,3 +1,3 @@
-jQuery('#birthdayPicker').datetimepicker({
-    timepicker:false
+$('#birthday').datepicker({
+    format: 'yyyy-mm-dd'
 });

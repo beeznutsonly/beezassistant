@@ -2,13 +2,12 @@ package com.beezassistant.configurator.models;
 
 import java.io.Serializable;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
-@IdClass(StarLinkId.class)
+@Table(name="starlink")
 public class StarLink implements Serializable {
 	
 	/**
@@ -16,54 +15,44 @@ public class StarLink implements Serializable {
 	 */
 	private static final long serialVersionUID = -4109868076889789803L;
 
-	@Id
-	@ManyToOne
-	private Star star;
-	
-	@Id
-	private String link;
+	@EmbeddedId
+	private StarLinkId starLinkId;
 	
 	private String linkName;
 	
 	public StarLink() {
 		super();
+		starLinkId = new StarLinkId();
 	}
 	
-	public StarLink(Star name) {
-		this();
-		this.star = name;
+	public StarLinkId getStarLinkId() {
+		return starLinkId;
 	}
 
-	public StarLink(Star star, String link) {
-		this(star);
-		this.link = link;
+	public void setStarLinkId(StarLinkId starLinkId) {
+		this.starLinkId = starLinkId;
 	}
 
-	public StarLink(Star star, String link, String linkName) {
-		this(star, link);
-		this.linkName = linkName;
+	public String getName() {
+		return starLinkId.getName();
 	}
 
-	public Star getStar() {
-		return star;
-	}
-
-	public void setStar(Star star) {
-		this.star = star;
+	public void setName(String name) {
+		starLinkId.setName(name);
 	}
 
 	public String getLink() {
-		return link;
+		return starLinkId.getLink();
 	}
 
 	public void setLink(String link) {
-		this.link = link;
+		starLinkId.setLink(link);
 	}
 
 	public String getLinkName() {
 		return linkName;
 	}
-
+	
 	public void setLinkName(String linkName) {
 		this.linkName = linkName;
 	}

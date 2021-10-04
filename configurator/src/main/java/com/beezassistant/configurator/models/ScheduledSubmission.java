@@ -1,103 +1,91 @@
 package com.beezassistant.configurator.models;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name="scheduledsubmission")
 public class ScheduledSubmission {
 
-	@Id
-	private String url;
+	@EmbeddedId
+	private ScheduledSubmissionId id;
 	
 	private String title;
-	private String flairID;
-	private Instant scheduledTime;
+	private ZonedDateTime scheduledTime;
+	private String flairId;
+	
 	
 	public ScheduledSubmission() {
 		super();
+		id = new ScheduledSubmissionId(); //TODO: Clean-up this workaround
+	}
+	
+	
+	public ScheduledSubmissionId getId() {
+		return id;
 	}
 
-	public ScheduledSubmission(
-			String url, 
-			String title, 
-			Instant scheduledTime
-	) {
-		super();
-		this.url = url;
-		this.title = title;
-		this.scheduledTime = scheduledTime;
-	}
 
-	public ScheduledSubmission(
-			String url, 
-			String title, 
-			Instant scheduledTime, 
-			String flairID
-	) {
-		super();
-		this.url = url;
-		this.title = title;
-		this.flairID = flairID;
-		this.scheduledTime = scheduledTime;
+	public void setId(ScheduledSubmissionId id) {
+		this.id = id;
 	}
+	
+	
 
 	public String getUrl() {
-		return url;
+		return id.getUrl();
 	}
 
+
+
 	public void setUrl(String url) {
-		this.url = url;
+		id.setUrl(url);
 	}
+
+
+
+	public String getSubreddit() {
+		return id.getSubreddit();
+	}
+
+
+
+	public void setSubreddit(String subreddit) {
+		id.setSubreddit(subreddit);
+	}
+
+
 
 	public String getTitle() {
 		return title;
 	}
 
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	public String getFlairID() {
-		return flairID;
-	}
 
-	public void setFlairID(String flairID) {
-		this.flairID = flairID;
-	}
-
-	public Instant getScheduledTime() {
+	public ZonedDateTime getScheduledTime() {
 		return scheduledTime;
 	}
 
-	public void setScheduledTime(Instant scheduledTime) {
+
+	public void setScheduledTime(ZonedDateTime scheduledTime) {
 		this.scheduledTime = scheduledTime;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		return result;
+
+	public String getFlairId() {
+		return flairId;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ScheduledSubmission other = (ScheduledSubmission) obj;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
-			return false;
-		return true;
+
+	public void setFlairId(String flairId) {
+		this.flairId = flairId;
 	}
 	
 }

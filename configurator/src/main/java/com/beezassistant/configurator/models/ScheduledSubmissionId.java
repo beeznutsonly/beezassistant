@@ -5,23 +5,20 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class ScheduledCrosspostId implements Serializable {
-	
+public class ScheduledSubmissionId implements Serializable {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -9010912996681070010L;
+	private static final long serialVersionUID = 8622313889261372832L;
 	private String url;
 	private String subreddit;
 	
-	public ScheduledCrosspostId() {
+	public ScheduledSubmissionId() {
 		super();
 	}
 
-	public ScheduledCrosspostId(
-			String url, 
-			String subreddit
-	) {
+	public ScheduledSubmissionId(String url, String subreddit) {
 		super();
 		this.url = url;
 		this.subreddit = subreddit;
@@ -47,8 +44,8 @@ public class ScheduledCrosspostId implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		result = prime * result + ((subreddit == null) ? 0 : subreddit.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		return result;
 	}
 
@@ -60,20 +57,18 @@ public class ScheduledCrosspostId implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScheduledCrosspostId other = (ScheduledCrosspostId) obj;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
-			return false;
+		ScheduledSubmissionId other = (ScheduledSubmissionId) obj;
 		if (subreddit == null) {
 			if (other.subreddit != null)
 				return false;
 		} else if (!subreddit.equals(other.subreddit))
 			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
 		return true;
-	}
-	
-	
+	}	
 	
 }
