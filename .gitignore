@@ -3,6 +3,7 @@
 
 # dump files
 *.dump
+*.dump.[0-9]
 
 # nohup output files
 *.out
