@@ -1,6 +1,5 @@
 jQuery('.datetimepicker').datetimepicker({
-    format: "c",
-    showTimezone: true
+    format: "c"
 });
 $(document).ready(
     function(){

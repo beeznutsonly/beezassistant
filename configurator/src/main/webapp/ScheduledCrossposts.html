@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Scheduled Crossposts</title>
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+
+</head>
+<body>
+    <h1>Scheduled Crossposts</h1>
+    <button id="btnAddCrosspost" class="button">Add Scheduled Crosspost</button>
+    <button id="btnRemoveCrosspost"class="button" onclick="deleteScheduledCrosspost()" disabled=true>Delete Scheduled Crosspost</button><br>
+    <ul id="scheduledCrosspostsListView"
+        data-role="listview"
+        data-view="table"
+        data-select-node="true"
+        data-structure='{"title": true, "subreddit": true, "scheduledTime": true, "url": true}'
+        data-on-node-click='onNodeClick'>
+    </ul>
+<script src="https://cdn.metroui.org.ua/v4.5.0/js/metro.min.js"></script>
+<script src="/webjars/jquery/jquery.min.js"></script>
+<script src ="scheduledcrossposts.js"></script>
+</body>
+</html>
