@@ -1,9 +1,9 @@
 $(document).ready(
     function(){
-        refreshScheduledCrossposts();
+        refreshScheduledSubmissions();
     }
 )
-function refreshScheduledCrossposts(){
+function refreshScheduledSubmissions(){
     $.ajax({
         url: window.location.protocol + "//" + window.location.host + "/scheduledcrossposts",
         success: function(result){

@@ -1,6 +1,3 @@
-jQuery('.datetimepicker').datetimepicker({
-    format: "c"
-});
 $(document).ready(
     function(){
         $("#scheduledCrosspostForm").submit(
@@ -9,12 +6,11 @@ $(document).ready(
                 ajaxPost();
             }
         );
-
         function ajaxPost(){
             var formData = {
                 url : $("#url").val(),
                 title : $("#title").val(),
-                scheduledTime : $("#scheduledTime").val(),
+                scheduledTime : getISODateTimeFromPicker("#scheduledTime", true),
                 subreddit : $("#subreddit").val()
             }
 

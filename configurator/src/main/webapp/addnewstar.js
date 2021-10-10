@@ -1,6 +1,3 @@
-// Post Request
-// -----------------------
-
 $(document).ready(
     function(){
         $("#starForm").submit(
@@ -14,7 +11,7 @@ $(document).ready(
         function ajaxPost(){
             var formData = {
                 name : $("#name").val(),
-                birthday : $("#birthday").val(),
+                birthday : getISODateFromPicker("#birthday"),
                 nationality : $("#nationality").val(),
                 birthPlace : $("#birthPlace").val(),
                 yearsActive : $("#yearsActive").val(),
@@ -26,7 +23,13 @@ $(document).ready(
                 contentType: "application/json",
                 url: window.location.protocol + "//" + window.location.host + "/stars",
                 data: JSON.stringify(formData),
-                dataType: "json"
+                dataType: "json",
+                success: function(){
+                    alert("Star info successfully added");
+                },
+                error: function(error){
+                    alert("Failed to add star info: " + error)
+                }
             })
         }
     }

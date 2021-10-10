@@ -1,6 +1,3 @@
-jQuery('.datetimepicker').datetimepicker({
-    format: "c"
-});
 $(document).ready(
     function(){
         $("#scheduledSubmissionForm").submit(
@@ -9,12 +6,15 @@ $(document).ready(
                 ajaxPost();
             }
         );
-
         function ajaxPost(){
+            scheduledTimeString = getISODateTimeFromPicker(
+                "#scheduledTime", 
+                true
+            );
             var formData = {
                 url : $("#url").val(),
                 title : $("#title").val(),
-                scheduledTime : $("#scheduledTime").val(),
+                scheduledTime : scheduledTimeString,
                 flairId : $("#flairId").val(),
                 subreddit : $("#subreddit").val(),
                 commentBody : $("#commentBody").val()

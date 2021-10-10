@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Schedule Submission</title>
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/build/jquery.datetimepicker.min.css"/>
 </head>
 <body>
 	<h1>Schedule Submission</h1>
@@ -15,7 +16,7 @@
 		<label for="title">Title:</label><br>
 		<input type="text" id="title" name="title"><br>
 		<label for="scheduledTime">Scheduled time:</label><br>
-		<input type="text" id="scheduledTime" name="scheduledTime" class='datetimepicker'><br>
+		<input type="text" id="scheduledTime" class="datetimepicker" name="scheduledTime"><br>
 		<label for="flairId">Flair ID:</label><br>
 		<input type="text" id="flairId" name="flairId"><br>
 		<label for="subreddit">Subreddit:</label><br>
@@ -25,7 +26,6 @@
 		<button type="submit" class="btn btn-primary">Submit</button>
 	</form>
 </body>
-<link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/jquery.datetimepicker.css"/>
-<script src="javascript.js"></script>
+<script src="utilities/datetimecontroldefaults.js"></script>
 <script src="schedulesubmission.js"></script>
 </html>

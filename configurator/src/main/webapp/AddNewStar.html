@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Add New Star</title>
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/build/jquery.datetimepicker.min.css"/>
 </head>
 <body>
 	<h1>Add Star</h1>
@@ -13,7 +14,7 @@
 	  <label for="name">Name:</label><br>
 	  <input type="text" id="name" name="name"><br>
 	  <label for="birthday">Birthday:</label><br>
-	  <input type="text" id="birthday" name="birthday" class="datepicker" data-provide="datepicker"><br>
+	  <input type="text" id="birthday" name="birthday" class="datepicker"><br>
 	  <label for="nationality">Nationality:</label><br>
 	  <input type="text" id="nationality" name="nationality"><br>
 	  <label for="birthPlace">Birth place:</label><br>
@@ -25,7 +26,6 @@
 	  <button type="submit" class="btn btn-primary">Submit</button>
 	</form>
 </body>
-<link rel="stylesheet" type="text/css" href="/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css"/>
-<script src="javascript.js"></script>
+<script src="utilities/datetimecontroldefaults.js"></script>
 <script src="addnewstar.js"></script>
 </html>
