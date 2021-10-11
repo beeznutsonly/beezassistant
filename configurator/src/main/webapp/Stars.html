@@ -2,17 +2,23 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Stars</title>
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+<script src="https://cdn.metroui.org.ua/v4.5.0/js/metro.min.js"></script>
+<script src="/webjars/jquery/jquery.min.js"></script>
 </head>
 <body>
-	<h2>
-		Select an option
-	</h2>
-	<ul>
-		<li><a href="AddNewStar.html">Add new Star Info</a>
-		<li><a href=>Remove Star Info</a>
-		<li><a href=>Update Star Info</a>
-		<li><a href="Stars.html">Stars</a>
-	</ul>
+    <h1>Stars</h1>
+    <button id="btnAddStar" class="button" onclick="addNewStar()">Add Star</button>
+    <button id="btnRemoveStar"class="button" onclick="deleteStar()" disabled=true>Delete Star</button><br>
+    <ul id="starsListView"
+        data-role="listview"
+        data-view="table"
+        data-select-node="true"
+        data-structure='{"name": true, "birthday": true, "nationality": true, "birthPlace": true, "yearsActive": true}'
+        data-on-node-click='onNodeClick'>
+    </ul>
+<script src="stars.js"></script>
 </body>
 </html>

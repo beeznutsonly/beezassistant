@@ -38,6 +38,9 @@ function deleteScheduledCrosspost(){
         });
     }
 }
+function scheduleCrosspost(){
+    window.open("ScheduleCrosspost.html");
+}
 function onNodeClick(){
     $("#btnRemoveCrosspost").removeAttr("disabled");
 }

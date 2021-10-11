@@ -2,11 +2,15 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Add New Star</title>
+
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script src="https://cdn.metroui.org.ua/v4.5.0/js/metro.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/build/jquery.datetimepicker.min.css"/>
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
 </head>
 <body>
 	<h1>Add Star</h1>
@@ -22,8 +26,21 @@
 	  <label for="yearsactive">Years Active:</label><br>
 	  <input type="text" id="yearsActive" name="yearsActive"><br>
 	  <label for="description">Description:</label><br>
-	  <input type="text" id="description" name="description"><br>
-	  <button type="submit" class="btn btn-primary">Submit</button>
+	  <textarea id="description" name="description"></textarea><br>
+	  <button type="submit" class="button">Submit</button><br>
+	  <input type="checkbox" id="includeStarLinks" name="includeStarLinks">
+	  <label for="includeStarLinks">Include star links</label><br>
+	  <input type="text" id="linkName" placeholder="Link Name" name="linkName">
+	  <input type="text" id="link" placeholder="Link" name="link">
+	  <button type="button" class="button" onclick="addStarLink()">Add Star Link</button>
+	  <button type="button" id="btnRemoveStarLink" class="button" disabled="true" onclick="removeStarLink()">Remove Star Link</button><br>
+	  <ul id="starLinksListView"
+        data-role="listview"
+        data-view="table"
+        data-select-node="true"
+        data-structure='{"linkName": true, "link": true}'
+        data-on-node-click='onNodeClick'>
+      </ul>
 	</form>
 </body>
 <script src="utilities/datetimecontroldefaults.js"></script>

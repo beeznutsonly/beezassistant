@@ -23,7 +23,6 @@ function deleteScheduledSubmission(){
     selectedNode = $(".node.current.current-select");
     scheduledSubmission = $(selectedNode).data();
     if (confirm("Are you sure you want to delete the selected scheduled submission?")){
-        console.log(scheduledSubmission);
         scheduledSubmissionURL = scheduledSubmission._links.scheduledSubmission.href;
         $.ajax({
             type: "DELETE",
@@ -38,6 +37,10 @@ function deleteScheduledSubmission(){
             dataType: "json"
         });
     }
+}
+
+function scheduleSubmission(){
+    window.open("ScheduleSubmission.html");
 }
 function onNodeClick(){
     $("#btnRemoveSubmission").removeAttr("disabled");
