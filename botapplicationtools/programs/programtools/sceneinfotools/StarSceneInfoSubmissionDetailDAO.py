@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*
 
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
-from botapplicationtools.programs.programtools.generaltools.SimpleSubmission import SimpleSubmission
 from typing import Tuple, List
 from .StarSceneInfoSubmissionDetail import StarSceneInfoSubmissionDetail
 
@@ -24,12 +23,12 @@ class StarSceneInfoSubmissionDetailDAO:
 
         if limit:
             sqlString = '''
-                        SELECT submission_id, Star, Title FROM StarView LIMIT %s;
+                        SELECT submission_id, Star, Title, Movie FROM StarView LIMIT %s;
                         '''
             values = (limit,)
         else:
             sqlString = '''
-                        SELECT submission_id, Star, Title FROM StarView;  
+                        SELECT submission_id, Star, Title, Movie FROM StarView;  
                         '''
             values = None
 
