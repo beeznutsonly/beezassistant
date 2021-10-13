@@ -28,14 +28,11 @@ class SceneInfoSubmissionDAO:
                     VALUES (%s,%s,%s) ON CONFLICT (id) DO NOTHING;
                     '''
         try:
-            self.__cursor.execute(
-                sqlString,
-                (
-                    sceneInfoSubmission.getSubmissionId,
-                    sceneInfoSubmission.getTitle,
-                    sceneInfoSubmission.getTimeCreated
-                )
-            )
+            self.__cursor.execute(sqlString, (
+                sceneInfoSubmission.getSubmissionId,
+                sceneInfoSubmission.getTitle,
+                sceneInfoSubmission.getTimeCreated
+            ))
 
         # Handle database error
         except Exception as ex:
@@ -54,10 +51,7 @@ class SceneInfoSubmissionDAO:
                     DELETE FROM PostInfo WHERE id = %s;
                     '''
         try:
-            self.__cursor.execute(
-                sqlString,
-                (submission.getSubmissionId,)
-            )
+            self.__cursor.execute(sqlString, (submission.getSubmissionId,))
 
         # Handle database error
         except Exception as ex:

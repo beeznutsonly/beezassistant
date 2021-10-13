@@ -2,6 +2,12 @@ from typing import List
 
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors \
     .StarInfoReplyerCommandProcessor import StarInfoReplyerCommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarMovieInfoCommandProcessor import \
+    StarMovieInfoCommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarNotifierCommandProcessor import \
+    StarNotifierCommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarPostsCommandProcessor import \
+    StarPostsCommandProcessor
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO \
     import StarInfoReplyerExcludedDAO
 
@@ -19,6 +25,21 @@ class CommandProcessorFactory:
                 StarInfoReplyerExcludedDAO(
                     databaseConnection
                 )
+            )
+        # For StarNotifier command
+        elif command == "StarNotifier":
+            return StarNotifierCommandProcessor(
+                databaseConnection
+            )
+        # For StarPosts command
+        elif command == "StarPosts":
+            return StarPostsCommandProcessor(
+                databaseConnection
+            )
+        # For StarMovieInfo command
+        elif command == "StarMovieInfo":
+            return StarMovieInfoCommandProcessor(
+                databaseConnection
             )
         # Handle for unknown command
         else:

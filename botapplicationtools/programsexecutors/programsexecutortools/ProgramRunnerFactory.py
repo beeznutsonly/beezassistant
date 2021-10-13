@@ -8,7 +8,9 @@ from botapplicationtools.programrunners.SceneInfoArchiverRunner import SceneInfo
 from botapplicationtools.programrunners.ScheduledCrossposterRunner import ScheduledCrossposterRunner
 from botapplicationtools.programrunners.ScheduledPosterRunner import ScheduledPosterRunner
 from botapplicationtools.programrunners.StarInfoReplyerRunner import StarInfoReplyerRunner
+from botapplicationtools.programrunners.StarNotifierRunner import StarNotifierRunner
 from botapplicationtools.programrunners.StarsArchiveWikiPageWriterRunner import StarsArchiveWikiPageWriterRunner
+from botapplicationtools.programrunners.SurveyResponseProcessorRunner import SurveyResponseProcessorRunner
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
@@ -71,5 +73,18 @@ class ProgramRunnerFactory:
                 redditInterfaceFactory=redditInterfaceFactory,
                 configReader=configReader
             )
+        elif programNameLower == 'starnotifier':
+            return StarNotifierRunner(
+                databaseConnectionFactory=databaseConnectionFactory,
+                redditInterfaceFactory=redditInterfaceFactory,
+                configReader=configReader
+            )
+        elif programNameLower == 'surveyresponseprocessor':
+            return SurveyResponseProcessorRunner(
+                databaseConnectionFactory=databaseConnectionFactory,
+                redditInterfaceFactory=redditInterfaceFactory,
+                configReader=configReader
+            )
+
         else:
             return None

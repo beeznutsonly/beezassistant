@@ -16,13 +16,10 @@ class CompletedCrosspostDAO:
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(
-                sqlString,
-                (
-                    completedCrosspost.getUrl,
-                    completedCrosspost.getSubreddit
-                 )
-            )
+            cursor.execute(sqlString, (
+                completedCrosspost.getUrl,
+                completedCrosspost.getSubreddit
+            ))
             self.__connection.commit()
         finally:
             cursor.close()
@@ -35,13 +32,10 @@ class CompletedCrosspostDAO:
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(
-                sqlString,
-                (
-                    scheduledCrosspost.getUrl,
-                    scheduledCrosspost.getSubreddit
-                )
-            )
+            cursor.execute(sqlString, (
+                scheduledCrosspost.getUrl,
+                scheduledCrosspost.getSubreddit
+            ))
             result = cursor.fetchone()
             return bool(result)
         finally:

@@ -15,13 +15,10 @@ class CompletedSubmissionDAO:
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(
-                sqlString,
-                (
-                    dueSubmission.getUrl,
-                    dueSubmission.getSubreddit
-                )
-            )
+            cursor.execute(sqlString, (
+                dueSubmission.getUrl,
+                dueSubmission.getSubreddit
+            ))
             self.__connection.commit()
         finally:
             cursor.close()
@@ -33,13 +30,10 @@ class CompletedSubmissionDAO:
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(
-                sqlString,
-                (
-                    scheduledSubmission.getUrl,
-                    scheduledSubmission.getSubreddit
-                )
-            )
+            cursor.execute(sqlString, (
+                scheduledSubmission.getUrl,
+                scheduledSubmission.getSubreddit
+            ))
             result = cursor.fetchone()
             return bool(result)
         finally:

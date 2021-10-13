@@ -92,13 +92,10 @@ class ScheduledCrosspostDAO:
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(
-                sqlString,
-                (
-                    scheduledCrosspost.getUrl,
-                    scheduledCrosspost.getSubreddit
-                )
-            )
+            cursor.execute(sqlString, (
+                scheduledCrosspost.getUrl,
+                scheduledCrosspost.getSubreddit
+            ))
             self.__connection.commit()
         finally:
             cursor.close()

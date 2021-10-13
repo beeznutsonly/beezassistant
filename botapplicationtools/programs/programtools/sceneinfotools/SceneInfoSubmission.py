@@ -10,18 +10,21 @@ class SceneInfoSubmission(SimpleSubmission):
     """
 
     __title: str
+    __movieName: str
     __timeCreated: int
 
     def __init__(
             self,
             submissionId: str,
             title: str,
-            timeCreated: int
+            timeCreated: int,
+            movieName: str = None
     ):
 
         super().__init__(submissionId)
         self.__title = title
         self.__timeCreated = timeCreated
+        self.__movieName = movieName
 
     @property
     def getTitle(self):
@@ -30,6 +33,10 @@ class SceneInfoSubmission(SimpleSubmission):
     @property
     def getTimeCreated(self):
         return self.__timeCreated
+
+    @property
+    def getMovieName(self):
+        return self.__movieName
 
     @classmethod
     def getSceneInfoSubmissionFromDetails(

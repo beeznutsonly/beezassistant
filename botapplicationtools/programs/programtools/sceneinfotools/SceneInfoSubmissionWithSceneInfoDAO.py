@@ -3,6 +3,7 @@
 from botapplicationtools.programs.programtools.sceneinfotools\
     .SceneInfoSubmissionWithSceneInfo import SceneInfoSubmissionWithSceneInfo
 
+
 class SceneInfoSubmissionWithSceneInfoDAO:
     """
     SceneInfoSubmissionWithSceneInfo type's DAO
@@ -32,21 +33,20 @@ class SceneInfoSubmissionWithSceneInfoDAO:
                     Movie=excluded.Movie, Star1=excluded.Star1, Star2=excluded.Star2;
                     '''
         try:
-            self.__cursor.execute(
-                sqlString,
+            self.__cursor.execute(sqlString,
                 (
-                     sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfoSubmission
-                         .getSubmissionId,
+                    sceneInfoSubmissionWithSceneInfo
+                        .getSceneInfoSubmission
+                        .getSubmissionId,
 
-                     sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfo.getMovieName,
+                    sceneInfoSubmissionWithSceneInfo
+                        .getSceneInfo.getMovieName,
 
-                     sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfo.getStars[0],
+                    sceneInfoSubmissionWithSceneInfo
+                        .getSceneInfo.getStars[0],
 
-                     sceneInfoSubmissionWithSceneInfo
-                         .getSceneInfo.getStars[1]
+                    sceneInfoSubmissionWithSceneInfo
+                        .getSceneInfo.getStars[1]
                 )
             )
         except Exception as ex:

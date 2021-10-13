@@ -18,6 +18,6 @@ def initializeDatabase(connection, database, sqlScriptFileName):
     else:
         connection.autocommit = True
         cursor.execute(sql)
-    cursor.close()
+        cursor.close()
 
 

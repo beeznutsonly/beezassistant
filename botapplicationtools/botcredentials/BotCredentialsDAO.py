@@ -36,15 +36,13 @@ class BotCredentialsDAO:
                 'password=excluded.password;'
         )
         try:
-            cursor.execute(
-                sqlString, (
-                    botCredentials.getUserAgent,
-                    botCredentials.getClientId,
-                    botCredentials.getClientSecret,
-                    botCredentials.getUsername,
-                    botCredentials.getPassword
-                )
-            )
+            cursor.execute(sqlString, (
+                botCredentials.getUserAgent,
+                botCredentials.getClientId,
+                botCredentials.getClientSecret,
+                botCredentials.getUsername,
+                botCredentials.getPassword
+            ))
             self.__saveChanges()
 
         # Handle database error

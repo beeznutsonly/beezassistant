@@ -23,7 +23,8 @@ class SimpleSceneInfoDAO:
         )
         try:
             self.__cursor.execute(
-                sqlString, (
+                sqlString,
+                (
                     sceneInfo.getMovieName,
                     sceneInfo.getStars[0],
                     sceneInfo.getStars[1]

@@ -60,9 +60,7 @@ class PgsqlDatabaseConnectionFactory(DatabaseConnectionFactory):
             try:
                 # Retrieve list of all databases on the cluster
                 cursor = connection.cursor()
-                cursor.execute(
-                    "SELECT datname FROM pg_database;"
-                )
+                cursor.execute("SELECT datname FROM pg_database;")
                 databaseList = cursor.fetchall()
                 return (databaseName,) in databaseList
             finally:

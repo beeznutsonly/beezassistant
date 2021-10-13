@@ -20,13 +20,10 @@ class ScheduledSubmissionAutoReplyDAO:
         cursor = self.__connection.cursor()
 
         try:
-            cursor.execute(
-                sqlString,
-                (
-                    scheduledSubmission.getUrl,
-                    scheduledSubmission.getSubreddit
-                )
-            )
+            cursor.execute(sqlString, (
+                scheduledSubmission.getUrl,
+                scheduledSubmission.getSubreddit
+            ))
             results = cursor.fetchall()
 
             autoReplies = []

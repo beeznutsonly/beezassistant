@@ -50,15 +50,15 @@ class StarSceneInfoSubmissionDetailDAO:
             if star or title:
                 values: list
                 if star and title:
-                    sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
+                    sqlString = 'SELECT submission_id, Star, Title, Movie FROM StarView ' \
                                 'WHERE Star=%s AND Title=%s'
                     values = [star, title]
                 elif star:
-                    sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
+                    sqlString = 'SELECT submission_id, Star, Title, Movie FROM StarView ' \
                                 'WHERE Star=%s'
                     values = [star]
                 else:
-                    sqlString = 'SELECT submission_id, Star, Title FROM StarView ' \
+                    sqlString = 'SELECT submission_id, Star, Title, Movie FROM StarView ' \
                                 'WHERE Title=%s'
                     values = [title]
                 if limit:
@@ -91,7 +91,8 @@ class StarSceneInfoSubmissionDetailDAO:
                         SceneInfoSubmission(
                             str(row[0]),
                             str(row[2]),
-                            None
+                            None,
+                            str(row[3])
                         )
                     )
                 )
