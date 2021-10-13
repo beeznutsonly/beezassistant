@@ -77,6 +77,8 @@ def execute(
                 except AttributeError:
                     pass
 
+                time.sleep(2)
+
         except (RequestException, ServerError):
 
             time.sleep(30)
