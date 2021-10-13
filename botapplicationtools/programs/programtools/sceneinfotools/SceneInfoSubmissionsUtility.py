@@ -61,7 +61,8 @@ def retrieveSceneInfoSubmissionsWithSceneInfo(
 
             # Extract the info and stop search once match is found
             if sceneInfoTextMatcher.match(topComment.body):
-
+                if not movieNameExtractor.search(topComment.body):
+                    continue
                 movieName = movieNameExtractor.search(topComment.body).group()
                 starNames = starNamesExtractor.findall(topComment.body)
 
