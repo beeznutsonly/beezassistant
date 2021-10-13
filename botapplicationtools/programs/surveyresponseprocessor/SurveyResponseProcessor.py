@@ -41,6 +41,7 @@ def execute(
                 if err.error_type == "NOT_WHITELISTED_BY_USER_MESSAGE":
                     pass
                 elif err.error_type == "RATELIMIT":
+                    print("Ratelimited")
                     time.sleep(timeIncrementBase + 10)
 
         featureTesterDAO.acknowledge(
