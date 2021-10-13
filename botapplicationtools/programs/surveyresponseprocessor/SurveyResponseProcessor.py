@@ -1,4 +1,7 @@
+import time
 from datetime import datetime, timedelta
+
+from praw.exceptions import APIException
 
 from botapplicationtools.programs.programtools.featuretestertools.FeatureTester import FeatureTester
 from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
@@ -23,13 +26,23 @@ def execute(
             unprocessedSurveyParticipant,
             flair_template_id=userFlairId
         )
-        prawReddit.redditor(unprocessedSurveyParticipant).message(
-            userMessage.getSubject,
-            'Hey {}.\n\n{}'.format(
-                unprocessedSurveyParticipant,
-                userMessage.getBody
-            )
-        )
+        timeIncrementBase = 120
+        while True:
+            try:
+                prawReddit.redditor(unprocessedSurveyParticipant).message(
+                    userMessage.getSubject,
+                    'Hey {}.\n\n{}'.format(
+                        unprocessedSurveyParticipant,
+                        userMessage.getBody
+                    )
+                )
+                break
+            except APIException as err:
+                if err.error_type == "NOT_WHITELISTED_BY_USER_MESSAGE":
+                    pass
+                elif err.error_type == "RATELIMIT":
+                    time.sleep(timeIncrementBase + 10)
+
         featureTesterDAO.acknowledge(
             FeatureTester(
                 unprocessedSurveyParticipant,
@@ -38,3 +51,4 @@ def execute(
                 )
             )
         )
+            time.sleep(20)
