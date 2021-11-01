@@ -2,6 +2,11 @@ from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspost import
 
 
 class CompletedCrosspostDAO:
+    """
+    DAO class responsible for marking and
+    checking completed crossposts to and
+    from storage respectively
+    """
 
     __connection = None
 
@@ -9,6 +14,7 @@ class CompletedCrosspostDAO:
         self.__connection = connection
 
     def add(self, completedCrosspost: ScheduledCrosspost):
+        """Add (Mark) completed crosspost"""
 
         sqlString = 'INSERT INTO CompletedCrosspost(url, subreddit) VALUES ' \
                     '(%s, %s);'
@@ -25,6 +31,7 @@ class CompletedCrosspostDAO:
             cursor.close()
 
     def checkCompleted(self, scheduledCrosspost: ScheduledCrosspost) -> bool:
+        """Check if provided scheduled crosspost has been completed"""
 
         sqlString = 'SELECT 1 FROM CompletedCrosspost ' \
                     'WHERE url=%s AND subreddit=%s;'

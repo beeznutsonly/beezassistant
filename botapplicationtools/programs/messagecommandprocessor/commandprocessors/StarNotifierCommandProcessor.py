@@ -10,7 +10,10 @@ from botapplicationtools.programs.programtools.starnotificationtools.StarNotific
 
 
 class StarNotifierCommandProcessor:
-    """"""
+    """
+    Class encapsulating objects responsible for
+    processing Star Notifier requests
+    """
 
     __starNotificationSubscriptionDAO = None
     __featureTesterDAO = None
@@ -20,7 +23,6 @@ class StarNotifierCommandProcessor:
             self,
             connection
     ):
-        """"""
         self.__starNotificationSubscriptionDAO = StarNotificationSubscriptionDAO(
             connection
         )
@@ -29,16 +31,15 @@ class StarNotifierCommandProcessor:
         self.__starNotificationLimit = 2
 
     def processMessage(self, message: Message):
+        """Process message command"""
 
-        messageArguments = message.body
-        stars = messageArguments.split(',')
-        userStarNotifications = self.__starNotificationSubscriptionDAO \
-            .getUserStarNotificationSubscriptions(message.author.name)
-
+        # TODO: Abstract the feature test block
+        # Handle if this is a feature-tester-exclusive feature
         if self.__featureTesterDAO:
             featureTester = self.__featureTesterDAO.getFeatureTester(
                 message.author.name
             )
+            # Handle if requester is not a feature tester
             if not featureTester:
                 message.reply(
                     "Hi {}. Unfortunately, I could not successfully process "
@@ -48,6 +49,7 @@ class StarNotifierCommandProcessor:
                 )
                 message.mark_read()
                 return
+            # Handle if feature tester testing window has expired
             if featureTester.getExpiry and featureTester.getExpiry < datetime.now():
                 message.reply(
                     "Hi {}. Unfortunately, I could not successfully process "
@@ -58,6 +60,12 @@ class StarNotifierCommandProcessor:
                 message.mark_read()
                 return
 
+        # Local variable declaration
+        messageArguments = message.body
+        userStarNotifications = self.__starNotificationSubscriptionDAO \
+            .getUserStarNotificationSubscriptions(message.author.name)
+
+        # Handle if reset subscription request
         if messageArguments == 'reset':
             self.__starNotificationSubscriptionDAO.reset(
                 message.author.name
@@ -66,7 +74,12 @@ class StarNotifierCommandProcessor:
                 "You have successfully reset your notifier preferences. All "
                 "your previous subscriptions have been cleared.\n\nRegards."
             )
+        # Handle if subscription request
         else:
+            # Retrieve stars from message command arguments
+            stars = messageArguments.split(',')
+
+            # Check if subscription request does not violate stated quota
             if (len(userStarNotifications) + len(stars)) > \
                     self.__starNotificationLimit:
                 message.reply(
@@ -82,6 +95,7 @@ class StarNotifierCommandProcessor:
                     )
                 )
             else:
+                # List of user's subscribed stars
                 subscribedStarList = list(
                     map(
                         lambda starNotification:
@@ -90,15 +104,19 @@ class StarNotifierCommandProcessor:
                     )
                 )
                 for star in stars:
+                    # Skip if provided star is already subscribed to
                     if star.strip().lower() in subscribedStarList:
                         continue
                     if len(star.strip()) > 0:
+                        # Register star subscription if provided star name
+                        # is valid
                         self.__starNotificationSubscriptionDAO.add(
                             StarNotificationSubscription(
                                 message.author.name,
                                 star.strip()
                             )
                         )
+
                 message.reply(
                     "You have successfully subscribed to notifications "
                     "for the following stars:\n\n- {}\n\nYou may reset "
@@ -109,4 +127,6 @@ class StarNotifierCommandProcessor:
                         '\n- '.join(stars)
                     )
                 )
+
+        # Mark read after successful processing
         message.mark_read()

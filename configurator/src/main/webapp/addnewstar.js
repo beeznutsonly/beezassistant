@@ -9,12 +9,17 @@ $(document).ready(
 
         function ajaxPost(){
             var formData = {
-                name : $("#name").val(),
-                birthday : getISODateFromPicker("#birthday"),
-                nationality : $("#nationality").val(),
-                birthPlace : $("#birthPlace").val(),
-                yearsActive : $("#yearsActive").val(),
-                description : $("#description").val()
+                name : $("#name").val() == '' ? null : $("#name").val(),
+                birthday : $('#birthday').val() == '' ? null : 
+                    getISODateFromPicker("#birthday"),
+                nationality : $("#nationality").val() == '' ? null : 
+                    $("#nationality").val(),
+                birthPlace : $("#birthPlace").val() == '' ? null :
+                    $("#birthPlace").val(),
+                yearsActive : $("#yearsActive").val() == '' ? null :
+                    $("#yearsActive").val(),
+                description : $("#description").val() == '' ? null :
+                    $("#description").val()
             }
 
             $.ajax({

@@ -21,7 +21,8 @@ class ProgramRunner(ABC):
 
     @abstractmethod
     def run(self):
-        """Run the program"""
+        """Run a new program instance"""
+
         raise NotImplementedError()
 
     def isShutDown(self) -> bool:

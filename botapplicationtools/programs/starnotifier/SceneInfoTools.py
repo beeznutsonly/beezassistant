@@ -2,6 +2,11 @@ from re import Pattern
 
 
 class SceneInfoTools:
+    """
+    Class holding scene info tools to be used to identify
+    scene info comments and extract the relevant scene info
+    comments
+    """
 
     __sceneInfoCommentMatcher: Pattern
     __starMatcher: Pattern

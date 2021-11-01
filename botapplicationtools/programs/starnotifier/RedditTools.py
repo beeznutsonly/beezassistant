@@ -2,6 +2,10 @@ from praw import Reddit
 
 
 class RedditTools:
+    """
+    Class holding Reddit tools to be used
+    by the Star Notifier
+    """
 
     __prawReddit: Reddit
     __commentStream = None

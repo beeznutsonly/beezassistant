@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 class ScheduledSubmission:
-    """"""
+    """Class representing a scheduled submission"""
 
     __url: str
     __subreddit: str

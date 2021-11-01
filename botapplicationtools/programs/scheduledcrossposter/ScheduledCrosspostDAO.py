@@ -5,6 +5,10 @@ from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspost \
 
 
 class ScheduledCrosspostDAO:
+    """
+    DAO class responsible for writing and retrieving
+    scheduled crosspost information to and from storage
+    """
 
     __connection = None
 
@@ -12,6 +16,8 @@ class ScheduledCrosspostDAO:
         self.__connection = connection
 
     def getScheduledCrossposts(self) -> List[ScheduledCrosspost]:
+        """Retrieve all scheduled crossposts"""
+
         sqlString = 'SELECT url, subreddit, scheduled_time, title ' \
                     'FROM scheduledcrosspost;'
 
@@ -40,6 +46,7 @@ class ScheduledCrosspostDAO:
     def getScheduledCrosspostsForUrl(
             self, url: str
     ) -> List[ScheduledCrosspost]:
+        """Retrieve all scheduled crossposts for a particular url"""
 
         sqlString = 'SELECT url, subreddit, scheduled_time, title ' \
                     'FROM ScheduledCrosspost ' \
@@ -68,6 +75,10 @@ class ScheduledCrosspostDAO:
             cursor.close()
 
     def checkExists(self, url: str) -> bool:
+        """
+        Check if scheduled crossposts exist for with
+        the particular url
+        """
 
         sqlString = 'SELECT 1 FROM ScheduledCrosspost ' \
                     'WHERE url = %s;'
@@ -85,6 +96,7 @@ class ScheduledCrosspostDAO:
             self,
             scheduledCrosspost: ScheduledCrosspost
     ):
+        """Delete the provided scheduled crosspost"""
 
         sqlString = "DELETE FROM ScheduledCrosspost " \
                     "WHERE url = % AND subreddit = %s;"

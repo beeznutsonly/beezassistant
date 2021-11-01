@@ -2,6 +2,11 @@ from botapplicationtools.programs.scheduledposter.ScheduledSubmission import Sch
 
 
 class CompletedSubmissionDAO:
+    """
+    DAO class responsible for marking
+    completed submissions and checking
+    for completed submissions
+    """
 
     __connection = None
 
@@ -9,6 +14,7 @@ class CompletedSubmissionDAO:
         self.__connection = connection
 
     def add(self, dueSubmission: ScheduledSubmission):
+        """Add (Mark) completed submission"""
 
         sqlString = 'INSERT INTO CompletedSubmission (url, subreddit) ' \
                     'VALUES (%s, %s);'
@@ -24,6 +30,9 @@ class CompletedSubmissionDAO:
             cursor.close()
 
     def checkExists(self, scheduledSubmission: ScheduledSubmission):
+        """
+        Check if provided scheduled submission is completed
+        """
 
         sqlString = 'SELECT 1 FROM CompletedSubmission WHERE ' \
                     'url = %s AND subreddit = %s;'

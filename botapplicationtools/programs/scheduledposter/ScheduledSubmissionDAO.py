@@ -5,6 +5,10 @@ from botapplicationtools.programs.scheduledposter.ScheduledSubmission import Sch
 
 
 class ScheduledSubmissionDAO:
+    """
+    DAO class responsible for retrieving
+    scheduled submissions
+    """
 
     __connection = None
 
@@ -13,6 +17,7 @@ class ScheduledSubmissionDAO:
         self.__connection = connection
 
     def getDueSubmissions(self) -> List[ScheduledSubmission]:
+        """Retrieve all due scheduled submissions"""
 
         sqlString = "SELECT url, subreddit, title, scheduled_time, flair_id " \
                     "FROM ScheduledSubmission " \

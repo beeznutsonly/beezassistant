@@ -13,7 +13,10 @@ from botapplicationtools.programsexecutors.programsexecutortools.RedditInterface
 
 
 class StarNotifierRunner(ProgramRunner):
-    """"""
+    """
+    Class responsible for running multiple
+    StarNotifier program instances
+    """
 
     __redditInterfaceFactory: RedditInterfaceFactory
     __databaseConnectionFactory: DatabaseConnectionFactory
@@ -37,6 +40,14 @@ class StarNotifierRunner(ProgramRunner):
             self,
             configReader: ConfigParser
     ):
+        """Initialize the Star Notifier Runner"""
+
+        # Retrieving values from configuration file
+
+        self._programRunnerLogger.debug(
+            "Retrieving Star Notifier Runner initial "
+            "values from the config. reader"
+        )
         section = "StarNotifierRunner"
         userProfile = configReader.get(
             section, "userProfile"

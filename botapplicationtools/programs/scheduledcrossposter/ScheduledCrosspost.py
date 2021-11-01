@@ -2,6 +2,7 @@ from datetime import datetime
 
 
 class ScheduledCrosspost:
+    """Class representing a scheduled crosspost"""
 
     __url: str
     __subreddit: str

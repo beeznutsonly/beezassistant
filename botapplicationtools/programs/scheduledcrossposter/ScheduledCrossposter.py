@@ -1,3 +1,8 @@
+"""
+Program responsible for submitting
+Scheduled Crossposts
+"""
+
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -10,7 +15,7 @@ from botapplicationtools.programs.scheduledcrossposter.CompletedCrosspostDAO imp
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspost import ScheduledCrosspost
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrossposterStorage import ScheduledCrossposterStorage
 
-
+# Lock for concurrent write operations
 __LOCK = threading.Lock()
 
 
@@ -20,19 +25,25 @@ def execute(
         crosspostProcessor: ThreadPoolExecutor,
         stopCondition
 ):
+    """Execute the program"""
 
+    # Local variable declaration
     scheduledCrosspostDAO = scheduledCrossposterStorage.getScheduledCrosspostDAO
     completedCrosspostDAO = scheduledCrossposterStorage.getCompletedCrosspostDAO
 
+    # Program loop
     while not stopCondition():
         try:
             for submission in submissionStream:
 
+                # Handle pause token
                 if submission is None:
                     if stopCondition():
                         break
                     continue
 
+                # Handle if retrieved submission has
+                # scheduled crossposts
                 if scheduledCrosspostDAO.checkExists(
                     submission.url
                 ):
@@ -49,6 +60,7 @@ def execute(
                             scheduledCrossposts
                         )
                     )
+                    # Process each non-completed crosspost
                     for nonCompletedCrosspost in nonCompletedCrossposts:
                         crosspostProcessor.submit(
                             processNonCompletedCrosspost,
@@ -57,6 +69,7 @@ def execute(
                             completedCrosspostDAO
                         )
 
+        # Handle for problems with the Reddit API
         except (RequestException, ServerError):
             time.sleep(30)
 
@@ -66,6 +79,10 @@ def processNonCompletedCrosspost(
         submission: Submission,
         completedCrosspostDAO: CompletedCrosspostDAO
 ):
+    """
+    Process crossposts which have not been
+    completed
+    """
 
     scheduledTime = nonCompletedCrosspost.getScheduledTime
 
@@ -78,5 +95,4 @@ def processNonCompletedCrosspost(
             with __LOCK:
                 completedCrosspostDAO.add(nonCompletedCrosspost)
             break
-
         time.sleep(1)

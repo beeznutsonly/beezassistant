@@ -5,7 +5,7 @@ from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConne
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.messagecommandprocessor import MessageCommandProcessor
-from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessorFactory import \
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.CommandProcessorFactory import \
     CommandProcessorFactory
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
     import RedditInterfaceFactory

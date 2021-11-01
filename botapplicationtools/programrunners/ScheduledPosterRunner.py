@@ -12,6 +12,10 @@ from botapplicationtools.programsexecutors.programsexecutortools.RedditInterface
 
 
 class ScheduledPosterRunner(ProgramRunner):
+    """
+    Class responsible for running multiple
+    Scheduled Poster program instances
+    """
 
     __redditInterfaceFactory: RedditInterfaceFactory
     __databaseConnectionFactory: DatabaseConnectionFactory
@@ -29,6 +33,7 @@ class ScheduledPosterRunner(ProgramRunner):
         self.__initializeRunner(configReader)
 
     def __initializeRunner(self, configReader: ConfigParser):
+        """Initializing the Scheduled Poster Runner"""
 
         # Retrieving values from Config. Reader
         self._programRunnerLogger.debug(

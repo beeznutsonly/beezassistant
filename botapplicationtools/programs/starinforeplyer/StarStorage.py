@@ -3,6 +3,10 @@ from botapplicationtools.programs.programtools.starprofiletools.StarLinkDAO impo
 
 
 class StarStorage:
+    """
+    Class holding storage DAOs of relevant Star Info
+    used by the star info replyer
+    """
 
     __starDAO: StarDAO
     __starLinkDAO: StarLinkDAO

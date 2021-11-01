@@ -3,6 +3,10 @@ from botapplicationtools.programs.scheduledposter.ScheduledSubmissionAutoReplyDA
 
 
 class ScheduledPosterStorage:
+    """
+    Class holding storage DAOs used by the
+    Scheduled Poster
+    """
 
     __scheduledSubmissionDAO: ScheduledSubmissionDAO
     __completedSubmissionDAO: CompletedSubmissionDAO

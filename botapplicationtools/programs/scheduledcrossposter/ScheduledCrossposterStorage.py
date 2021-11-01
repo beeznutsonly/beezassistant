@@ -3,6 +3,10 @@ from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspostDAO imp
 
 
 class ScheduledCrossposterStorage:
+    """
+    Class holding storage DAOs used by the
+    Scheduled Crossposter
+    """
 
     __scheduledCrosspostDAO: ScheduledCrosspostDAO
     __completedCrosspostDAO: CompletedCrosspostDAO

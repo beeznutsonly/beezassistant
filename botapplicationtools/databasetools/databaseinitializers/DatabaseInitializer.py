@@ -9,6 +9,7 @@ def initializeDatabase(connection, database, sqlScriptFileName):
     """Initialize the database"""
 
     cursor = connection.cursor()
+
     # Reading and executing the sql script file
     with open(sqlScriptFileName) as sqlFile:
         sql = sqlFile.read()

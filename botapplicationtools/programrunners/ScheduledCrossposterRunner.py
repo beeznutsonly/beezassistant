@@ -12,6 +12,10 @@ from botapplicationtools.programsexecutors.programsexecutortools.RedditInterface
 
 
 class ScheduledCrossposterRunner(ProgramRunner):
+    """
+    Class responsible for running multiple
+    Scheduled Crossposter program instances
+    """
 
     __redditInterfaceFactory: RedditInterfaceFactory
     __databaseConnectionFactory: DatabaseConnectionFactory

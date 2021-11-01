@@ -4,6 +4,10 @@ from botapplicationtools.programs.scheduledposter.ScheduledSubmission import Sch
 
 
 class ScheduledSubmissionAutoReplyDAO:
+    """
+    DAO class responsible for retrieving scheduled
+    submission auto-replies
+    """
 
     __connection = None
 
@@ -14,6 +18,10 @@ class ScheduledSubmissionAutoReplyDAO:
             self,
             scheduledSubmission: ScheduledSubmission
     ) -> List[str]:
+        """
+        Retrieve all auto-replies for the provided
+        scheduled submission
+        """
 
         sqlString = 'SELECT comment_body FROM ScheduledSubmissionAutoReply ' \
                     'WHERE url = %s AND subreddit = %s;'

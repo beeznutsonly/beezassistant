@@ -96,7 +96,6 @@ class StarInfoReplyerRunner(ProgramRunner):
         self.__userProfile = userProfile
 
     def run(self):
-        """Execute the Star Info Replyer"""
 
         # First confirm that the program runner is not shutdown
         if self._informIfShutDown():
