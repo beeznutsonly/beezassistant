@@ -17,90 +17,43 @@ class ScheduledPosterRunner(ProgramRunner):
     Scheduled Poster program instances
     """
 
-    __redditInterfaceFactory: RedditInterfaceFactory
-    __databaseConnectionFactory: DatabaseConnectionFactory
-    __userProfile: str
-
     def __init__(
             self,
-            databaseConnectionFactory: DatabaseConnectionFactory,
             redditInterfaceFactory: RedditInterfaceFactory,
+            databaseConnectionFactory: DatabaseConnectionFactory,
             configReader: ConfigParser
     ):
-        super().__init__()
-        self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__redditInterfaceFactory = redditInterfaceFactory
-        self.__initializeRunner(configReader)
+        super().__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Scheduled Poster Runner"
+        )
+        self.__initializeProgramRunner(configReader)
 
-    def __initializeRunner(self, configReader: ConfigParser):
+    def __initializeProgramRunner(self, configReader: ConfigParser):
         """Initializing the Scheduled Poster Runner"""
 
-        # Retrieving values from Config. Reader
-        self._programRunnerLogger.debug(
-            "Retrieving Scheduled Poster Runner initial "
-            "values from the config. reader"
-        )
+        # Retrieving program runner variables from the config. file
 
         section = "ScheduledPosterRunner"
         userProfile = configReader.get(
             section, "userProfile"
         )
 
-        # Initialization of instance variables
+        self._userProfile = userProfile
 
-        self.__userProfile = userProfile
+    def _runCore(self, redditInterface, connection):
 
-    def run(self):
+        prawReddit = redditInterface.getPrawReddit
 
-        # Quick shutdown check before proceeding
-        if self._informIfShutDown():
-            return
+        scheduledPosterStorage = ScheduledPosterStorage(
+            ScheduledSubmissionDAO(connection),
+            CompletedSubmissionDAO(connection),
+            ScheduledSubmissionAutoReplyDAO(connection)
+        )
 
-        programRunnerLogger = self._programRunnerLogger
-
-        # Running the program
-        try:
-
-            programRunnerLogger.info('Scheduled Poster is now running')
-
-            with self.__databaseConnectionFactory.getConnection() \
-                    as connection:
-
-                prawReddit = self.__redditInterfaceFactory \
-                    .getRedditInterface(
-                        self.__userProfile
-                    ).getPrawReddit
-
-                scheduledPosterStorage = ScheduledPosterStorage(
-                    ScheduledSubmissionDAO(connection),
-                    CompletedSubmissionDAO(connection),
-                    ScheduledSubmissionAutoReplyDAO(connection)
-                )
-
-                ScheduledPoster.execute(
-                    prawReddit,
-                    scheduledPosterStorage,
-                    self.isShutDown
-                )
-
-                if self.isShutDown():
-                    programRunnerLogger.info(
-                        "Scheduled Poster successfully shut down"
-                    )
-                else:
-                    programRunnerLogger.info(
-                        "Scheduled Poster Completed"
-                    )
-
-        # Handle in the event of a program crash
-        except Exception as ex:
-            programRunnerLogger.error(
-                "A terminal error occurred while running the Scheduled "
-                "Poster: " + str(ex.args), exc_info=True
-            )
-        finally:
-
-            # Dispose of database connection
-            self.__databaseConnectionFactory.yieldConnection(
-                connection
-            )
+        ScheduledPoster.execute(
+            prawReddit,
+            scheduledPosterStorage,
+            self.isShutDown
+        )

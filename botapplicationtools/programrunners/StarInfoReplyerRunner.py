@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from configparser import ConfigParser
 from typing import List
 
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory \
@@ -30,10 +31,6 @@ class StarInfoReplyerRunner(ProgramRunner):
     StarInfoReplyer program instances
     """
 
-    __databaseConnectionFactory: DatabaseConnectionFactory
-    __redditInterfaceFactory: RedditInterfaceFactory
-    __userProfile: str
-
     __groupsRefreshInterval: int
     __subreddits: List[str]
     __excludedUsers: List[str]
@@ -41,24 +38,22 @@ class StarInfoReplyerRunner(ProgramRunner):
 
     def __init__(
             self,
-            databaseConnectionFactory,
-            redditInterfaceFactory,
-            configReader
+            redditInterfaceFactory: RedditInterfaceFactory,
+            databaseConnectionFactory: DatabaseConnectionFactory,
+            configReader: ConfigParser
     ):
-        super().__init__()
-        self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__redditInterfaceFactory = redditInterfaceFactory
-        self.__initializeStarInfoReplyerRunner(configReader)
+        super().__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Star Info Replyer Runner"
+        )
+        self.__initializeProgramRunner(configReader)
 
-    def __initializeStarInfoReplyerRunner(self, configReader):
+    def __initializeProgramRunner(self, configReader):
         """Initializing the Star Info Replyer Runner"""
 
         # Retrieving values from configuration file
 
-        self._programRunnerLogger.debug(
-            "Retrieving Star Info Replyer Runner initial "
-            "values from the config. reader"
-        )
         section = 'StarInfoReplyerRunner'
         subreddits = json.loads(configReader.get(
             section, "subreddits"
@@ -93,83 +88,45 @@ class StarInfoReplyerRunner(ProgramRunner):
             ).decode("unicode_escape")
         )
         self.__groupsRefreshInterval = groupsRefreshInterval
-        self.__userProfile = userProfile
+        self._userProfile = userProfile
 
-    def run(self):
+    def _runCore(self, redditInterface, connection):
 
-        # First confirm that the program runner is not shutdown
-        if self._informIfShutDown():
-            return
+        # Setting up the Replyer's Reddit Tools
+        prawReddit = redditInterface.getPrawReddit
+        redditTools = RedditTools(
+            prawReddit,
+            self.__subreddits,
+            self.__excludedUsers
+        )
 
-        programRunnerLogger = self._programRunnerLogger
+        # Storage tools for the StarInfoReplyer
+        starInfoReplyerCommentedDAO = StarInfoReplyerCommentedDAO(
+            connection
+        )
+        starInfoReplyerExcludedDAO = StarInfoReplyerExcludedDAO(
+            connection
+        )
+        starSceneInfoSubmissionDetailDAO = StarSceneInfoSubmissionDetailDAO(
+            connection
+        )
+        starDAO = StarDAO(connection)
+        starLinkDAO = StarLinkDAO(connection)
 
-        try:
+        starInfoReplyerIO = StarInfoReplyerIO(
+            StarInfoReplyerStorage(
+                starInfoReplyerCommentedDAO,
+                starInfoReplyerExcludedDAO,
+                starSceneInfoSubmissionDetailDAO,
+                StarStorage(starDAO, starLinkDAO)
+            ),
+            redditTools
+        )
 
-            # Executing the program
-            programRunnerLogger.info('Star Info Replyer is now running')
-
-            # Setting up the Replyer's Reddit Tools
-            prawReddit = self.__redditInterfaceFactory \
-                .getRedditInterface(self.__userProfile) \
-                .getPrawReddit
-            redditTools = RedditTools(
-                prawReddit,
-                self.__subreddits,
-                self.__excludedUsers
-            )
-
-            with self.__databaseConnectionFactory.getConnection() \
-                    as connection:
-
-                # Storage tools for the StarInfoReplyer
-                starInfoReplyerCommentedDAO = StarInfoReplyerCommentedDAO(
-                    connection
-                )
-                starInfoReplyerExcludedDAO = StarInfoReplyerExcludedDAO(
-                    connection
-                )
-                starSceneInfoSubmissionDetailDAO = StarSceneInfoSubmissionDetailDAO(
-                    connection
-                )
-                starDAO = StarDAO(connection)
-                starLinkDAO = StarLinkDAO(connection)
-
-                starInfoReplyerIO = StarInfoReplyerIO(
-                    StarInfoReplyerStorage(
-                        starInfoReplyerCommentedDAO,
-                        starInfoReplyerExcludedDAO,
-                        starSceneInfoSubmissionDetailDAO,
-                        StarStorage(starDAO, starLinkDAO)
-                    ),
-                    redditTools
-                )
-
-                # Executing the program
-                StarInfoReplyer.execute(
-                    starInfoReplyerIO,
-                    self.__groupsRefreshInterval,
-                    self.isShutDown,
-                    self.__customAddenda
-                )
-            
-            # Program termination message determination
-            if self.isShutDown():
-                programRunnerLogger.info(
-                    'Star Info Replyer successfully shut down'
-                )
-            else:
-                programRunnerLogger.info(
-                    'Star Info Replyer completed'
-                )
-        
-        # Handle if an error occurs while running the Star Info Replyer
-        except Exception as er:
-            programRunnerLogger.error(
-                "A terminal error occurred while running the Star "
-                "Info Replyer: " + str(er.args), exc_info=True
-            )
-        finally:
-            # Dispose of database connection
-            self.__databaseConnectionFactory.yieldConnection(
-                connection
-            )
+        # Executing the program
+        StarInfoReplyer.execute(
+            starInfoReplyerIO,
+            self.__groupsRefreshInterval,
+            self.isShutDown,
+            self.__customAddenda
+        )

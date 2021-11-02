@@ -39,52 +39,51 @@ class ProgramRunnerFactory:
 
         if programNameLower == 'starsarchivewikipagewriter':
             return StarsArchiveWikiPageWriterRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'sceneinfoarchiver':
             return SceneInfoArchiverRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'starinforeplyer':
             return StarInfoReplyerRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'messagecommandprocessor':
             return MessageCommandProcessorRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'scheduledcrossposter':
             return ScheduledCrossposterRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'scheduledposter':
             return ScheduledPosterRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'starnotifier':
             return StarNotifierRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
         elif programNameLower == 'surveyresponseprocessor':
             return SurveyResponseProcessorRunner(
-                databaseConnectionFactory=databaseConnectionFactory,
                 redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader
             )
-
         else:
             return None

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from configparser import ConfigParser
 from typing import List
 
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
@@ -16,10 +17,6 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
     Class responsible for running StarsArchiveWikiPageWriter 
     program instances
     """
-    
-    __databaseConnectionFactory: DatabaseConnectionFactory
-    __redditInterfaceFactory: RedditInterfaceFactory
-    __userProfile: str
 
     __wikiName: str
     __subredditName: str
@@ -28,29 +25,26 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
 
     def __init__(
             self,
-            databaseConnectionFactory,
-            redditInterfaceFactory,
-            configReader
+            redditInterfaceFactory: RedditInterfaceFactory,
+            databaseConnectionFactory: DatabaseConnectionFactory,
+            configReader: ConfigParser
     ):
-        super(StarsArchiveWikiPageWriterRunner, self).__init__()
-        self.__redditInterfaceFactory = redditInterfaceFactory
-        self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__initializeStarsArchiveWikiPageWriterRunner(
+        super(StarsArchiveWikiPageWriterRunner, self).__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Stars Archive Wiki Page Writer Runner"
+        )
+        self.__initializeProgramRunner(
             configReader
         )
 
-    def __initializeStarsArchiveWikiPageWriterRunner(
+    def __initializeProgramRunner(
             self, configReader
     ):
         """Initializing the Stars Archive Wiki Page Writer"""
 
         # Retrieving values from configuration file
         # -------------------------------------------------------------------------------
-
-        self._programRunnerLogger.debug(
-            "Retrieving Stars Archive Wiki Page Writer initial values "
-            "from the config. reader"
-        )
 
         section = 'StarsArchiveWikiPageWriterRunner'
         subredditName = configReader.get(
@@ -76,6 +70,7 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
         self.__userProfile = userProfile
         self.__subredditName = subredditName
         self.__wikiName = wikiName
+        # TODO: Do something about this absolute garbage
         # Setting up default StarViews
         validStarViewList = []
         for defaultStarView in defaultStarViews:
@@ -104,40 +99,16 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
             )
         self.__defaultStarViews = validStarViewList
 
-    def run(self):
+    def _runCore(self, redditInterface, connection):
 
-        # First confirm that the program runner is not shutdown
-        if self._informIfShutDown():
-            return
-
-        programRunnerLogger = \
-            self._programRunnerLogger
-
-        wikiPage = self.__redditInterfaceFactory \
-            .getRedditInterface(self.__userProfile) \
+        wikiPage = redditInterface \
             .getPrawReddit \
             .subreddit(self.__subredditName) \
             .wiki[self.__wikiName]
 
-        with self.__databaseConnectionFactory.getConnection() \
-                as databaseConnection:
-
-            starViewObjects = StarViewFactory.getStarViews(
-                databaseConnection, self.__defaultStarViews
-            )
-            # Executing the program
-            programRunnerLogger.info(
-                'Stars Archive Wiki Page Writer is now running'
-            )
-            StarsArchiveWikiPageWriter.execute(
-                wikiPage, starViewObjects
-            )
-
-        # Disposing of the database connection
-        self.__databaseConnectionFactory.yieldConnection(
-            databaseConnection
+        starViewObjects = StarViewFactory.getStarViews(
+            connection, self.__defaultStarViews
         )
-
-        programRunnerLogger.info(
-            'Stars Archive Wiki Page Writer completed'
+        StarsArchiveWikiPageWriter.execute(
+            wikiPage, starViewObjects
         )

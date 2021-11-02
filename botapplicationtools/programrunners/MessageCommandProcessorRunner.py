@@ -1,5 +1,6 @@
 import json
 from configparser import ConfigParser
+from typing import List
 
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
@@ -17,93 +18,47 @@ class MessageCommandProcessorRunner(ProgramRunner):
     Message Command Processor instances
     """
 
-    __databaseConnectionFactory: DatabaseConnectionFactory
-    __redditInterfaceFactory: RedditInterfaceFactory
-    __userProfile: str
-
-    __commands = None
+    __commands: List[str]
 
     def __init__(
             self,
-            databaseConnectionFactory:
-            DatabaseConnectionFactory,
-
-            redditInterfaceFactory:
-            RedditInterfaceFactory,
-
+            redditInterfaceFactory: RedditInterfaceFactory,
+            databaseConnectionFactory: DatabaseConnectionFactory,
             configReader: ConfigParser
     ):
-        super().__init__()
-        self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__redditInterfaceFactory = redditInterfaceFactory
+        super().__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Message Command Processor"
+        )
         self.__initializeProgramRunner(configReader)
 
     def __initializeProgramRunner(self, configReader: ConfigParser):
         """Initialize the Message Command Processor Runner"""
 
-        self._programRunnerLogger.info(
-            "Initializing Message Command Processor Runner variables"
-        )
-
         # Retrieving initial variable values from the config. reader
         section = "MessageCommandProcessor"
+        userProfile = configReader.get(
+            section, "userProfile"
+        )
         commands = json.loads(
             configReader.get(
                 section, "commands"
             )
         )
-        userProfile = configReader.get(
-            section, "userProfile"
-        )
 
         # Instance variable initialization
+        self._userProfile = userProfile
         self.__commands = commands
-        self.__userProfile = userProfile
 
-    def run(self):
+    def _runCore(self, redditInterface, connection):
 
-        # Quick shutdown check before proceeding
-        if self._informIfShutDown():
-            return
+        prawReddit = redditInterface.getPrawReddit
 
-        try:
+        messageCommands = CommandProcessorFactory.getCommandProcessors(
+            self.__commands, connection
+        )
 
-            # Executing the program
-            self._programRunnerLogger.info(
-                "Message Command Processor is now running."
-            )
-            prawReddit = self.__redditInterfaceFactory \
-                .getRedditInterface(self.__userProfile) \
-                .getPrawReddit
-
-            with self.__databaseConnectionFactory.getConnection() as \
-                    databaseConnection:
-
-                messageCommands = CommandProcessorFactory.getCommandProcessors(
-                    self.__commands, databaseConnection
-                )
-                MessageCommandProcessor.execute(
-                    messageCommands, prawReddit, self.isShutDown
-                )
-
-            if self.isShutDown():
-                self._programRunnerLogger.info(
-                    "Message Command Processor successfully shut down."
-                )
-            else:
-                self._programRunnerLogger.info(
-                    "Message Command Processor completed."
-                )
-
-        # Handle if an error occurs while running the Message Command Processor
-        except Exception as er:
-            self._programRunnerLogger.error(
-                "A terminal error occurred while running the Message "
-                "Command Processor: " + str(er.args), exc_info=True
-            )
-        finally:
-            # Disposing of database connection
-            # once program is done executing
-            self.__databaseConnectionFactory.yieldConnection(
-                databaseConnection
-            )
+        MessageCommandProcessor.execute(
+            messageCommands, prawReddit, self.isShutDown
+        )

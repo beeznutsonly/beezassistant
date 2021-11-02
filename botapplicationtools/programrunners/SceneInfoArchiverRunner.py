@@ -31,9 +31,6 @@ class SceneInfoArchiverRunner(ProgramRunner):
     SceneInfoArchiver program instances
     """
 
-    __databaseConnectionFactory: DatabaseConnectionFactory
-    __redditInterfaceFactory: RedditInterfaceFactory
-    __userProfile: str
     __refreshInterval: int
 
     # Scene Info Storage Archiver variables
@@ -46,16 +43,20 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
     def __init__(
             self,
-            databaseConnectionFactory,
             redditInterfaceFactory,
+            databaseConnectionFactory,
             configReader
     ):
-        super(SceneInfoArchiverRunner, self).__init__()
-        self.__databaseConnectionFactory = databaseConnectionFactory
+        super().__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Scene Info Archiver Runner"
+        )
         self.__redditInterfaceFactory = redditInterfaceFactory
-        self.__initializeSceneInfoArchiverRunner(configReader)
+        self.__databaseConnectionFactory = databaseConnectionFactory
+        self.__initializeProgramRunner(configReader)
 
-    def __initializeSceneInfoArchiverRunner(
+    def __initializeProgramRunner(
             self, configReader
     ):
         """Initializing the scene info archiver"""
@@ -63,14 +64,12 @@ class SceneInfoArchiverRunner(ProgramRunner):
         # Retrieving values from config file
         # -------------------------------------------------------------------------------
 
-        self._programRunnerLogger.debug(
-            "Retrieving Scene Info Archiver initial values "
-            "from the config. reader"
-        )
-
         # Scene Info Storage Archiver values
 
         section = 'SceneInfoArchiverRunner'
+        userProfile = configReader.get(
+            section, "userProfile"
+        )
         refreshInterval = configReader.getint(
             section, 'refreshInterval'
         )
@@ -105,20 +104,13 @@ class SceneInfoArchiverRunner(ProgramRunner):
         defaultStarViews = json.loads(configReader.get(
             section, 'defaultStarViews'
         ))
-        userProfile = configReader.get(
-            section, "userProfile"
-        )
 
         # Instance variable initialization
         # -------------------------------------------------------------------------------
 
-        self._programRunnerLogger.debug(
-            "Initializing Scene Info Archiver variables"
-        )
-
         # General
 
-        self.__userProfile = userProfile
+        self._userProfile = userProfile
         self.__refreshInterval = refreshInterval
 
         # For Scene Info Storage Archiver
@@ -138,6 +130,7 @@ class SceneInfoArchiverRunner(ProgramRunner):
 
         self.__subredditName = starsArchiveWikiPageWriterSubredditName
         self.__wikiName = wikiName
+        # TODO: Clean up this shoddiness
         # Setting up default StarViews
         validStarViewList = []
         for defaultStarView in defaultStarViews:
@@ -164,135 +157,77 @@ class SceneInfoArchiverRunner(ProgramRunner):
             )
         self.__defaultStarViews = validStarViewList
 
-    def run(self):
-
-        # First confirm that the program runner is not shutdown
-        if self._informIfShutDown():
-            return
+    def _runCore(self, redditInterface, connection):
 
         programRunnerLogger = self._programRunnerLogger
+        nextArchiveOperationTime = datetime.now()
 
-        try:
+        while not self.isShutDown():
 
-            # Executing the program
-            programRunnerLogger.info('Scene Info Archiver is now running')
-            nextArchiveOperationTime = datetime.now()
+            # Check if next archiving job is due
+            if datetime.now() >= nextArchiveOperationTime:
 
-            while True:
+                sceneInfoSubmissionsWithSceneInfoStorage = \
+                    SceneInfoSubmissionsWithSceneInfoStorage(
 
-                # Quick shutdown check before going forward
-                if self.isShutDown():
-                    programRunnerLogger.info(
-                        'Scene Info Archiver successfully shut down'
+                        SimpleSceneInfoDAO(
+                            connection
+                        ),
+
+                        SceneInfoSubmissionDAO(
+                            connection
+                        ),
+
+                        SceneInfoSubmissionWithSceneInfoDAO(
+                            connection
+                        )
                     )
+
+                sceneInfoStorageArchiverTools = \
+                    SceneInfoStorageArchiverTools(
+
+                        redditInterface.getPushShiftAPI,
+
+                        self.__subredditSearchParameters,
+
+                        sceneInfoSubmissionsWithSceneInfoStorage
+                    )
+
+                starViewObjects = StarViewFactory.getStarViews(
+                    connection,
+                    self.__defaultStarViews
+                )
+
+                starsArchiveWikiPageWriterTools = \
+                    StarsArchiveWikiPageWriterTools(
+                        redditInterface
+                        .getPrawReddit
+                        .subreddit(self.__subredditName)
+                        .wiki[self.__wikiName],
+
+                        starViewObjects
+                    )
+
+                SceneInfoArchiver.execute(
+                    sceneInfoStorageArchiverTools,
+                    starsArchiveWikiPageWriterTools,
+                )
+
+                # Check if task is one-off (i.e. if refresh interval < 0)
+                if self.__refreshInterval < 0:
                     break
 
-                # Check if next archiving job is due
-                if datetime.now() >= nextArchiveOperationTime:
-
-                    redditInterface = self.__redditInterfaceFactory \
-                        .getRedditInterface()
-
-                    with self.__databaseConnectionFactory.getConnection() as \
-                            storageDatabaseConnection:
-
-                        sceneInfoSubmissionsWithSceneInfoStorage = \
-                            SceneInfoSubmissionsWithSceneInfoStorage(
-
-                                SimpleSceneInfoDAO(
-                                    storageDatabaseConnection
-                                ),
-
-                                SceneInfoSubmissionDAO(
-                                    storageDatabaseConnection
-                                ),
-
-                                SceneInfoSubmissionWithSceneInfoDAO(
-                                    storageDatabaseConnection
-                                )
-                            )
-
-                        sceneInfoStorageArchiverTools = \
-                            SceneInfoStorageArchiverTools(
-
-                                redditInterface.getPushShiftAPI,
-
-                                self.__subredditSearchParameters,
-
-                                sceneInfoSubmissionsWithSceneInfoStorage
-                            )
-
-                        with self.__databaseConnectionFactory.getConnection() as \
-                                wikiWriterDatabaseConnection:
-
-                            starViewObjects = StarViewFactory.getStarViews(
-                                wikiWriterDatabaseConnection,
-                                self.__defaultStarViews
-                            )
-
-                            starsArchiveWikiPageWriterTools = \
-                                StarsArchiveWikiPageWriterTools(
-                                    redditInterface
-                                    .getPrawReddit
-                                    .subreddit(self.__subredditName)
-                                    .wiki[self.__wikiName],
-
-                                    starViewObjects
-                                )
-
-                            SceneInfoArchiver.execute(
-                                sceneInfoStorageArchiverTools,
-                                starsArchiveWikiPageWriterTools,
-                            )
-
-                    # Disposing of database connections
-                    self.__databaseConnectionFactory.yieldConnection(
-                        wikiWriterDatabaseConnection
+                # Scheduling next archiving task
+                nextArchiveOperationTime = \
+                    datetime.now() + timedelta(
+                        minutes=self.__refreshInterval
                     )
-                    self.__databaseConnectionFactory.yieldConnection(
-                        storageDatabaseConnection
-                    )
-
-                    # Another quick shutdown check after task completo
-                    if self.isShutDown():
-                        programRunnerLogger.info(
-                            'Scene Info Archiver successfully shut down'
-                        )
-                        break
-
-                    # Check if task is one-off (i.e. if refresh interval < 0)
-                    if self.__refreshInterval < 0:
-                        programRunnerLogger.info(
-                            'Scene Info Archiver completed'
-                        )
-                        break
-
-                    # Scheduling next archiving task
-                    nextArchiveOperationTime = \
-                        datetime.now() + timedelta(
-                            minutes=self.__refreshInterval
-                        )
-                    programRunnerLogger.info(
-                        'Next Scene Info Archiver archiving job due {}'.format(
-                            nextArchiveOperationTime.strftime(
-                                "%b %d %Y at %H:%M %z"
-                            )
+                programRunnerLogger.info(
+                    'Next Scene Info Archiver archiving job due {}'.format(
+                        nextArchiveOperationTime.strftime(
+                            "%b %d %Y at %H:%M %z"
                         )
                     )
-                time.sleep(1)
+                )
 
-        # Handle if an error occurs while running the Scene Info Archiver
-        except Exception as er:
-
-            programRunnerLogger.error(
-                "A terminal error occurred while running the Scene "
-                "Info Archiver: " + str(er.args), exc_info=True
-            )
-
-            # Disposing of database connections
-            self.__databaseConnectionFactory.yieldConnection(
-                wikiWriterDatabaseConnection
-            )
-            self.__databaseConnectionFactory.yieldConnection(
-                storageDatabaseConnection
-            )
+            time.sleep(1)

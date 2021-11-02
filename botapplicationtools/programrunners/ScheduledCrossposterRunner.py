@@ -17,99 +17,53 @@ class ScheduledCrossposterRunner(ProgramRunner):
     Scheduled Crossposter program instances
     """
 
-    __redditInterfaceFactory: RedditInterfaceFactory
-    __databaseConnectionFactory: DatabaseConnectionFactory
-    __userProfile: str
-
     __subreddit: str
 
     def __init__(
             self,
-            databaseConnectionFactory: DatabaseConnectionFactory,
             redditInterfaceFactory: RedditInterfaceFactory,
+            databaseConnectionFactory: DatabaseConnectionFactory,
             configReader: ConfigParser
     ):
-        super().__init__()
-        self.__redditInterfaceFactory = redditInterfaceFactory
-        self.__databaseConnectionFactory = databaseConnectionFactory
-        self.__initializeRunner(configReader)
-
-    def __initializeRunner(self, configReader: ConfigParser):
-
-        # Retrieving values from Config. Reader
-        self._programRunnerLogger.debug(
-            "Retrieving Scheduled Crossposter Runner initial "
-            "values from the config. reader"
+        super().__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Scheduled Crossposter Runner"
         )
+        self.__initializeProgramRunner(configReader)
+
+    def __initializeProgramRunner(self, configReader: ConfigParser):
+        """Initialize the Scheduled Crossposter Runner"""
 
         section = "ScheduledCrossposterRunner"
-        subreddit = configReader.get(
-            section, "subreddit"
-        )
         userProfile = configReader.get(
             section, "userProfile"
+        )
+        subreddit = configReader.get(
+            section, "subreddit"
         )
 
         # Initialization of instance variables
 
+        self._userProfile = userProfile
         self.__subreddit = subreddit
-        self.__userProfile = userProfile
 
-    def run(self):
+    def _runCore(self, redditInterface, connection):
 
-        # Quick shutdown check before proceeding
-        if self._informIfShutDown():
-            return
+        prawReddit = redditInterface.getPrawReddit
 
-        programRunnerLogger = self._programRunnerLogger
+        submissionStream = prawReddit.subreddit(
+            self.__subreddit
+        ).stream.submissions(pause_after=0)
 
-        # Running the program
-        try:
+        scheduledCrossposterStorage = ScheduledCrossposterStorage(
+            ScheduledCrosspostDAO(connection),
+            CompletedCrosspostDAO(connection)
+        )
 
-            programRunnerLogger.info('Scheduled Crossposter is now running')
-
-            with self.__databaseConnectionFactory.getConnection() \
-                    as connection:
-
-                prawReddit = self.__redditInterfaceFactory \
-                    .getRedditInterface(
-                        self.__userProfile
-                    ).getPrawReddit
-
-                submissionStream = prawReddit.subreddit(
-                    self.__subreddit
-                ).stream.submissions(pause_after=0)
-
-                scheduledCrossposterStorage = ScheduledCrossposterStorage(
-                    ScheduledCrosspostDAO(connection),
-                    CompletedCrosspostDAO(connection)
-                )
-
-                ScheduledCrossposter.execute(
-                    submissionStream,
-                    scheduledCrossposterStorage,
-                    ThreadPoolExecutor(),
-                    self.isShutDown
-                )
-
-                if self.isShutDown():
-                    programRunnerLogger.info(
-                        "Scheduled Crossposter successfully shut down"
-                    )
-                else:
-                    programRunnerLogger.info(
-                        "Scheduled Crossposter Completed"
-                    )
-
-        # Handle in the event of a program crash
-        except Exception as ex:
-            programRunnerLogger.error(
-                "A terminal error occurred while running the Scheduled "
-                "Crossposter: " + str(ex.args), exc_info=True
-            )
-        finally:
-
-            # Dispose of database connection
-            self.__databaseConnectionFactory.yieldConnection(
-                connection
-            )
+        ScheduledCrossposter.execute(
+            submissionStream,
+            scheduledCrossposterStorage,
+            ThreadPoolExecutor(),
+            self.isShutDown
+        )

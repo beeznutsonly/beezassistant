@@ -31,7 +31,11 @@ class StarNotifierRunner(ProgramRunner):
             databaseConnectionFactory: DatabaseConnectionFactory,
             configReader: ConfigParser
     ):
-        super().__init__()
+        super().__init__(
+            redditInterfaceFactory,
+            databaseConnectionFactory,
+            "Star Notifier Runner"
+        )
         self.__redditInterfaceFactory = redditInterfaceFactory
         self.__databaseConnectionFactory = databaseConnectionFactory
         self.__initializeStarNotifierRunner(configReader)
@@ -44,10 +48,6 @@ class StarNotifierRunner(ProgramRunner):
 
         # Retrieving values from configuration file
 
-        self._programRunnerLogger.debug(
-            "Retrieving Star Notifier Runner initial "
-            "values from the config. reader"
-        )
         section = "StarNotifierRunner"
         userProfile = configReader.get(
             section, "userProfile"
@@ -65,7 +65,7 @@ class StarNotifierRunner(ProgramRunner):
             section, "subreddit"
         )
 
-        self.__userProfile = userProfile
+        self._userProfile = userProfile
         self.__sceneInfoTools = SceneInfoTools(
             re.compile(r'{}'.format(sceneInfoCommentMatcher)),
             re.compile(r'{}'.format(starMatcher)),
@@ -73,62 +73,24 @@ class StarNotifierRunner(ProgramRunner):
         )
         self.__subreddit = subreddit
 
-    def run(self):
+    def _runCore(self, redditInterface, connection):
 
-        # First confirm that the program runner is not shutdown
-        if self._informIfShutDown():
-            return
+        # Setting up the Notifier's Reddit Tools
+        prawReddit = redditInterface.getPrawReddit
+        redditTools = RedditTools(
+            prawReddit,
+            self.__subreddit
+        )
 
-        programRunnerLogger = self._programRunnerLogger
+        # Storage tools for the Star Notifier
+        starNotificationSubscriptionDAO = StarNotificationSubscriptionDAO(
+            connection
+        )
 
-        try:
-
-            # Executing the program
-            programRunnerLogger.info('Star Notifier is now running')
-
-            # Setting up the Notifier's Reddit Tools
-            prawReddit = self.__redditInterfaceFactory \
-                .getRedditInterface(self.__userProfile) \
-                .getPrawReddit
-            redditTools = RedditTools(
-                prawReddit,
-                self.__subreddit
-            )
-
-            with self.__databaseConnectionFactory.getConnection() \
-                    as connection:
-
-                # Storage tools for the Star Notifier
-                starNotificationSubscriptionDAO = StarNotificationSubscriptionDAO(
-                    connection
-                )
-
-                # Executing the program
-                StarNotifier.execute(
-                    redditTools,
-                    starNotificationSubscriptionDAO,
-                    self.__sceneInfoTools,
-                    self.isShutDown
-                )
-
-            # Program termination message determination
-            if self.isShutDown():
-                programRunnerLogger.info(
-                    'Star Notifier successfully shut down'
-                )
-            else:
-                programRunnerLogger.info(
-                    'Star Notifier completed'
-                )
-
-        # Handle if an error occurs while running the Star Notifier
-        except Exception as er:
-            programRunnerLogger.error(
-                "A terminal error occurred while running the Star "
-                "Notifier: " + str(er.args), exc_info=True
-            )
-        finally:
-            # Dispose of database connection
-            self.__databaseConnectionFactory.yieldConnection(
-                connection
-            )
+        # Executing the program
+        StarNotifier.execute(
+            redditTools,
+            starNotificationSubscriptionDAO,
+            self.__sceneInfoTools,
+            self.isShutDown
+        )
