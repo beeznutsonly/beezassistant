@@ -13,9 +13,9 @@ class ProgramsExecutor(ABC):
     _isProgramsExecutorShutDown: bool
     _programsExecutorLogger: logging.Logger
 
-    def __init__(self):
+    def __init__(self, programsExecutorName: str):
         self._programsExecutorLogger = logging.getLogger(
-            __name__
+            programsExecutorName
         )
         self._isProgramsExecutorShutDown = False
 

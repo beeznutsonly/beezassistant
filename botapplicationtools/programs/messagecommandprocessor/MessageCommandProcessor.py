@@ -1,55 +1,47 @@
-"""Program to process message commands"""
-
-import time
+from typing import Dict
 
 from praw import Reddit
 from praw.models import Message
 from praw.models.util import stream_generator
-from prawcore.exceptions import RequestException, ServerError
+
+from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
+    SimpleStreamProcessorNature
 
 
-def execute(
-        commandProcessors,
-        prawReddit: Reddit,
-        stopCondition
-):
-    """Execute the program"""
-        
-    # Create new stream of unread inbox messages
-    unreadStream = stream_generator(
-        prawReddit.inbox.unread,
-        pause_after=0
-    )
+class MessageCommandProcessor(SimpleStreamProcessorNature):
+    """Program to process message commands"""
 
-    while not stopCondition():
+    __commandProcessors: Dict
 
-        try:
+    def __init__(
+            self,
+            commandProcessors,
+            prawReddit: Reddit,
+            stopCondition
+    ):
+        super().__init__(
+            # Stream of unread inbox messages
+            stream_generator(
+                prawReddit.inbox.unread,
+                pause_after=0
+            ),
+            stopCondition
+        )
+        self.__commandProcessors = commandProcessors
 
-            for unread in unreadStream:
-                # Handle "pause" token
-                if unread is None:
-                    # Exit program if stop condition
-                    # satisfied
-                    if stopCondition():
-                        break
-                    continue
+    def _runNatureCore(self, unread):
 
-                # Process if unread item is Message
-                if isinstance(unread, Message):
-                    message = unread
+        # Process if unread item is Message
+        if isinstance(unread, Message):
+            message: Message = unread
 
-                    # Process if message is message command
-                    if message.subject.startswith("!"):
-                        command = message.subject[1:]
+            # Process if message is message command
+            if message.subject.startswith("!"):
+                command = message.subject[1:]
 
-                        # Process if command is included in
-                        # provided commands
-                        if command in commandProcessors.keys():
-                            commandProcessors[command].processMessage(
-                                message
-                            )
-
-        # Handle for connection issues with the Reddit API                    
-        except (RequestException, ServerError):
-
-            time.sleep(30)  
+                # Process if command is included in
+                # provided commands
+                if command in self.__commandProcessors.keys():
+                    self.__commandProcessors[command].processMessage(
+                        message
+                    )

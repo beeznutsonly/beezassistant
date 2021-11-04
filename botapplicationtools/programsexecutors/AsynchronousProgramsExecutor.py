@@ -30,7 +30,7 @@ class AsynchronousProgramsExecutor(ProgramsExecutor):
             configReader,
             executor=ThreadPoolExecutor()
     ):
-        super().__init__()
+        super().__init__("Asynchronous Programs Executor")
         self.__executor = executor
         self.__programRunners = programRunners
         self.__executedPrograms = {}

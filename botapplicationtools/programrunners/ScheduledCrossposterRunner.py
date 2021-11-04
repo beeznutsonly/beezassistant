@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.scheduledcrossposter import ScheduledCrossposter
+from botapplicationtools.programs.scheduledcrossposter.ScheduledCrossposter import ScheduledCrossposter
 from botapplicationtools.programs.scheduledcrossposter.CompletedCrosspostDAO import CompletedCrosspostDAO
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspostDAO import ScheduledCrosspostDAO
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrossposterStorage import ScheduledCrossposterStorage
@@ -61,9 +61,11 @@ class ScheduledCrossposterRunner(ProgramRunner):
             CompletedCrosspostDAO(connection)
         )
 
-        ScheduledCrossposter.execute(
+        scheduledCrossposter = ScheduledCrossposter(
             submissionStream,
             scheduledCrossposterStorage,
-            ThreadPoolExecutor(),
+            ThreadPoolExecutor,
             self.isShutDown
         )
+
+        scheduledCrossposter.execute()

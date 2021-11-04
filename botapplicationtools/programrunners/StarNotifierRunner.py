@@ -6,7 +6,7 @@ from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConne
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.programtools.starnotificationtools.StarNotificationSubscriptionDAO import \
     StarNotificationSubscriptionDAO
-from botapplicationtools.programs.starnotifier import StarNotifier
+from botapplicationtools.programs.starnotifier.StarNotifier import StarNotifier
 from botapplicationtools.programs.starnotifier.RedditTools import RedditTools
 from botapplicationtools.programs.starnotifier.SceneInfoTools import SceneInfoTools
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
@@ -88,9 +88,10 @@ class StarNotifierRunner(ProgramRunner):
         )
 
         # Executing the program
-        StarNotifier.execute(
+        starNotifier = StarNotifier(
             redditTools,
             starNotificationSubscriptionDAO,
             self.__sceneInfoTools,
             self.isShutDown
         )
+        starNotifier.execute()

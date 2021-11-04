@@ -6,14 +6,12 @@ import time
 from datetime import datetime, timedelta
 from typing import List
 
-from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
-    DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfoDAO import SimpleSceneInfoDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionDAO import SceneInfoSubmissionDAO
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmissionWithSceneInfoDAO import \
     SceneInfoSubmissionWithSceneInfoDAO
-from botapplicationtools.programs.sceneinfoarchiver import SceneInfoArchiver
+from botapplicationtools.programs.programtools.sceneinfotools.SimpleSceneInfoDAO import SimpleSceneInfoDAO
+from botapplicationtools.programs.sceneinfoarchiver.SceneInfoArchiver import SceneInfoArchiver
 from botapplicationtools.programs.sceneinfoarchiver.SceneInfoStorageArchiverTools import SceneInfoStorageArchiverTools
 from botapplicationtools.programs.sceneinfoarchiver.StarsArchiveWikiPageWriterTools import \
     StarsArchiveWikiPageWriterTools
@@ -22,7 +20,6 @@ from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsW
     SceneInfoSubmissionsWithSceneInfoStorage
 from botapplicationtools.programs.sceneinfostoragearchiver.SubredditSearchParameters import SubredditSearchParameters
 from botapplicationtools.programs.starsarchivewikipagewriter import StarViewFactory
-from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
 class SceneInfoArchiverRunner(ProgramRunner):
@@ -208,10 +205,12 @@ class SceneInfoArchiverRunner(ProgramRunner):
                         starViewObjects
                     )
 
-                SceneInfoArchiver.execute(
+                sceneInfoArchiver = SceneInfoArchiver(
                     sceneInfoStorageArchiverTools,
-                    starsArchiveWikiPageWriterTools,
+                    starsArchiveWikiPageWriterTools
                 )
+
+                sceneInfoArchiver.execute()
 
                 # Check if task is one-off (i.e. if refresh interval < 0)
                 if self.__refreshInterval < 0:

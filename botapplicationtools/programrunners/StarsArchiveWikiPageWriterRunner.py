@@ -7,8 +7,10 @@ from typing import List
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.starsarchivewikipagewriter import StarsArchiveWikiPageWriter, StarViewFactory
+from botapplicationtools.programs.starsarchivewikipagewriter import StarViewFactory
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarView import IndividualStarView
+from botapplicationtools.programs.starsarchivewikipagewriter.StarsArchiveWikiPageWriter import \
+    StarsArchiveWikiPageWriter
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
@@ -109,6 +111,9 @@ class StarsArchiveWikiPageWriterRunner(ProgramRunner):
         starViewObjects = StarViewFactory.getStarViews(
             connection, self.__defaultStarViews
         )
-        StarsArchiveWikiPageWriter.execute(
+
+        # Executing the program
+        starsArchiveWikiPageWriter = StarsArchiveWikiPageWriter(
             wikiPage, starViewObjects
         )
+        starsArchiveWikiPageWriter.execute()

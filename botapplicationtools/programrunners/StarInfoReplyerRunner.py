@@ -8,7 +8,7 @@ from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConne
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.programtools.starprofiletools.StarDAO import StarDAO
 from botapplicationtools.programs.programtools.starprofiletools.StarLinkDAO import StarLinkDAO
-from botapplicationtools.programs.starinforeplyer import StarInfoReplyer
+from botapplicationtools.programs.starinforeplyer.StarInfoReplyer import StarInfoReplyer
 from botapplicationtools.programs.starinforeplyer.CustomAddenda import CustomAddenda
 from botapplicationtools.programs.starinforeplyer.RedditTools import RedditTools
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO \
@@ -124,9 +124,10 @@ class StarInfoReplyerRunner(ProgramRunner):
         )
 
         # Executing the program
-        StarInfoReplyer.execute(
+        starInfoReplyer = StarInfoReplyer(
             starInfoReplyerIO,
             self.__groupsRefreshInterval,
             self.isShutDown,
             self.__customAddenda
         )
+        starInfoReplyer.execute()

@@ -3,7 +3,7 @@ from configparser import ConfigParser
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.scheduledposter import ScheduledPoster
+from botapplicationtools.programs.scheduledposter.ScheduledPoster import ScheduledPoster
 from botapplicationtools.programs.scheduledposter.CompletedSubmissionDAO import CompletedSubmissionDAO
 from botapplicationtools.programs.scheduledposter.ScheduledPosterStorage import ScheduledPosterStorage
 from botapplicationtools.programs.scheduledposter.ScheduledSubmissionAutoReplyDAO import ScheduledSubmissionAutoReplyDAO
@@ -52,8 +52,10 @@ class ScheduledPosterRunner(ProgramRunner):
             ScheduledSubmissionAutoReplyDAO(connection)
         )
 
-        ScheduledPoster.execute(
+        scheduledPoster = ScheduledPoster(
             prawReddit,
             scheduledPosterStorage,
             self.isShutDown
         )
+
+        scheduledPoster.execute()

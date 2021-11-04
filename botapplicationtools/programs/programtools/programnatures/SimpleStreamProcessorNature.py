@@ -44,7 +44,7 @@ class SimpleStreamProcessorNature(SimpleProgram, ABC):
                         self._runPauseHandler()
                         continue
 
-                    self._runNatureCore()
+                    self._runNatureCore(streamItem)
 
             # Handle if connection to the Reddit API is lost
             except (RequestException, ServerError):

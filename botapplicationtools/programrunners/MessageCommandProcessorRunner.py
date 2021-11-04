@@ -5,7 +5,7 @@ from typing import List
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.messagecommandprocessor import MessageCommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.MessageCommandProcessor import MessageCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.CommandProcessorFactory import \
     CommandProcessorFactory
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
@@ -55,10 +55,12 @@ class MessageCommandProcessorRunner(ProgramRunner):
 
         prawReddit = redditInterface.getPrawReddit
 
-        messageCommands = CommandProcessorFactory.getCommandProcessors(
+        commandProcessors = CommandProcessorFactory.getCommandProcessors(
             self.__commands, connection
         )
 
-        MessageCommandProcessor.execute(
-            messageCommands, prawReddit, self.isShutDown
+        messageCommandProcessor = MessageCommandProcessor(
+            commandProcessors, prawReddit, self.isShutDown
         )
+
+        messageCommandProcessor.execute()

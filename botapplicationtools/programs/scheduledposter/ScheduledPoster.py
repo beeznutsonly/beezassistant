@@ -1,64 +1,79 @@
-"""
-Program responsible for submitting
-scheduled submissions
-"""
-
 import time
+from typing import Callable
 
 from praw import Reddit
 from prawcore.exceptions import RequestException, ServerError
 
-from botapplicationtools.programs.scheduledposter import ScheduledPosterStorage
+from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
+from botapplicationtools.programs.scheduledposter.ScheduledPosterStorage import ScheduledPosterStorage
 
 
-def execute(
-        prawReddit: Reddit,
-        scheduledPosterStorage: ScheduledPosterStorage,
-        stopCondition
-):
-    """Execute the program"""
+class ScheduledPoster(SimpleProgram):
+    """
+    Program responsible for submitting
+    scheduled submissions
+    """
 
-    # Local variable declaration
-    scheduledSubmissionDAO = scheduledPosterStorage \
-        .getScheduledSubmissionDAO
+    __prawReddit: Reddit
+    __scheduledPosterStorage: ScheduledPosterStorage
+    __stopCondition: Callable
 
-    completedSubmissionDAO = scheduledPosterStorage \
-        .getCompletedSubmissionDAO
+    def __init__(
+            self,
+            prawReddit: Reddit,
+            scheduledPosterStorage: ScheduledPosterStorage,
+            stopCondition: Callable
+    ):
+        self.__prawReddit = prawReddit
+        self.__scheduledPosterStorage = scheduledPosterStorage
+        self.__stopCondition = stopCondition
 
-    scheduledSubmissionAutoReplyDAO = scheduledPosterStorage \
-        .getScheduledSubmissionAutoReplyDAO
+    def execute(self):
 
-    # Program loop
-    while not stopCondition():
+        # Local variable declaration
+        scheduledPosterStorage = self.__scheduledPosterStorage
 
-        dueSubmissions = scheduledSubmissionDAO.getDueSubmissions()
+        scheduledSubmissionDAO = scheduledPosterStorage \
+            .getScheduledSubmissionDAO
 
-        for dueSubmission in dueSubmissions:
-            # Error handling loop
-            while True:
-                try:
-                    # Handle if submission has not been processed
-                    if not completedSubmissionDAO.checkExists(dueSubmission):
-                        submission = prawReddit.subreddit(
-                            dueSubmission.getSubreddit
-                        ).submit(
-                            title=dueSubmission.getTitle,
-                            url=dueSubmission.getUrl,
-                            flair_id=dueSubmission.getFlairId
-                        )
-                        completedSubmissionDAO.add(dueSubmission)
+        completedSubmissionDAO = scheduledPosterStorage \
+            .getCompletedSubmissionDAO
 
-                        # Processing auto-replies for the given submission
-                        scheduledSubmissionAutoReplies = scheduledSubmissionAutoReplyDAO \
-                            .getScheduledSubmissionAutoReplies(dueSubmission)
+        scheduledSubmissionAutoReplyDAO = scheduledPosterStorage \
+            .getScheduledSubmissionAutoReplyDAO
 
-                        for scheduledSubmissionAutoReply in scheduledSubmissionAutoReplies:
-                            submission.reply(scheduledSubmissionAutoReply)
-                    break
+        # Program loop
+        while not self.__stopCondition():
 
-                # Handle for problems with the Reddit API
-                except (RequestException, ServerError):
-                    time.sleep(30)
+            dueSubmissions = scheduledSubmissionDAO.getDueSubmissions()
 
-        # Database check cooldown
-        time.sleep(1)
+            for dueSubmission in dueSubmissions:
+
+                # Error handling loop
+                while True:
+                    try:
+                        # Handle if submission has not been processed
+                        if not completedSubmissionDAO.checkExists(dueSubmission):
+                            submission = self.__prawReddit.subreddit(
+                                dueSubmission.getSubreddit
+                            ).submit(
+                                title=dueSubmission.getTitle,
+                                url=dueSubmission.getUrl,
+                                flair_id=dueSubmission.getFlairId
+                            )
+                            completedSubmissionDAO.add(dueSubmission)
+
+                            # Processing auto-replies for the given submission
+                            scheduledSubmissionAutoReplies = scheduledSubmissionAutoReplyDAO \
+                                .getScheduledSubmissionAutoReplies(dueSubmission)
+
+                            for scheduledSubmissionAutoReply in scheduledSubmissionAutoReplies:
+                                submission.reply(scheduledSubmissionAutoReply)
+                        break
+
+                    # Handle for problems connecting to the Reddit API
+                    except (RequestException, ServerError):
+                        time.sleep(30)
+
+            # Database check cooldown
+            time.sleep(1)
