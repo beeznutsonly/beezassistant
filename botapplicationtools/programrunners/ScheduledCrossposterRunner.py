@@ -64,7 +64,7 @@ class ScheduledCrossposterRunner(ProgramRunner):
         scheduledCrossposter = ScheduledCrossposter(
             submissionStream,
             scheduledCrossposterStorage,
-            ThreadPoolExecutor,
+            ThreadPoolExecutor(),
             self.isShutDown
         )
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*
+from dataclasses import dataclass
 
 from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
 from botapplicationtools.programs.sceneinfoarchiver.SceneInfoStorageArchiverTools import SceneInfoStorageArchiverTools
@@ -10,6 +11,7 @@ from botapplicationtools.programs.starsarchivewikipagewriter.StarsArchiveWikiPag
     import StarsArchiveWikiPageWriter
 
 
+@dataclass
 class SceneInfoArchiver(SimpleProgram):
     """
     Program responsible for archiving scene info
