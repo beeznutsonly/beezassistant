@@ -1,25 +1,21 @@
-from praw.models import Message
-
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import \
     StarSceneInfoSubmissionDetailDAO
 
 
-class StarPostsCommandProcessor:
+class StarPostsCommandProcessor(CommandProcessor):
     """
     Class encapsulating objects responsible for
     processing Star Posts requests
     """
 
-    __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
-
     def __init__(self, connection):
-
+        super().__init__()
         self.__starSceneInfoSubmissionDetailDAO = StarSceneInfoSubmissionDetailDAO(
             connection
         )
 
-    def processMessage(self, message: Message):
-        """Process message command"""
+    def processMessage(self, message, *args, **kwargs):
 
         # Local variable declaration
         messageArguments = message.body

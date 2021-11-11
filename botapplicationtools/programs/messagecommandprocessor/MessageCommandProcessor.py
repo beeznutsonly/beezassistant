@@ -4,6 +4,8 @@ from praw import Reddit
 from praw.models import Message
 from praw.models.util import stream_generator
 
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
+from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
 
@@ -11,12 +13,11 @@ from botapplicationtools.programs.programtools.programnatures.SimpleStreamProces
 class MessageCommandProcessor(SimpleStreamProcessorNature):
     """Program to process message commands"""
 
-    __commandProcessors: Dict
-
     def __init__(
             self,
-            commandProcessors,
+            commandProcessors: Dict[str, CommandProcessor],
             prawReddit: Reddit,
+            featureTesterDAO: FeatureTesterDAO,
             stopCondition
     ):
         super().__init__(
@@ -28,6 +29,7 @@ class MessageCommandProcessor(SimpleStreamProcessorNature):
             stopCondition
         )
         self.__commandProcessors = commandProcessors
+        self.__featureTesterDAO = featureTesterDAO
 
     def _runNatureCore(self, unread):
 
@@ -43,5 +45,6 @@ class MessageCommandProcessor(SimpleStreamProcessorNature):
                 # provided commands
                 if command in self.__commandProcessors.keys():
                     self.__commandProcessors[command].processMessage(
-                        message
+                        message,
+                        featureTesterDAO=self.__featureTesterDAO
                     )

@@ -1,56 +1,29 @@
-from datetime import datetime
 from itertools import groupby
 
 from praw.models import Message
 
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.Decorators import testfeature
 from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import \
     StarSceneInfoSubmissionDetailDAO
 
 
-class StarMovieInfoCommandProcessor:
+class StarMovieInfoCommandProcessor(CommandProcessor):
     """
     Class encapsulating objects responsible for
     processing Star Movie Info requests
     """
 
-    __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
-    __featureTesterDAO: FeatureTesterDAO
-
     def __init__(self, connection):
+        super().__init__()
         self.__starSceneInfoSubmissionDetailDAO = StarSceneInfoSubmissionDetailDAO(
             connection
         )
         self.__featureTesterDAO = FeatureTesterDAO(connection)
 
-    def processMessage(self, message: Message):
-        """Process provided message command"""
-
-        # Handle if this is a feature-tester-exclusive feature
-        if self.__featureTesterDAO:
-            featureTester = self.__featureTesterDAO.getFeatureTester(
-                message.author.name
-            )
-            # Handle if requester is not a feature tester
-            if not featureTester:
-                message.reply(
-                    "Hi {}. Unfortunately, I could not successfully process "
-                    "your request because this feature is exclusive to a "
-                    "select group of users of which you are not a part of."
-                    "\n\nRegards.".format(message.author.name)
-                )
-                message.mark_read()
-                return
-            # Handle if feature tester testing window has expired
-            if featureTester.getExpiry and featureTester.getExpiry < datetime.now():
-                message.reply(
-                    "Hi {}. Unfortunately, I could not successfully process "
-                    "your request because the time window for using this feature "
-                    "on your account expired."
-                    "\n\nRegards.".format(message.author.name)
-                )
-                message.mark_read()
-                return
+    @testfeature
+    def processMessage(self, message, *args, **kwargs):
 
         # Assignment of message arguments (i.e. star in question)
         messageArguments = message.body

@@ -8,6 +8,7 @@ from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.messagecommandprocessor.MessageCommandProcessor import MessageCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.CommandProcessorFactory import \
     CommandProcessorFactory
+from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
     import RedditInterfaceFactory
 
@@ -53,14 +54,17 @@ class MessageCommandProcessorRunner(ProgramRunner):
 
     def _runCore(self, redditInterface, connection):
 
-        prawReddit = redditInterface.getPrawReddit
-
         commandProcessors = CommandProcessorFactory.getCommandProcessors(
             self.__commands, connection
         )
+        prawReddit = redditInterface.getPrawReddit
+        featureTesterDAO = FeatureTesterDAO(connection)
 
         messageCommandProcessor = MessageCommandProcessor(
-            commandProcessors, prawReddit, self.isShutDown
+            commandProcessors,
+            prawReddit,
+            featureTesterDAO,
+            self.isShutDown
         )
 
         messageCommandProcessor.execute()

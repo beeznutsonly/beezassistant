@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Dict
 
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors \
     .StarInfoReplyerCommandProcessor import StarInfoReplyerCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarMovieInfoCommandProcessor import \
@@ -8,23 +9,20 @@ from botapplicationtools.programs.messagecommandprocessor.commandprocessors.Star
     StarNotifierCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarPostsCommandProcessor import \
     StarPostsCommandProcessor
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO \
-    import StarInfoReplyerExcludedDAO
 
 
 class CommandProcessorFactory:
     """Class responsible for generating CommandProcessors"""
 
     @classmethod
-    def getCommandProcessor(cls, command: str, databaseConnection):
+    def getCommandProcessor(cls, command: str, databaseConnection) \
+            -> CommandProcessor:
         """Retrieve the command processor for the corresponding command"""
 
         # For StarInfoReplyer command
         if command == "StarInfoReplyer":
             return StarInfoReplyerCommandProcessor(
-                StarInfoReplyerExcludedDAO(
-                    databaseConnection
-                )
+                databaseConnection
             )
         # For StarNotifier command
         elif command == "StarNotifier":
@@ -46,7 +44,8 @@ class CommandProcessorFactory:
             return None
 
     @classmethod
-    def getCommandProcessors(cls, commands: List[str], databaseConnection):
+    def getCommandProcessors(cls, commands: List[str], databaseConnection) \
+            -> Dict[str, CommandProcessor]:
         """Retrieve the command processors for the provided commands"""
 
         commandProcessors = {}

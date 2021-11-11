@@ -1,26 +1,21 @@
-from praw.models import Message
-
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO \
     import StarInfoReplyerExcludedDAO
 
 
-class StarInfoReplyerCommandProcessor:
+class StarInfoReplyerCommandProcessor(CommandProcessor):
     """
     Class encapsulating objects responsible for
     processing Star Info Replyer commands
     """
 
-    __starInfoReplyerExcludedDAO: StarInfoReplyerExcludedDAO
+    def __init__(self, connection):
+        super().__init__()
+        self.__starInfoReplyerExcludedDAO = StarInfoReplyerExcludedDAO(
+            connection
+        )
 
-    def __init__(
-            self,
-            starInfoReplyerExcludedDAO:
-            StarInfoReplyerExcludedDAO
-    ):
-        self.__starInfoReplyerExcludedDAO = starInfoReplyerExcludedDAO
-
-    def processMessage(self, message: Message):
-        """Process provided message command"""
+    def processMessage(self, message, *args, **kwargs):
 
         messageArguments = message.body.lower()
 

@@ -1,64 +1,27 @@
-from datetime import datetime
-
-from praw.models import Message
-
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.Decorators import testfeature
 from botapplicationtools.programs.programtools.starnotificationtools.StarNotificationSubscription import \
     StarNotificationSubscription
 from botapplicationtools.programs.programtools.starnotificationtools.StarNotificationSubscriptionDAO import \
     StarNotificationSubscriptionDAO
 
 
-class StarNotifierCommandProcessor:
+class StarNotifierCommandProcessor(CommandProcessor):
     """
     Class encapsulating objects responsible for
     processing Star Notifier requests
     """
 
-    __starNotificationSubscriptionDAO = None
-    __featureTesterDAO = None
-    __starNotificationLimit: int
-
-    def __init__(
-            self,
-            connection
-    ):
+    def __init__(self, connection):
+        super().__init__()
         self.__starNotificationSubscriptionDAO = StarNotificationSubscriptionDAO(
             connection
         )
-        self.__featureTesterDAO = FeatureTesterDAO(connection)
         # TODO: Refactor this
         self.__starNotificationLimit = 2
 
-    def processMessage(self, message: Message):
-        """Process message command"""
-
-        # TODO: Abstract the feature test block
-        # Handle if this is a feature-tester-exclusive feature
-        if self.__featureTesterDAO:
-            featureTester = self.__featureTesterDAO.getFeatureTester(
-                message.author.name
-            )
-            # Handle if requester is not a feature tester
-            if not featureTester:
-                message.reply(
-                    "Hi {}. Unfortunately, I could not successfully process "
-                    "your request because this feature is exclusive to a "
-                    "select group of users of which you are not a part of."
-                    "\n\nRegards.".format(message.author.name)
-                )
-                message.mark_read()
-                return
-            # Handle if feature tester testing window has expired
-            if featureTester.getExpiry and featureTester.getExpiry < datetime.now():
-                message.reply(
-                    "Hi {}. Unfortunately, I could not successfully process "
-                    "your request because the time window for using this feature "
-                    "on your account expired."
-                    "\n\nRegards.".format(message.author.name)
-                )
-                message.mark_read()
-                return
+    @testfeature
+    def processMessage(self, message, *args, **kwargs):
 
         # Local variable declaration
         messageArguments = message.body
