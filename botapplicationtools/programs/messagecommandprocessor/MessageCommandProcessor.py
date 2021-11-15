@@ -5,7 +5,7 @@ from praw.models import Message
 from praw.models.util import stream_generator
 
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
 

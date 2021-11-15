@@ -22,9 +22,6 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
     # Lock for concurrent write operations
     __LOCK: ClassVar[threading.Lock] = threading.Lock()
 
-    __scheduledCrossposterStorage: ScheduledCrossposterStorage
-    __crosspostProcessor: ThreadPoolExecutor
-
     def __init__(
             self,
             submissionStream,
@@ -52,6 +49,7 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
         if scheduledCrosspostDAO.checkExists(
             submission.url
         ):
+
             scheduledCrossposts = scheduledCrosspostDAO \
                 .getScheduledCrosspostsForUrl(
                     submission.url
@@ -70,8 +68,7 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
                 self.__crosspostProcessor.submit(
                     self.__processNonCompletedCrosspost,
                     nonCompletedCrosspost,
-                    submission,
-                    completedCrosspostDAO
+                    submission
                 )
 
     def __processNonCompletedCrosspost(

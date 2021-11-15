@@ -7,6 +7,8 @@ from botapplicationtools.programs.messagecommandprocessor.commandprocessors.Star
     StarMovieInfoCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarNotifierCommandProcessor import \
     StarNotifierCommandProcessor
+from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarPairPostsCommandProcessor import \
+    StarPairPostsCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.StarPostsCommandProcessor import \
     StarPostsCommandProcessor
 
@@ -32,6 +34,11 @@ class CommandProcessorFactory:
         # For StarPosts command
         elif command == "StarPosts":
             return StarPostsCommandProcessor(
+                databaseConnection
+            )
+        # For StarPairPosts command
+        elif command == "StarPairPosts":
+            return StarPairPostsCommandProcessor(
                 databaseConnection
             )
         # For StarMovieInfo command

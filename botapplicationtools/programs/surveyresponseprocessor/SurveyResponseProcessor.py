@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 from praw.exceptions import APIException
 
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTester import FeatureTester
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTester import FeatureTester
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.surveyresponseprocessor.RedditTools import RedditTools
 from botapplicationtools.programs.surveyresponseprocessor.UserMessage import UserMessage
 

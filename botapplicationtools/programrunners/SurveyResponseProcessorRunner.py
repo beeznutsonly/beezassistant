@@ -3,7 +3,7 @@ from configparser import ConfigParser
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.surveyresponseprocessor import SurveyResponseProcessor
 from botapplicationtools.programs.surveyresponseprocessor.RedditTools import RedditTools
 from botapplicationtools.programs.surveyresponseprocessor.UserMessage import UserMessage

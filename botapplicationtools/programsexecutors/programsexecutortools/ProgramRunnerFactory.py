@@ -2,6 +2,7 @@ from configparser import ConfigParser
 
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
+from botapplicationtools.programrunners.AdminUpdaterRunner import AdminUpdaterRunner
 from botapplicationtools.programrunners.MessageCommandProcessorRunner import MessageCommandProcessorRunner
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programrunners.SceneInfoArchiverRunner import SceneInfoArchiverRunner
@@ -81,6 +82,12 @@ class ProgramRunnerFactory:
             )
         elif programNameLower == 'surveyresponseprocessor':
             return SurveyResponseProcessorRunner(
+                redditInterfaceFactory=redditInterfaceFactory,
+                databaseConnectionFactory=databaseConnectionFactory,
+                configReader=configReader
+            )
+        elif programNameLower == 'adminupdater':
+            return AdminUpdaterRunner(
                 redditInterfaceFactory=redditInterfaceFactory,
                 databaseConnectionFactory=databaseConnectionFactory,
                 configReader=configReader

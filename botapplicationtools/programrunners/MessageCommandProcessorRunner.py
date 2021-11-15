@@ -8,7 +8,7 @@ from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.messagecommandprocessor.MessageCommandProcessor import MessageCommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.CommandProcessorFactory import \
     CommandProcessorFactory
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory \
     import RedditInterfaceFactory
 

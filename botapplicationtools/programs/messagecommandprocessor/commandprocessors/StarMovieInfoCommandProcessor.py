@@ -1,10 +1,8 @@
 from itertools import groupby
 
-from praw.models import Message
-
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.Decorators import testfeature
-from botapplicationtools.programs.programtools.featuretestertools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import \
     StarSceneInfoSubmissionDetailDAO
 

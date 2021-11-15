@@ -50,7 +50,7 @@ class ProgramRunner(ABC):
         # Running the program
         try:
 
-            programRunnerLogger.info('{} is now running'.format(
+            programRunnerLogger.info('New {} program instance is now running'.format(
                 self._programRunnerName
             ))
 
@@ -68,13 +68,13 @@ class ProgramRunner(ABC):
                 # Completion message determination
                 if self.isShutDown():
                     programRunnerLogger.info(
-                        "{} successfully shut down".format(
+                        "{} program instance successfully shut down".format(
                             self._programRunnerName
                         )
                     )
                 else:
                     programRunnerLogger.info(
-                        "{} Completed".format(
+                        "{} program instance completed".format(
                             self._programRunnerName
                         )
                     )
