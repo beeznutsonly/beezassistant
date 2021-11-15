@@ -51,7 +51,7 @@ class StarPairSceneInfoSubmissionDetailDAO:
                 if star1 and star2:
                     sqlString = 'SELECT submission_id, star1, star2, Title, Movie FROM StarPairView ' \
                                 'WHERE (star1=%s AND star2=%s) OR (star2=%s AND star1=%s)'
-                    values = [star1, star2, star2, star1]
+                    values = [star1, star2, star1, star2]
                 elif star1:
                     sqlString = 'SELECT submission_id, star1, star2, Title, Movie FROM StarPairView ' \
                                 'WHERE star1=%s OR star2=%s'
