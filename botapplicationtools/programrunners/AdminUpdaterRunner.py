@@ -37,8 +37,8 @@ class AdminUpdaterRunner(ProgramRunner):
         userProfile = configReader.get(
             section, "userProfile"
         )
-        subreddit = configReader.get(
-            section, "subreddit"
+        subredditName = configReader.get(
+            section, "subredditName"
         )
         wikiPageName = configReader.get(
             section, "wikiPageName"
@@ -64,7 +64,7 @@ class AdminUpdaterRunner(ProgramRunner):
 
         # Instance variable processing and assignment
         self._userProfile = userProfile
-        self.__subreddit = subreddit
+        self.__subredditName = subredditName
         self.__wikiPageName = wikiPageName
         self.__widgetID = widgetID
         self.__formattingTools = FormattingTools(
@@ -86,21 +86,21 @@ class AdminUpdaterRunner(ProgramRunner):
 
     def _runCore(self, redditInterface: RedditInterface, connection):
 
+        # Setting up program parameters
         subreddit = redditInterface.getPrawReddit.subreddit(
-            self.__subreddit
+            self.__subredditName
         )
-
         redditTools = RedditTools(
             subreddit,
             self.__wikiPageName,
             self.__widgetID
         )
 
+        # Executing the program
         adminUpdater = AdminUpdater(
             AdminUpdateDAO(connection),
             redditTools,
             self.__formattingTools,
             self.isShutDown
         )
-
         adminUpdater.execute()
