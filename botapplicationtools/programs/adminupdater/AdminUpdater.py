@@ -82,3 +82,5 @@ class AdminUpdater(SimpleProgram):
                 newWidgetItems
             )
         )
+        
+        self.__adminUpdateDAO.markCompleted(adminUpdates)
