@@ -4,6 +4,11 @@ from botapplicationtools.programs.adminupdater.AdminUpdate import AdminUpdate
 
 
 class FormattingTools:
+    """
+    Class holding tools required for formatting
+    admin updates for both the wiki and widget
+    outputs
+    """
 
     def __init__(
             self,
@@ -20,6 +25,11 @@ class FormattingTools:
         self.__widgetFooter = widgetFooter
 
     def getWikiUpdateMarkdown(self, adminUpdate: AdminUpdate) -> str:
+        """
+        Retrieve formatted markdown of the provided
+        admin update for the wiki page
+        """
+
         return self.__wikiUpdateFormat.format(
             timestamp=datetime.now(timezone.utc).strftime(
                 self.__dateFormat
@@ -29,6 +39,11 @@ class FormattingTools:
         )
 
     def getWidgetUpdateMarkdown(self, adminUpdate: AdminUpdate) -> str:
+        """
+        Retrieve formatted markdown of the provided
+        admin update for the widget
+        """
+
         return self.__widgetUpdateFormat.format(
             timestamp=datetime.now(timezone.utc).strftime(
                 self.__dateFormat

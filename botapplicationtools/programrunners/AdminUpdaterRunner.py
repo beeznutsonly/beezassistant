@@ -6,11 +6,16 @@ from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.adminupdater.AdminUpdateDAO import AdminUpdateDAO
 from botapplicationtools.programs.adminupdater.AdminUpdater import AdminUpdater
 from botapplicationtools.programs.adminupdater.FormattingTools import FormattingTools
+from botapplicationtools.programs.adminupdater.RedditTools import RedditTools
 from botapplicationtools.programs.programtools.generaltools.RedditInterface import RedditInterface
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
 
 class AdminUpdaterRunner(ProgramRunner):
+    """
+    Class responsible for running multiple
+    Admin Updater instances
+    """
 
     def __init__(
             self,
@@ -35,8 +40,8 @@ class AdminUpdaterRunner(ProgramRunner):
         subreddit = configReader.get(
             section, "subreddit"
         )
-        wikiPage = configReader.get(
-            section, "wikiPage"
+        wikiPageName = configReader.get(
+            section, "wikiPageName"
         )
         widgetID = configReader.get(
             section, "widgetID"
@@ -57,9 +62,10 @@ class AdminUpdaterRunner(ProgramRunner):
             section, "widgetFooter"
         )
 
+        # Instance variable processing and assignment
         self._userProfile = userProfile
         self.__subreddit = subreddit
-        self.__wikiPage = wikiPage
+        self.__wikiPageName = wikiPageName
         self.__widgetID = widgetID
         self.__formattingTools = FormattingTools(
             bytes(
@@ -84,12 +90,15 @@ class AdminUpdaterRunner(ProgramRunner):
             self.__subreddit
         )
 
-        print(subreddit.widgets.items)
+        redditTools = RedditTools(
+            subreddit,
+            self.__wikiPageName,
+            self.__widgetID
+        )
 
         adminUpdater = AdminUpdater(
             AdminUpdateDAO(connection),
-            subreddit.wiki[self.__wikiPage],
-            subreddit.widgets.items[self.__widgetID],
+            redditTools,
             self.__formattingTools,
             self.isShutDown
         )

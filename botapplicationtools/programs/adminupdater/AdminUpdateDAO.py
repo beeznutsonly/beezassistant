@@ -4,11 +4,17 @@ from botapplicationtools.programs.adminupdater.AdminUpdate import AdminUpdate
 
 
 class AdminUpdateDAO:
+    """
+    DAO class responsible for
+    recording and retrieving admin updates
+    to and from storage
+    """
 
     def __init__(self, connection):
         self.__connection = connection
 
     def retrievePendingAdminUpdates(self) -> List[AdminUpdate]:
+        """Retrieve unprocessed admin updates"""
 
         sqlString = "SELECT id, heading, details FROM AdminUpdate;"
         cursor = self.__connection.cursor()
@@ -31,6 +37,7 @@ class AdminUpdateDAO:
             cursor.close()
 
     def markCompleted(self, adminUpdates: List[AdminUpdate]):
+        """Acknowledge completion of provided admin update"""
 
         if len(adminUpdates) == 1:
             sqlString = "DELETE FROM AdminUpdate WHERE id = %s;"

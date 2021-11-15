@@ -1,4 +1,5 @@
 class AdminUpdate:
+    """Class representing an admin update"""
 
     def __init__(
             self,

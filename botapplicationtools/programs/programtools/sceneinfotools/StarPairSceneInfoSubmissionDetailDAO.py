@@ -3,7 +3,8 @@
 from typing import Tuple, List
 
 from botapplicationtools.programs.programtools.sceneinfotools.SceneInfoSubmission import SceneInfoSubmission
-from .StarPairSceneInfoSubmissionDetail import StarPairSceneInfoSubmissionDetail
+from botapplicationtools.programs.programtools.sceneinfotools.StarPairSceneInfoSubmissionDetail import \
+    StarPairSceneInfoSubmissionDetail
 
 
 class StarPairSceneInfoSubmissionDetailDAO:
