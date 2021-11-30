@@ -1,34 +1,31 @@
-import time
 from typing import Callable
 
 from praw import Reddit
-from prawcore.exceptions import RequestException, ServerError
 
-from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
+from botapplicationtools.programs.programtools.programnatures.RecurringProgramNature import RecurringProgramNature
 from botapplicationtools.programs.scheduledposter.ScheduledPosterStorage import ScheduledPosterStorage
 
 
-class ScheduledPoster(SimpleProgram):
+class ScheduledPoster(RecurringProgramNature):
     """
     Program responsible for submitting
     scheduled submissions
     """
 
-    __prawReddit: Reddit
-    __scheduledPosterStorage: ScheduledPosterStorage
-    __stopCondition: Callable
-
     def __init__(
             self,
             prawReddit: Reddit,
             scheduledPosterStorage: ScheduledPosterStorage,
-            stopCondition: Callable
+            stopCondition: Callable[..., bool],
+            cooldown: float = 1
     ):
+        super().__init__(stopCondition, cooldown)
         self.__prawReddit = prawReddit
         self.__scheduledPosterStorage = scheduledPosterStorage
-        self.__stopCondition = stopCondition
 
-    def execute(self):
+    @consumestransientapierrors
+    def _runNatureCore(self, *args, **kwargs):
 
         # Local variable declaration
         scheduledPosterStorage = self.__scheduledPosterStorage
@@ -42,38 +39,24 @@ class ScheduledPoster(SimpleProgram):
         scheduledSubmissionAutoReplyDAO = scheduledPosterStorage \
             .getScheduledSubmissionAutoReplyDAO
 
-        # Program loop
-        while not self.__stopCondition():
+        dueSubmissions = scheduledSubmissionDAO.getDueSubmissions()
 
-            dueSubmissions = scheduledSubmissionDAO.getDueSubmissions()
+        for dueSubmission in dueSubmissions:
 
-            for dueSubmission in dueSubmissions:
+            # Handle if submission has not been processed
+            if not completedSubmissionDAO.checkExists(dueSubmission):
+                submission = self.__prawReddit.subreddit(
+                    dueSubmission.getSubreddit
+                ).submit(
+                    title=dueSubmission.getTitle,
+                    url=dueSubmission.getUrl,
+                    flair_id=dueSubmission.getFlairId
+                )
+                completedSubmissionDAO.add(dueSubmission)
 
-                # Error handling loop
-                while True:
-                    try:
-                        # Handle if submission has not been processed
-                        if not completedSubmissionDAO.checkExists(dueSubmission):
-                            submission = self.__prawReddit.subreddit(
-                                dueSubmission.getSubreddit
-                            ).submit(
-                                title=dueSubmission.getTitle,
-                                url=dueSubmission.getUrl,
-                                flair_id=dueSubmission.getFlairId
-                            )
-                            completedSubmissionDAO.add(dueSubmission)
+                # Processing auto-replies for the given submission
+                scheduledSubmissionAutoReplies = scheduledSubmissionAutoReplyDAO \
+                    .getScheduledSubmissionAutoReplies(dueSubmission)
 
-                            # Processing auto-replies for the given submission
-                            scheduledSubmissionAutoReplies = scheduledSubmissionAutoReplyDAO \
-                                .getScheduledSubmissionAutoReplies(dueSubmission)
-
-                            for scheduledSubmissionAutoReply in scheduledSubmissionAutoReplies:
-                                submission.reply(scheduledSubmissionAutoReply)
-                        break
-
-                    # Handle for problems connecting to the Reddit API
-                    except (RequestException, ServerError):
-                        time.sleep(30)
-
-            # Database check cooldown
-            time.sleep(1)
+                for scheduledSubmissionAutoReply in scheduledSubmissionAutoReplies:
+                    submission.reply(scheduledSubmissionAutoReply)

@@ -2,7 +2,8 @@ from itertools import groupby
 
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.Decorators import testfeature
-from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.messagecommandprocessor.messagecommandprocessortools.testfeaturetools \
+    .FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import \
     StarSceneInfoSubmissionDetailDAO
 

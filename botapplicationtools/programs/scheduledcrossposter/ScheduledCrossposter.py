@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 from typing import ClassVar
 
 from praw.models import Submission
-from prawcore.exceptions import RequestException, ServerError
 
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspost import ScheduledCrosspost
@@ -71,6 +71,7 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
                     submission
                 )
 
+    @consumestransientapierrors
     def __processNonCompletedCrosspost(
             self,
             nonCompletedCrosspost: ScheduledCrosspost,
@@ -86,17 +87,13 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
             .getCompletedCrosspostDAO
 
         while True:
-            try:
-                if datetime.now(tz=timezone.utc) >= scheduledTime:
-                    submission.crosspost(
-                        subreddit=nonCompletedCrosspost.getSubreddit,
-                        title=nonCompletedCrosspost.getTitle
-                    )
-                    with ScheduledCrossposter.__LOCK:
-                        completedCrosspostDAO.add(nonCompletedCrosspost)
-                    break
-                time.sleep(1)
+            if datetime.now(tz=timezone.utc) >= scheduledTime:
+                submission.crosspost(
+                    subreddit=nonCompletedCrosspost.getSubreddit,
+                    title=nonCompletedCrosspost.getTitle
+                )
+                with ScheduledCrossposter.__LOCK:
+                    completedCrosspostDAO.add(nonCompletedCrosspost)
+                break
+            time.sleep(1)
 
-            # Handle if there are problems connecting to the Reddit API
-            except(RequestException, ServerError):
-                time.sleep(30)

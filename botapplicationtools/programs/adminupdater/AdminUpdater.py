@@ -1,14 +1,14 @@
-import time
-from typing import List
+from typing import List, Callable
 
 from botapplicationtools.programs.adminupdater.AdminUpdate import AdminUpdate
 from botapplicationtools.programs.adminupdater.AdminUpdateDAO import AdminUpdateDAO
 from botapplicationtools.programs.adminupdater.FormattingTools import FormattingTools
 from botapplicationtools.programs.adminupdater.RedditTools import RedditTools
-from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
+from botapplicationtools.programs.programtools.programnatures.RecurringProgramNature import RecurringProgramNature
 
 
-class AdminUpdater(SimpleProgram):
+class AdminUpdater(RecurringProgramNature):
     """
     Program to automatically output,
     user-generated admin updates
@@ -19,28 +19,26 @@ class AdminUpdater(SimpleProgram):
             adminUpdateDAO: AdminUpdateDAO,
             redditTools: RedditTools,
             formattingTools: FormattingTools,
-            stopCondition
+            stopCondition: Callable[..., bool],
+            cooldown: float = 1
     ):
-        super().__init__()
+        super().__init__(stopCondition, cooldown)
         self.__adminUpdateDAO = adminUpdateDAO
         self.__redditTools = redditTools
         self.__formattingTools = formattingTools
-        self.__stopCondition = stopCondition
 
-    def execute(self, *args):
+    def _runNatureCore(self, *args, **kwargs):
 
-        # Program loop TODO: Decorate
-        while not self.__stopCondition():
-            pendingAdminUpdates = self.__adminUpdateDAO \
-                .retrievePendingAdminUpdates()
+        pendingAdminUpdates = self.__adminUpdateDAO \
+            .retrievePendingAdminUpdates()
 
-            # Process if there are any pending updates
-            if pendingAdminUpdates:
-                self.__processAdminUpdates(
-                    pendingAdminUpdates
-                )
-            time.sleep(1)
+        # Process if there are any pending updates
+        if pendingAdminUpdates:
+            self.__processAdminUpdates(
+                pendingAdminUpdates
+            )
 
+    @consumestransientapierrors
     def __processAdminUpdates(self, adminUpdates: List[AdminUpdate]):
         """Process pending admin updates"""
 

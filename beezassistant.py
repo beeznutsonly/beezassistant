@@ -748,10 +748,12 @@ def isBotShutDown():
     return __programsExecutor and __programsExecutor.isShutDown()
 
 
-def startBot(args=[]):
+def startBot(args=None):
     """Start up the bot"""
 
     # Initializing the bot
+    if args is None:
+        args = []
     __initializeBot()
 
     try:
@@ -816,8 +818,9 @@ def startBot(args=[]):
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    # Setting up interrupt signal handler
+    # Setting up interrupt signal handlers
     signal.signal(signal.SIGINT, signal.default_int_handler)
+    signal.signal(signal.SIGTERM, signal.default_int_handler)
 
     # Start bot
     if len(sys.argv) == 1:

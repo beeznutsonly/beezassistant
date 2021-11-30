@@ -21,16 +21,12 @@ class StarNotifier(SimpleStreamProcessorNature):
     been posted
     """
 
-    __redditTools: RedditTools
-    __starNotificationSubscriptionDAO: StarNotificationSubscriptionDAO
-    __sceneInfoTools: SceneInfoTools
-
     def __init__(
         self,
         redditTools: RedditTools,
         starNotificationSubscriptionDAO: StarNotificationSubscriptionDAO,
         sceneInfoTools: SceneInfoTools,
-        stopCondition: Callable
+        stopCondition: Callable[..., bool]
     ):
         super().__init__(
             redditTools.getCommentStream,
