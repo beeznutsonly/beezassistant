@@ -7,6 +7,7 @@ from praw.models.util import stream_generator
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.messagecommandprocessor \
     .messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
 
@@ -32,6 +33,7 @@ class MessageCommandProcessor(SimpleStreamProcessorNature):
         self.__commandProcessors = commandProcessors
         self.__featureTesterDAO = featureTesterDAO
 
+    @consumestransientapierrors
     def _runNatureCore(self, unread):
 
         # Process if unread item is Message

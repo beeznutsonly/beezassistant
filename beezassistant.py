@@ -53,13 +53,13 @@ __RESOURCES_PATH = os.path.join(
 )
 __mainLogger: logging.Logger
 __defaultConsoleLoggingLevel: int
-__programsExecutor: ProgramsExecutor
+__programsExecutor: ProgramsExecutor = None
 __databaseConnectionFactory: DatabaseConnectionFactory
 
 
 # Bot initialization commands
 # -------------------------------------------------------------------------------
-
+# -------------------------------------------------------------------------------
 
 def __initializeLogging(logFileName):
     """Initialize the bot's logging apparatus"""
@@ -135,15 +135,19 @@ def __getInitialConfigReader(configFileName) -> ConfigParser:
 def ___initializeDatabase(connection, database):
     """Convenience method to initialize the bot's database"""
 
-    sqliteScriptPath = os.path.join(
+    sqlScriptPath = os.path.join(
         __RESOURCES_PATH, 'beezassistant.sql'
     )
     DatabaseInitializer.initializeDatabase(
-        connection, database, sqliteScriptPath
+        connection, database, sqlScriptPath
     )
 
 
 def ___getDsnPgsqlDatabaseConnectionFactory(dsn):
+    """
+    Retrieve an initial postgresql
+    connection factory from provided dsn
+    """
     return PgsqlDatabaseConnectionFactory.getFactoryFromDsn(
         dsn
     )
@@ -156,7 +160,10 @@ def ___getCredentialPgsqlDatabaseConnectionFactory(
         host='localhost',
         port=5432
 ) -> PgsqlDatabaseConnectionFactory:
-    """Retrieve an initial postgresql database connection factory"""
+    """
+    Retrieve an initial postgresql
+    connection factory from provided credentials
+    """
 
     try:
         databaseConnectionFactory = PgsqlDatabaseConnectionFactory \
@@ -191,9 +198,7 @@ def ___getCredentialPgsqlDatabaseConnectionFactory(
                 dbname=databaseName,
                 host=host, port=port
         ) as databaseInitializationConnection:
-            ___initializeDatabase(
-                databaseInitializationConnection, "pgsql"
-            )
+            ___initializeDatabase(databaseInitializationConnection, "pgsql")
 
         __mainLogger.info("Database successfully created")
 
@@ -205,7 +210,7 @@ def ___getCredentialPgsqlDatabaseConnectionFactory(
     return databaseConnectionFactory
 
 
-def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName)\
+def ___getInitialSqliteDatabaseConnectionFactory(databaseFileName) \
         -> SqliteDatabaseConnectionFactory:
     """Retrieve an initial sqlite database connection factory"""
 
@@ -579,7 +584,7 @@ def __initializeBot():
 # -------------------------------------------------------------------------------
 
 
-# Bot application commands
+# Bot runtime commands
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 
@@ -706,8 +711,8 @@ def shutDownBot(wait=True, shutdownExitCode=0):
             __programsExecutor.shutDown(True)
             __databaseConnectionFactory.shutDown()
             __mainLogger.info(
-                'Database connection factory successfully'
-                ' shut down'
+                'Database connection factory successfully '
+                'shut down'
             )
             __mainLogger.info('Bot successfully shut down')
             if shutdownExitCode != 0:
@@ -782,7 +787,7 @@ def startBot(args=None):
                 __mainLogger.error(
                     "The provided 'listen' argument, \"{}\", is invalid. "
                     "The bot will therefore shutdown once all of its tasks"
-                    " are completed.".format(args[0])
+                    " are completed.".format(args[1])
                 )
 
         else:
@@ -801,19 +806,19 @@ def startBot(args=None):
         shutDownBot(True, 1)
 
     # Handle unknown exception while bot is running
-    except BaseException:
+    except BaseException as ex:
         __mainLogger.critical(
             "A fatal error just occurred while the bot was "
             "running. Please wait a bit wait while "
             "a graceful shutdown is attempted or press "
-            "Ctrl+C to exit immediately", exc_info=True
+            "Ctrl+C to exit immediately: " + ex.args, exc_info=True
         )
         shutDownBot(True, 2)
 
 # -------------------------------------------------------------------------------
 
 
-# Let the games begin boysss
+# Let the games begin boyyys
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 if __name__ == "__main__":

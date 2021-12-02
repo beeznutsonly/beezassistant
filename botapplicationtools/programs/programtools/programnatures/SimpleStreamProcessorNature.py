@@ -20,26 +20,27 @@ class SimpleStreamProcessorNature(RecurringProgramNature, ABC):
         super().__init__(stopCondition)
         self.__stream = stream
 
+    @consumestransientapierrors
     def execute(self, *args, **kwargs):
 
-        # "Comment listener" loop
-        for streamItem in self.__stream:
+        # In case we somehow run out of
+        # new items in the stream (IYKYK)
+        while not self._stopCondition():
 
-            # Handle "pause" token
-            if streamItem is None:
+            # "Comment listener" loop
+            for streamItem in self.__stream:
 
-                # Exit the loop if stop condition satisfied
-                if self.__stopCondition():
-                    break
+                # Handle "pause" token
+                if streamItem is None:
 
-                self._runPauseHandler()
-                continue
+                    # Exit the loop if stop condition satisfied
+                    if self._stopCondition():
+                        break
 
-            self._runNatureCore(streamItem)
+                    self._runPauseHandler()
+                    continue
 
-    @consumestransientapierrors
-    def _runNatureCore(self, *args, **kwargs):
-        super()._runNatureCore(*args, **kwargs)
+                self._runNatureCore(streamItem)
 
     def _runPauseHandler(self, *args):
         """Execute when stream is paused"""

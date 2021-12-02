@@ -3,6 +3,7 @@
 from psaw import PushshiftAPI
 
 from botapplicationtools.programs.programtools.generaltools import ContributionsUtility
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
 from botapplicationtools.programs.programtools.sceneinfotools import SceneInfoSubmissionsUtility
 from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsWithSceneInfoStorage import \
@@ -33,6 +34,7 @@ class SceneInfoStorageArchiver(SimpleProgram):
         self.__sceneInfoSubmissionsWithSceneInfoStorage = \
             sceneInfoSubmissionsWithSceneInfoStorage
 
+    @consumestransientapierrors
     def execute(self):
 
         # Local variable declaration

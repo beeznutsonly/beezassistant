@@ -5,6 +5,7 @@ from typing import List
 
 from praw.models import WikiPage
 
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
 from botapplicationtools.programs.starsarchivewikipagewriter.IndividualStarView import IndividualStarView
 
@@ -16,9 +17,6 @@ class StarsArchiveWikiPageWriter(SimpleProgram):
     the provided StarViews
     """
 
-    __starsArchiveWikiPage: WikiPage
-    __starViews: List[IndividualStarView]
-
     def __init__(
             self,
             starsArchiveWikiPage: WikiPage,
@@ -27,6 +25,7 @@ class StarsArchiveWikiPageWriter(SimpleProgram):
         self.__starsArchiveWikiPage = starsArchiveWikiPage
         self.__starViews = starViews
 
+    @consumestransientapierrors
     def execute(self):
         """Execute the program"""
 

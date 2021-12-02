@@ -4,23 +4,18 @@ from datetime import datetime, timedelta
 from itertools import groupby
 from typing import Callable, List
 
-from praw import Reddit
 from praw.models import Comment
 
 from botapplicationtools.programs.programtools.generaltools import \
     ContributionsUtility
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetail import \
     StarSceneInfoSubmissionDetail
-from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetailDAO import \
-    StarSceneInfoSubmissionDetailDAO
 from botapplicationtools.programs.starinforeplyer.CustomAddenda import CustomAddenda
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerCommentedDAO import StarInfoReplyerCommentedDAO
-from botapplicationtools.programs.starinforeplyer.StarInfoReplyerExcludedDAO import StarInfoReplyerExcludedDAO
 from botapplicationtools.programs.starinforeplyer.StarInfoReplyerIO import \
     StarInfoReplyerIO
-from botapplicationtools.programs.starinforeplyer.StarStorage import StarStorage
 
 
 class StarInfoReplyer(SimpleStreamProcessorNature):
@@ -28,16 +23,6 @@ class StarInfoReplyer(SimpleStreamProcessorNature):
     Program to automatically reply with Star Info to comments
     mentioning a star with scene info archived
     """
-
-    __starInfoReplyerCommentedDAO: StarInfoReplyerCommentedDAO
-    __starInfoReplyerExcludedDAO: StarInfoReplyerExcludedDAO
-    __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
-    __starStorage: StarStorage
-    __refreshInterval: int
-    __nextGroupsRefreshDue: datetime
-    __prawReddit: Reddit
-    __excludedUsers: List[str]
-    __customAddenda: CustomAddenda
 
     def __init__(
             self,
@@ -91,6 +76,7 @@ class StarInfoReplyer(SimpleStreamProcessorNature):
         self.__excludedUsers = redditTools.getExcludedUsers
         self.__customAddenda = customAddenda
 
+    @consumestransientapierrors
     def _runNatureCore(self, comment: Comment):
 
         # Skip processing for removed comments
