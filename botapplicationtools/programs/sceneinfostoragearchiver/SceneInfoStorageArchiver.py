@@ -34,7 +34,6 @@ class SceneInfoStorageArchiver(SimpleProgram):
         self.__sceneInfoSubmissionsWithSceneInfoStorage = \
             sceneInfoSubmissionsWithSceneInfoStorage
 
-    @consumestransientapierrors
     def execute(self):
 
         # Local variable declaration
