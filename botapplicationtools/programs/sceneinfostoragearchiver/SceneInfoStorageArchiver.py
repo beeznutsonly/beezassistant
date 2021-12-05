@@ -34,6 +34,7 @@ class SceneInfoStorageArchiver(SimpleProgram):
         self.__sceneInfoSubmissionsWithSceneInfoStorage = \
             sceneInfoSubmissionsWithSceneInfoStorage
 
+    @consumestransientapierrors
     def execute(self):
 
         # Local variable declaration
@@ -50,21 +51,17 @@ class SceneInfoStorageArchiver(SimpleProgram):
                     'author',
                     'link_flair_template_id',
                     'title',
-                    'created_utc'
+                    'created_utc',
+                    'banned_by'
                 ]
         )
-
-        onlineSubmissions = list(filter(
+        onlineSubmissions = filter(
             lambda submission:
             not ContributionsUtility.isRemoved(submission),
             allSubmissions
-        ))
+        )
 
-        removedSubmissions = list(filter(
-            lambda submission:
-            ContributionsUtility.isRemoved(submission),
-            allSubmissions
-        ))
+        removedSubmissions = list(set(allSubmissions) - set(onlineSubmissions))
 
         # Retrieve all scene info submissions from a subreddit within given timeframe
         freshSceneInfoSubmissions = SceneInfoSubmissionsUtility \

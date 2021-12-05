@@ -9,9 +9,6 @@ class IndividualStarView:
     wiki "view" organized per individual star
     """
 
-    __viewMarkdown: str
-    __starSceneInfoSubmissionDetailDAO: StarSceneInfoSubmissionDetailDAO
-
     def __init__(
             self,
             starSceneInfoSubmissionDetailDAO:
@@ -50,7 +47,7 @@ class IndividualStarView:
                 sceneInfoSubmission.getSubmissionId + ')\n'
             )
             
-            for index in range(1, len(starViewRecords) - 1):
+            for index in range(1, len(starViewRecords)):
 
                 sceneInfoSubmission = starViewRecords[index] \
                     .getSceneInfoSubmission

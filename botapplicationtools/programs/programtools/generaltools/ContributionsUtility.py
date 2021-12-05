@@ -20,22 +20,11 @@ def retrieveSubmissionsFromSubreddit(
     after the provided time containing only filtered info
     """
 
-    submissions = list(
+    return list(
         pushShiftAPI.search_submissions(
             subreddit=subredditName,
             after=fromTime,
             filter=filters
-        )
-    )
-
-    # Return filtered list of non-removed submissions
-    return list(
-        filter(
-            lambda submission:
-            not isRemoved(
-                submission
-            ),
-            submissions
         )
     )
 
@@ -68,11 +57,8 @@ def isRemoved(
     """
 
     try:
-        author = contribution.author.name
-    except Exception:
-        author = '[Deleted]'
-    if not (contribution.banned_by is None) or \
-            author == '[Deleted]':
-        return True
-    else:
-        return False
+        author = contribution.author
+    except AttributeError:
+        author = None
+    return author is None or author == '[Deleted]' or \
+        contribution.banned_by is not None
