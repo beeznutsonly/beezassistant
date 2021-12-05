@@ -4,6 +4,7 @@ from psaw import PushshiftAPI
 
 from botapplicationtools.programs.programtools.generaltools import ContributionsUtility
 from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
+from botapplicationtools.programs.programtools.generaltools.SimpleSubmission import SimpleSubmission
 from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
 from botapplicationtools.programs.programtools.sceneinfotools import SceneInfoSubmissionsUtility
 from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsWithSceneInfoStorage import \
@@ -61,7 +62,13 @@ class SceneInfoStorageArchiver(SimpleProgram):
             allSubmissions
         )
 
-        removedSubmissions = list(set(allSubmissions) - set(onlineSubmissions))
+        removedSubmissions = list(map(
+            lambda submission:
+            SimpleSubmission.getSimpleSubmissionFromPrawSubmission(
+                submission
+            ),
+            set(allSubmissions) - set(onlineSubmissions)
+        ))
 
         # Retrieve all scene info submissions from a subreddit within given timeframe
         freshSceneInfoSubmissions = SceneInfoSubmissionsUtility \
