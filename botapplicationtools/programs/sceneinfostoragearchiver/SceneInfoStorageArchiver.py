@@ -56,11 +56,11 @@ class SceneInfoStorageArchiver(SimpleProgram):
                     'banned_by'
                 ]
         )
-        onlineSubmissions = filter(
+        onlineSubmissions = list(filter(
             lambda submission:
             not ContributionsUtility.isRemoved(submission),
             allSubmissions
-        )
+        ))
 
         removedSubmissions = list(map(
             lambda submission:
