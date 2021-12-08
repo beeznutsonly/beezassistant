@@ -842,6 +842,9 @@ if __name__ == "__main__":
             ):
                 break
             time.sleep(1)
+    # Handle shutdown by Keyboard interrupt
+    except KeyboardInterrupt:
+        pass
     finally:
         # Shut bot down if not already
         if not isBotShutDown():
