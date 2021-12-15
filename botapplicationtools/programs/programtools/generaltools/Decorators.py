@@ -21,7 +21,7 @@ def consumestransientapierrors(_executeFunction=None, *, timeout: int = 30):
 
         @functools.wraps(executeFunction)
         def wrapper(*args, **kwargs):
-            programLogger = kwargs["self"]._programLogger
+            programLogger = args[0]._programLogger
             while True:
                 try:
                     executeFunction(*args, **kwargs)
