@@ -1,0 +1,140 @@
+# -*- coding: utf-8 -*
+
+from psaw import PushshiftAPI
+
+from botapplicationtools.programs.programtools.generaltools import ContributionsUtility
+from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
+from botapplicationtools.programs.programtools.generaltools.SimpleSubmission import SimpleSubmission
+from botapplicationtools.programs.programtools.programnatures.SimpleProgram import SimpleProgram
+from botapplicationtools.programs.programtools.sceneinfotools import SceneInfoSubmissionsUtility
+from botapplicationtools.programs.sceneinfostoragearchiver.SceneInfoSubmissionsWithSceneInfoStorage import \
+    SceneInfoSubmissionsWithSceneInfoStorage
+from botapplicationtools.programs.sceneinfostoragearchiver.SubredditSearchParameters import SubredditSearchParameters
+
+
+class SceneInfoStorageArchiver(SimpleProgram):
+    """
+    Program responsible for archiving scene info submissions
+    and the relevant scene info to provided storage
+    """
+
+    PROGRAM_NAME: str = "Scene Info Storage Archiver"
+
+    def __init__(
+        self,
+        pushShiftAPI: PushshiftAPI,
+        subredditSearchParameters: SubredditSearchParameters,
+        sceneInfoSubmissionsWithSceneInfoStorage:
+        SceneInfoSubmissionsWithSceneInfoStorage
+    ):
+        super().__init__(SceneInfoStorageArchiver.PROGRAM_NAME)
+        self.__pushShiftAPI = pushShiftAPI
+        self.__subredditSearchParameters = subredditSearchParameters
+        self.__sceneInfoSubmissionsWithSceneInfoStorage = \
+            sceneInfoSubmissionsWithSceneInfoStorage
+
+    @consumestransientapierrors
+    def execute(self):
+
+        # Local variable declaration
+        subredditSearchParameters = self.__subredditSearchParameters
+        sceneInfoSubmissionsWithSceneInfoStorage = \
+            self.__sceneInfoSubmissionsWithSceneInfoStorage
+
+        self._programLogger.debug(
+            "Retrieving all submissions from the subreddit (r/{})"
+            .format(
+                self.__subredditSearchParameters
+                    .getSubredditName
+            )
+        )
+
+        allSubmissions = ContributionsUtility.retrieveSubmissionsFromSubreddit(
+                self.__pushShiftAPI,
+                self.__subredditSearchParameters.getSubredditName,
+                self.__subredditSearchParameters.getFromTime,
+                [
+                    'id',
+                    'author',
+                    'link_flair_template_id',
+                    'title',
+                    'created_utc',
+                    'banned_by'
+                ]
+        )
+
+        self._programLogger.debug(
+            "Extracting online submissions from total submissions"
+        )
+
+        onlineSubmissions = list(filter(
+            lambda submission:
+            not ContributionsUtility.isRemoved(submission),
+            allSubmissions
+        ))
+
+        removedSubmissions = list(map(
+            lambda submission:
+            SimpleSubmission.getSimpleSubmissionFromPrawSubmission(
+                submission
+            ),
+            set(allSubmissions) - set(onlineSubmissions)
+        ))
+
+        # Retrieve all scene info submissions from the online submissions
+        self._programLogger.debug(
+            "Retrieving scene info submissions from online submissions"
+        )
+
+        freshSceneInfoSubmissions = SceneInfoSubmissionsUtility \
+            .retrieveSceneInfoSubmissions(
+                    onlineSubmissions,
+                    subredditSearchParameters.getExtractors
+                    .getSceneInfoFlairID
+            )
+
+        # Extract scene info from scene info submissions and generate
+        # a list of SceneInfoSubmissionsWithSceneInfo objects
+        self._programLogger.debug(
+            "Extracting scene info from scene info submissions"
+        )
+
+        freshSubmissionsAndInfo = SceneInfoSubmissionsUtility \
+            .retrieveSceneInfoSubmissionsWithSceneInfo(
+                    freshSceneInfoSubmissions,
+
+                    subredditSearchParameters.getExtractors
+                    .getSceneInfoTextMatcher,
+
+                    subredditSearchParameters.getExtractors
+                    .getMovieNameExtractor,
+
+                    subredditSearchParameters.getExtractors
+                    .getStarNamesExtractor
+            )
+
+        # Store the scene and submission info to storage
+        self._programLogger.debug(
+            "Storing scene info and scene info submission "
+            "details to storage"
+        )
+        SceneInfoSubmissionsUtility \
+            .saveSceneInfoSubmissionsWithSceneInfoToStorage(
+                freshSubmissionsAndInfo,
+
+                sceneInfoSubmissionsWithSceneInfoStorage
+                .getSceneInfoSubmissionDAO,
+
+                sceneInfoSubmissionsWithSceneInfoStorage
+                .getSceneInfoDAO,
+
+                sceneInfoSubmissionsWithSceneInfoStorage
+                .getSceneInfoSubmissionWithSceneInfoDAO,
+
+                removedSubmissions
+            )
+
+        self._programLogger.debug(
+            "Scene info submission details successfully stored"
+        )
+        

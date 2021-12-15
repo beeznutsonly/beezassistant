@@ -42,7 +42,11 @@ class SceneInfoStorageArchiver(SimpleProgram):
             self.__sceneInfoSubmissionsWithSceneInfoStorage
 
         self._programLogger.debug(
-            "Retrieving all submissions from the subreddit"
+            "Retrieving all submissions from the subreddit (r/{})"
+            .format(
+                self.__subredditSearchParameters
+                    .getSubredditName
+            )
         )
 
         allSubmissions = ContributionsUtility.retrieveSubmissionsFromSubreddit(
