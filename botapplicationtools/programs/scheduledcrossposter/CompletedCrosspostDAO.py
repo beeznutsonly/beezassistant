@@ -14,7 +14,7 @@ class CompletedCrosspostDAO:
         self.__connection = connection
 
     def add(self, completedCrosspost: ScheduledCrosspost):
-        """Add (Mark) completed crosspost"""
+        """Add (Acknowledge) completed crosspost"""
 
         sqlString = 'INSERT INTO CompletedCrosspost(url, subreddit) VALUES ' \
                     '(%s, %s);'

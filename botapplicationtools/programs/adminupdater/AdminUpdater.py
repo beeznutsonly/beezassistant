@@ -14,6 +14,8 @@ class AdminUpdater(RecurringProgramNature):
     user-generated admin updates
     """
 
+    PROGRAM_NAME: str = "Admin Updater"
+
     def __init__(
             self,
             adminUpdateDAO: AdminUpdateDAO,
@@ -22,7 +24,11 @@ class AdminUpdater(RecurringProgramNature):
             stopCondition: Callable[..., bool],
             cooldown: float = 1
     ):
-        super().__init__(stopCondition, cooldown)
+        super().__init__(
+            AdminUpdater.PROGRAM_NAME,
+            stopCondition,
+            cooldown
+        )
         self.__adminUpdateDAO = adminUpdateDAO
         self.__redditTools = redditTools
         self.__formattingTools = formattingTools
@@ -41,6 +47,10 @@ class AdminUpdater(RecurringProgramNature):
     @consumestransientapierrors
     def __processAdminUpdates(self, adminUpdates: List[AdminUpdate]):
         """Process pending admin updates"""
+
+        self._programLogger.debug(
+            "Processing new admin updates"
+        )
 
         # Local variable initialization
         adminUpdatesWiki = self.__redditTools.getAdminUpdatesWikiPage()
@@ -79,7 +89,7 @@ class AdminUpdater(RecurringProgramNature):
         )
 
         # Limit lines output to widget to specified threshold
-        # if threshold is met
+        # if threshold is exceeded
         if len(newWidgetItems) > self.__formattingTools.getMaxWidgetLines:
             newWidgetItems = newWidgetItems[
                              :self.__formattingTools.getMaxWidgetLines
@@ -92,11 +102,21 @@ class AdminUpdater(RecurringProgramNature):
                 newWikiPageItems
             )
         )
+        self._programLogger.debug(
+            "Admin updates successfully pushed to wiki"
+        )
+
         adminUpdatesWidget.mod.update(
             text="\n\n".join(
                 newWidgetItems
             )
         )
+        self._programLogger.debug(
+            "Admin updates successfully pushed to widget"
+        )
 
         # Acknowledging successful processing of update
         self.__adminUpdateDAO.markCompleted(adminUpdates)
+        self._programLogger.debug(
+            "Completion of admin updates successfully acknowledged"
+        )

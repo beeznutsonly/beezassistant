@@ -24,6 +24,8 @@ class StarInfoReplyer(SimpleStreamProcessorNature):
     mentioning a star with scene info archived
     """
 
+    PROGRAM_NAME: str = "Star Info Replyer"
+
     def __init__(
             self,
             starInfoReplyerIO: StarInfoReplyerIO,
@@ -33,7 +35,8 @@ class StarInfoReplyer(SimpleStreamProcessorNature):
     ):
         super().__init__(
             starInfoReplyerIO.getRedditTools.getCommentStream,
-            stopCondition
+            stopCondition,
+            StarInfoReplyer.PROGRAM_NAME
         )
         self.__initializeProgram(
             starInfoReplyerIO,
@@ -103,19 +106,38 @@ class StarInfoReplyer(SimpleStreamProcessorNature):
         # Iterate through each star name for match
         for starName, records in self.__starInfoGroups.items():
             if starName.lower() in comment.body.lower():
+                self._programLogger.debug(
+                    "Replying with star info for {} to "
+                    "comment {}".format(
+                        starName,
+                        comment.id
+                    )
+                )
                 generatedReply = self.__replyWithStarInfo(
                     comment,
                     starName,
                     records
                 )
+                self._programLogger.debug(
+                    "Star info reply (ID: {}) successfully "
+                    "submitted".format(
+                        generatedReply.id
+                    )
+                )
                 self.__starInfoReplyerCommentedDAO.acknowledgeComment(
                     comment.id
                 )
+
                 # Acknowledge bot's generated reply if one is returned
                 if generatedReply:
                     self.__starInfoReplyerCommentedDAO.acknowledgeComment(
                         generatedReply.id
                     )
+
+                self._programLogger.debug(
+                    "Star info comments (IDs: {}, {}) successfully "
+                    "acknowledged".format(comment.id, generatedReply.id)
+                )
 
     def _runPauseHandler(self, *args):
 

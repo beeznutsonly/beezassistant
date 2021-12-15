@@ -17,11 +17,14 @@ class SceneInfoArchiver(SimpleProgram):
     wiki page
     """
 
+    PROGRAM_NAME: str = "Scene Info Archiver"
+
     def __init__(
             self,
             storageArchiverTools: SceneInfoStorageArchiverTools,
             wikiPageWriterTools: StarsArchiveWikiPageWriterTools
     ):
+        super().__init__(SceneInfoArchiver.PROGRAM_NAME)
         self.__storageArchiverTools = storageArchiverTools
         self.__wikiPageWriterTools = wikiPageWriterTools
 
@@ -30,12 +33,20 @@ class SceneInfoArchiver(SimpleProgram):
         storageArchiverTools = self.__storageArchiverTools
         wikiPageWriterTools = self.__wikiPageWriterTools
 
+        self._programLogger.debug(
+            "Executing Scene Info Storage Archiver"
+        )
+
         sceneInfoStorageArchiver = SceneInfoStorageArchiver(
             storageArchiverTools.getPushShiftAPI,
             storageArchiverTools.getSubredditSearchParameters,
             storageArchiverTools.getSceneInfoSubmissionsWithSceneInfoStorage
         )
         sceneInfoStorageArchiver.execute()
+
+        self._programLogger.debug(
+            "Executing Stars Archive Wiki Page Writer"
+        )
 
         starsArchiveWikiPageWriter = StarsArchiveWikiPageWriter(
             wikiPageWriterTools.getWikiPage,

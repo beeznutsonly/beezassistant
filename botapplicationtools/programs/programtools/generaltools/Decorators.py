@@ -9,7 +9,7 @@ import time
 from prawcore.exceptions import RequestException, ServerError
 
 
-def consumestransientapierrors(executeFunction):
+def consumestransientapierrors(_executeFunction=None, *, timeout: int = 30):
     """
     Decorator responsible for consuming common transient
     errors which may occur while connecting to the
@@ -17,13 +17,21 @@ def consumestransientapierrors(executeFunction):
     program
     """
 
-    @functools.wraps(executeFunction)
-    def wrapper(*args, **kwargs):
-        while True:
-            try:
-                executeFunction(*args, **kwargs)
-                break
-            # Handle for problems connecting to the Reddit API
-            except (RequestException, ServerError):
-                time.sleep(30)
-    return wrapper
+    def subsuming_function(executeFunction):
+
+        @functools.wraps(executeFunction)
+        def wrapper(*args, **kwargs):
+            while True:
+                try:
+                    executeFunction(*args, **kwargs)
+                    break
+                # Handle for problems connecting to the Reddit API
+                except (RequestException, ServerError):
+                    time.sleep(timeout)
+        return wrapper
+
+    # Handle if decorator is called with arguments
+    if _executeFunction is None:
+        return subsuming_function
+    else:
+        return subsuming_function(_executeFunction)

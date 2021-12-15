@@ -10,17 +10,19 @@ class RecurringProgramNature(SimpleProgram, ABC):
 
     def __init__(
             self,
+            programName: str,
             stopCondition: Callable[..., bool],
             cooldown: float = 0
     ):
+        super().__init__(programName)
         self._stopCondition = stopCondition
-        self.__cooldown = cooldown
+        self._cooldown = cooldown
 
     def execute(self, *args, **kwargs):
         while not self._stopCondition():
             self._runNatureCore(*args, **kwargs)
-            if self.__cooldown and self.__cooldown > 0:
-                time.sleep(self.__cooldown)
+            if self._cooldown and self._cooldown > 0:
+                time.sleep(self._cooldown)
 
     @abstractmethod
     def _runNatureCore(self, *args, **kwargs):

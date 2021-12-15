@@ -4,7 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from typing import ClassVar
 
+import praw.exceptions
 from praw.models import Submission
+from prawcore import PrawcoreException
 
 from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
@@ -19,6 +21,8 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
     Scheduled Crossposts
     """
 
+    PROGRAM_NAME: str = "Scheduled Crossposter"
+
     # Lock for concurrent write operations
     __LOCK: ClassVar[threading.Lock] = threading.Lock()
 
@@ -31,7 +35,8 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
     ):
         super().__init__(
             submissionStream,
-            stopCondition
+            stopCondition,
+            ScheduledCrossposter.PROGRAM_NAME
         )
         self.__scheduledCrossposterStorage = scheduledCrossposterStorage
         self.__crosspostProcessor = crosspostProcessor
@@ -49,7 +54,6 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
         if scheduledCrosspostDAO.checkExists(
             submission.url
         ):
-
             scheduledCrossposts = scheduledCrosspostDAO \
                 .getScheduledCrosspostsForUrl(
                     submission.url
@@ -86,14 +90,44 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
         completedCrosspostDAO = self.__scheduledCrossposterStorage \
             .getCompletedCrosspostDAO
 
+        self._programLogger.debug(
+            'Processing non-completed crosspost to {}, '
+            'for submission "{}" (ID: {}) due {}'.format(
+                nonCompletedCrosspost.getSubreddit,
+                submission.title,
+                submission.id,
+                scheduledTime
+            )
+        )
+
         while True:
             if datetime.now(tz=timezone.utc) >= scheduledTime:
-                submission.crosspost(
-                    subreddit=nonCompletedCrosspost.getSubreddit,
-                    title=nonCompletedCrosspost.getTitle
-                )
-                with ScheduledCrossposter.__LOCK:
-                    completedCrosspostDAO.add(nonCompletedCrosspost)
-                break
+                try:
+                    successfulCrosspost = submission.crosspost(
+                        subreddit=nonCompletedCrosspost.getSubreddit,
+                        title=nonCompletedCrosspost.getTitle
+                    )
+                    self._programLogger.debug(
+                        'Crosspost "{}" (ID: {}) to {}, for submission "{}" (ID: {}) '
+                        'due {} completed'.format(
+                            successfulCrosspost.title,
+                            successfulCrosspost.id,
+                            nonCompletedCrosspost.getSubreddit,
+                            submission.title,
+                            submission.id,
+                            scheduledTime
+                        )
+                    )
+                    with ScheduledCrossposter.__LOCK:
+                        completedCrosspostDAO.add(nonCompletedCrosspost)
+                        self._programLogger.debug(
+                            "Completion of crosspost (ID: {}) successfully "
+                            "acknowledged".format(successfulCrosspost.id)
+                        )
+                    break
+                except PrawcoreException as ex:
+                    self._programLogger.error(
+                        'Non-completed crosspost to {} for submission "{}" '
+                        '(ID: {}) due {} failed: ' + str(ex.args)
+                    )
             time.sleep(1)
-

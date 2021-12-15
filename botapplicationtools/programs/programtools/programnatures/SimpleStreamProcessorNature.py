@@ -15,9 +15,10 @@ class SimpleStreamProcessorNature(RecurringProgramNature, ABC):
     def __init__(
             self,
             stream: Generator,
-            stopCondition: Callable[..., bool]
+            stopCondition: Callable[..., bool],
+            programName: str
     ):
-        super().__init__(stopCondition)
+        super().__init__(programName, stopCondition)
         self.__stream = stream
 
     @consumestransientapierrors

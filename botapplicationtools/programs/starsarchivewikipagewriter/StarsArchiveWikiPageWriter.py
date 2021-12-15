@@ -17,11 +17,14 @@ class StarsArchiveWikiPageWriter(SimpleProgram):
     the provided StarViews
     """
 
+    PROGRAM_NAME: str = "Stars Archive Wiki Page Writer"
+
     def __init__(
             self,
             starsArchiveWikiPage: WikiPage,
             starViews: List[IndividualStarView]
     ):
+        super().__init__(StarsArchiveWikiPageWriter.PROGRAM_NAME)
         self.__starsArchiveWikiPage = starsArchiveWikiPage
         self.__starViews = starViews
 
@@ -40,4 +43,10 @@ class StarsArchiveWikiPageWriter(SimpleProgram):
         for starView in self.__starViews:
             pageMarkdown += (starView.getViewMarkdown + '\n\n')
 
+        self._programLogger.debug(
+            "Writing generated markdown to wiki page"
+        )
         self.__starsArchiveWikiPage.edit(pageMarkdown)
+        self._programLogger.debug(
+            "Stars Archive wiki page successfully updated"
+        )

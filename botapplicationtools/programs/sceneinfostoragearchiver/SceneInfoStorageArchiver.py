@@ -18,10 +18,7 @@ class SceneInfoStorageArchiver(SimpleProgram):
     and the relevant scene info to provided storage
     """
 
-    __pushShiftAPI: PushshiftAPI
-    __subredditSearchParameters: SubredditSearchParameters
-    __sceneInfoSubmissionsWithSceneInfoStorage: \
-        SceneInfoSubmissionsWithSceneInfoStorage
+    PROGRAM_NAME: str = "Scene Info Storage Archiver"
 
     def __init__(
         self,
@@ -30,6 +27,7 @@ class SceneInfoStorageArchiver(SimpleProgram):
         sceneInfoSubmissionsWithSceneInfoStorage:
         SceneInfoSubmissionsWithSceneInfoStorage
     ):
+        super().__init__(SceneInfoStorageArchiver.PROGRAM_NAME)
         self.__pushShiftAPI = pushShiftAPI
         self.__subredditSearchParameters = subredditSearchParameters
         self.__sceneInfoSubmissionsWithSceneInfoStorage = \
@@ -42,6 +40,10 @@ class SceneInfoStorageArchiver(SimpleProgram):
         subredditSearchParameters = self.__subredditSearchParameters
         sceneInfoSubmissionsWithSceneInfoStorage = \
             self.__sceneInfoSubmissionsWithSceneInfoStorage
+
+        self._programLogger.debug(
+            "Retrieving all submissions from the subreddit"
+        )
 
         allSubmissions = ContributionsUtility.retrieveSubmissionsFromSubreddit(
                 self.__pushShiftAPI,
@@ -56,6 +58,11 @@ class SceneInfoStorageArchiver(SimpleProgram):
                     'banned_by'
                 ]
         )
+
+        self._programLogger.debug(
+            "Extracting online submissions from total submissions"
+        )
+
         onlineSubmissions = list(filter(
             lambda submission:
             not ContributionsUtility.isRemoved(submission),
@@ -70,7 +77,11 @@ class SceneInfoStorageArchiver(SimpleProgram):
             set(allSubmissions) - set(onlineSubmissions)
         ))
 
-        # Retrieve all scene info submissions from a subreddit within given timeframe
+        # Retrieve all scene info submissions from the online submissions
+        self._programLogger.debug(
+            "Retrieving scene info submissions from online submissions"
+        )
+
         freshSceneInfoSubmissions = SceneInfoSubmissionsUtility \
             .retrieveSceneInfoSubmissions(
                     onlineSubmissions,
@@ -80,6 +91,10 @@ class SceneInfoStorageArchiver(SimpleProgram):
 
         # Extract scene info from scene info submissions and generate
         # a list of SceneInfoSubmissionsWithSceneInfo objects
+        self._programLogger.debug(
+            "Extracting scene info from scene info submissions"
+        )
+
         freshSubmissionsAndInfo = SceneInfoSubmissionsUtility \
             .retrieveSceneInfoSubmissionsWithSceneInfo(
                     freshSceneInfoSubmissions,
@@ -95,6 +110,10 @@ class SceneInfoStorageArchiver(SimpleProgram):
             )
 
         # Store the scene and submission info to storage
+        self._programLogger.debug(
+            "Storing scene info and scene info submission "
+            "details to storage"
+        )
         SceneInfoSubmissionsUtility \
             .saveSceneInfoSubmissionsWithSceneInfoToStorage(
                 freshSubmissionsAndInfo,
@@ -110,3 +129,7 @@ class SceneInfoStorageArchiver(SimpleProgram):
 
                 removedSubmissions
             )
+
+        self._programLogger.debug(
+            "Scene info submission details successfully stored"
+        )

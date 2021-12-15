@@ -21,6 +21,8 @@ class StarNotifier(SimpleStreamProcessorNature):
     been posted
     """
 
+    PROGRAM_NAME: str = "Star Notifier"
+
     def __init__(
         self,
         redditTools: RedditTools,
@@ -30,7 +32,8 @@ class StarNotifier(SimpleStreamProcessorNature):
     ):
         super().__init__(
             redditTools.getCommentStream,
-            stopCondition
+            stopCondition,
+            StarNotifier.PROGRAM_NAME
         )
         self.__redditTools = redditTools
         self.__starNotificationSubscriptionDAO = starNotificationSubscriptionDAO
@@ -76,6 +79,14 @@ class StarNotifier(SimpleStreamProcessorNature):
                 for starNotification in starNotifications:
                     while True:
                         try:
+                            self._programLogger.debug(
+                                'Sending star notification to user u/{} '
+                                'for star "{}" (Submission ID: {})'.format(
+                                    starNotification.getUsername,
+                                    starNotification.getStar,
+                                    comment.submission.id
+                                )
+                            )
                             prawReddit.redditor(
                                 starNotification.getUsername
                             ).message(
@@ -100,6 +111,12 @@ class StarNotifier(SimpleStreamProcessorNature):
                         # exceptions
                         except APIException as err:
                             if err.error_type == "NOT_WHITELISTED_BY_USER_MESSAGE":
+                                self._programLogger.warning(
+                                    "Could not send star notification to u/{} because "
+                                    "they have disabled messaging".format(
+                                        starNotification.getUsername
+                                    )
+                                )
                                 break
                             elif err.error_type == "RATELIMIT":
                                 time.sleep(120)

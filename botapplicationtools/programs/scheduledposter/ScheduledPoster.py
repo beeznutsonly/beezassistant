@@ -13,6 +13,8 @@ class ScheduledPoster(RecurringProgramNature):
     scheduled submissions
     """
 
+    PROGRAM_NAME: str = "Scheduled Poster"
+
     def __init__(
             self,
             prawReddit: Reddit,
@@ -20,7 +22,11 @@ class ScheduledPoster(RecurringProgramNature):
             stopCondition: Callable[..., bool],
             cooldown: float = 1
     ):
-        super().__init__(stopCondition, cooldown)
+        super().__init__(
+            ScheduledPoster.PROGRAM_NAME,
+            stopCondition,
+            cooldown
+        )
         self.__prawReddit = prawReddit
         self.__scheduledPosterStorage = scheduledPosterStorage
 
@@ -45,6 +51,14 @@ class ScheduledPoster(RecurringProgramNature):
 
             # Handle if submission has not been processed
             if not completedSubmissionDAO.checkExists(dueSubmission):
+                self._programLogger.debug(
+                    'Processing due submission "{}" to subreddit '
+                    '"{}" due {}'.format(
+                        dueSubmission.getTitle,
+                        dueSubmission.getSubreddit,
+                        dueSubmission.getScheduledTime
+                    )
+                )
                 submission = self.__prawReddit.subreddit(
                     dueSubmission.getSubreddit
                 ).submit(
@@ -52,11 +66,30 @@ class ScheduledPoster(RecurringProgramNature):
                     url=dueSubmission.getUrl,
                     flair_id=dueSubmission.getFlairId
                 )
+                self._programLogger.debug(
+                    'Post "{}" (ID: {}) to subreddit "{}" due {} '
+                    'successfully submitted'.format(
+                        dueSubmission.getTitle,
+                        submission.id,
+                        dueSubmission.getSubreddit,
+                        dueSubmission.getScheduledTime
+                    )
+                )
                 completedSubmissionDAO.add(dueSubmission)
-
+                self._programLogger.debug(
+                    'Completed submission (ID: {}) successfully '
+                    'acknowledged'.format(submission.id)
+                )
                 # Processing auto-replies for the given submission
                 scheduledSubmissionAutoReplies = scheduledSubmissionAutoReplyDAO \
                     .getScheduledSubmissionAutoReplies(dueSubmission)
 
                 for scheduledSubmissionAutoReply in scheduledSubmissionAutoReplies:
-                    submission.reply(scheduledSubmissionAutoReply)
+                    reply = submission.reply(scheduledSubmissionAutoReply)
+                    self._programLogger.debug(
+                        'Auto reply (ID: {}) for post (ID: {}) '
+                        'successfully submitted'.format(
+                            reply.id,
+                            submission.id
+                        )
+                    )

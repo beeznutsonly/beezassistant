@@ -15,6 +15,8 @@ from botapplicationtools.programs.programtools.programnatures.SimpleStreamProces
 class MessageCommandProcessor(SimpleStreamProcessorNature):
     """Program to process message commands"""
 
+    PROGRAM_NAME: str = "Message Command Processor"
+
     def __init__(
             self,
             commandProcessors: Dict[str, CommandProcessor],
@@ -28,7 +30,8 @@ class MessageCommandProcessor(SimpleStreamProcessorNature):
                 prawReddit.inbox.unread,
                 pause_after=0
             ),
-            stopCondition
+            stopCondition,
+            MessageCommandProcessor.PROGRAM_NAME
         )
         self.__commandProcessors = commandProcessors
         self.__featureTesterDAO = featureTesterDAO
@@ -47,6 +50,14 @@ class MessageCommandProcessor(SimpleStreamProcessorNature):
                 # Process if command is included in
                 # provided commands
                 if command in self.__commandProcessors.keys():
+                    self._programLogger.debug(
+                        'Processing message command "{}" with '
+                        'arguments "{}" (Message ID: {})'.format(
+                            command,
+                            message.body,
+                            message.id
+                        )
+                    )
                     self.__commandProcessors[command].processMessage(
                         message,
                         featureTesterDAO=self.__featureTesterDAO
