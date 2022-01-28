@@ -4,6 +4,8 @@ from configparser import ConfigParser
 from botapplicationtools.databasetools.databaseconnectionfactories.DatabaseConnectionFactory import \
     DatabaseConnectionFactory
 from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleSubmissionStreamFactory import \
+    SimpleSubmissionStreamFactory
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrossposter import ScheduledCrossposter
 from botapplicationtools.programs.scheduledcrossposter.CompletedCrosspostDAO import CompletedCrosspostDAO
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspostDAO import ScheduledCrosspostDAO
@@ -52,9 +54,11 @@ class ScheduledCrossposterRunner(ProgramRunner):
 
         prawReddit = redditInterface.getPrawReddit
 
-        submissionStream = prawReddit.subreddit(
-            self.__subreddit
-        ).stream.submissions(pause_after=0)
+        submissionStreamFactory = SimpleSubmissionStreamFactory(
+            prawReddit.subreddit(
+                self.__subreddit
+            )
+        )
 
         scheduledCrossposterStorage = ScheduledCrossposterStorage(
             ScheduledCrosspostDAO(connection),
@@ -62,7 +66,7 @@ class ScheduledCrossposterRunner(ProgramRunner):
         )
 
         scheduledCrossposter = ScheduledCrossposter(
-            submissionStream,
+            submissionStreamFactory,
             scheduledCrossposterStorage,
             ThreadPoolExecutor(),
             self.isShutDown

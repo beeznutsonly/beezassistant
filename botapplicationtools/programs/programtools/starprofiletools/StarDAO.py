@@ -57,7 +57,7 @@ class StarDAO:
                     '''
         try:
             cursor.execute(sqlString)
-            results = cursor.fetchAll()
+            results = cursor.fetchall()
             stars = []
             for record in results:
                 stars.append(

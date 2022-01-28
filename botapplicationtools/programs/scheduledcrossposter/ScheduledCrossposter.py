@@ -4,13 +4,14 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from typing import ClassVar
 
-import praw.exceptions
 from praw.models import Submission
 from prawcore import PrawcoreException
 
 from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
-from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleSubmissionStreamFactory import \
+    SimpleSubmissionStreamFactory
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrosspost import ScheduledCrosspost
 from botapplicationtools.programs.scheduledcrossposter.ScheduledCrossposterStorage import ScheduledCrossposterStorage
 
@@ -28,13 +29,13 @@ class ScheduledCrossposter(SimpleStreamProcessorNature):
 
     def __init__(
             self,
-            submissionStream,
+            submissionStreamFactory: SimpleSubmissionStreamFactory,
             scheduledCrossposterStorage: ScheduledCrossposterStorage,
             crosspostProcessor: ThreadPoolExecutor,
             stopCondition
     ):
         super().__init__(
-            submissionStream,
+            submissionStreamFactory,
             stopCondition,
             ScheduledCrossposter.PROGRAM_NAME
         )

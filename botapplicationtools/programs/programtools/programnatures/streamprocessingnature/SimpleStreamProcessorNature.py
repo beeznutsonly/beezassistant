@@ -1,9 +1,9 @@
 from abc import ABC
-from collections import Generator
 from typing import Callable
 
 from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
 from botapplicationtools.programs.programtools.programnatures.RecurringProgramNature import RecurringProgramNature
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.StreamFactory import StreamFactory
 
 
 class SimpleStreamProcessorNature(RecurringProgramNature, ABC):
@@ -14,12 +14,12 @@ class SimpleStreamProcessorNature(RecurringProgramNature, ABC):
 
     def __init__(
             self,
-            stream: Generator,
+            streamFactory: StreamFactory,
             stopCondition: Callable[..., bool],
             programName: str
     ):
         super().__init__(programName, stopCondition)
-        self.__stream = stream
+        self.__streamFactory = streamFactory
 
     @consumestransientapierrors
     def execute(self, *args, **kwargs):
@@ -28,8 +28,10 @@ class SimpleStreamProcessorNature(RecurringProgramNature, ABC):
         # new items in the stream (IYKYK)
         while not self._stopCondition():
 
-            # "Comment listener" loop
-            for streamItem in self.__stream:
+            stream = self.__streamFactory.getNewStream()
+
+            # "New item listener" loop
+            for streamItem in stream:
 
                 # Handle "pause" token
                 if streamItem is None:

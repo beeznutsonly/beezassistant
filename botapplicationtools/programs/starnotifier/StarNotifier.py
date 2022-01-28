@@ -5,7 +5,7 @@ from praw.exceptions import APIException
 from praw.models import Comment
 
 from botapplicationtools.programs.programtools.generaltools import ContributionsUtility
-from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleStreamProcessorNature import \
     SimpleStreamProcessorNature
 from botapplicationtools.programs.programtools.starnotificationtools.StarNotificationSubscriptionDAO import \
     StarNotificationSubscriptionDAO
@@ -31,7 +31,7 @@ class StarNotifier(SimpleStreamProcessorNature):
         stopCondition: Callable[..., bool]
     ):
         super().__init__(
-            redditTools.getCommentStream,
+            redditTools.getCommentStreamFactory,
             stopCondition,
             StarNotifier.PROGRAM_NAME
         )

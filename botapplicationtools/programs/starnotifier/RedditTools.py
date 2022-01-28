@@ -1,5 +1,8 @@
 from praw import Reddit
 
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleCommentStreamFactory import \
+    SimpleCommentStreamFactory
+
 
 class RedditTools:
     """
@@ -7,20 +10,17 @@ class RedditTools:
     by the Star Notifier
     """
 
-    __prawReddit: Reddit
-    __commentStream = None
-
     def __init__(
             self,
             prawReddit: Reddit,
             subreddit: str
     ):
         self.__prawReddit = prawReddit
-        self.__commentStream = prawReddit.subreddit(
-            subreddit
-        ).stream.comments(
-            skip_existing=True,
-            pause_after=0
+        self.__commentStreamFactory = SimpleCommentStreamFactory(
+            prawReddit.subreddit(
+                subreddit
+            ),
+            skip_existing=True
         )
 
     @property
@@ -28,5 +28,5 @@ class RedditTools:
         return self.__prawReddit
 
     @property
-    def getCommentStream(self):
-        return self.__commentStream
+    def getCommentStreamFactory(self):
+        return self.__commentStreamFactory

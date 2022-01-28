@@ -2,6 +2,7 @@ from datetime import date
 
 
 class Star:
+    """Class encapsulating a Star's Profile"""
 
     __name: str
     __birthday: date

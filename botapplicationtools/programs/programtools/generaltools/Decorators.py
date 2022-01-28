@@ -21,19 +21,25 @@ def consumestransientapierrors(_executeFunction=None, *, timeout: int = 30):
 
         @functools.wraps(executeFunction)
         def wrapper(*args, **kwargs):
-            programLogger = args[0]._programLogger
+            try:
+                programLogger = getattr(args[0], '_programLogger', None)
+            except IndexError:
+                programLogger = None
             while True:
                 try:
-                    executeFunction(*args, **kwargs)
-                    break
+                    functionValue = executeFunction(*args, **kwargs)
+                    return functionValue
                 # Handle for problems connecting to the Reddit API
                 except (RequestException, ServerError) as ex:
-                    programLogger.warning(
-                        "Failed to connect to the Reddit API: {}"
-                        .format(
-                            ex.args
-                        )
+                    message = "Failed to connect to the Reddit API: {}".format(
+                                ex.args
                     )
+                    if programLogger:
+                        programLogger.warning(
+                            message
+                        )
+                    else:
+                        print(message)
                     time.sleep(timeout)
         return wrapper
 

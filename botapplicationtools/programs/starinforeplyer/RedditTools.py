@@ -1,15 +1,13 @@
-from typing import List, Iterator
+from typing import List
 
 from praw import Reddit
-from praw.models import Comment
+
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleCommentStreamFactory import \
+    SimpleCommentStreamFactory
 
 
 class RedditTools:
     """Class holding Reddit Tools used by the Star Info Replyer"""
-
-    __prawReddit: Reddit
-    __commentStream: Iterator[Comment]
-    __excludedUsers: List[str]
 
     def __init__(
             self,
@@ -18,9 +16,11 @@ class RedditTools:
             excludedUsers: List[str] = None
     ):
         self.__prawReddit = prawReddit
-        self.__commentStream = prawReddit.subreddit(
-            "+".join(subreddits)
-        ).stream.comments(pause_after=0)
+        self.__commentStreamFactory = SimpleCommentStreamFactory(
+            prawReddit.subreddit(
+                "+".join(subreddits)
+            )
+        )
         self.__excludedUsers = excludedUsers
 
     @property
@@ -28,8 +28,8 @@ class RedditTools:
         return self.__prawReddit
 
     @property
-    def getCommentStream(self):
-        return self.__commentStream
+    def getCommentStreamFactory(self):
+        return self.__commentStreamFactory
 
     @property
     def getExcludedUsers(self):

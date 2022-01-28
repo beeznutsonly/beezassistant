@@ -9,8 +9,8 @@ from praw.models import Comment
 from botapplicationtools.programs.programtools.generaltools import \
     ContributionsUtility
 from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
-from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
-    SimpleStreamProcessorNature
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleStreamProcessorNature \
+    import SimpleStreamProcessorNature
 from botapplicationtools.programs.programtools.sceneinfotools.StarSceneInfoSubmissionDetail import \
     StarSceneInfoSubmissionDetail
 from botapplicationtools.programs.starinforeplyer.CustomAddenda import CustomAddenda
@@ -34,7 +34,7 @@ class StarInfoReplyer(SimpleStreamProcessorNature):
             customAddenda: CustomAddenda
     ):
         super().__init__(
-            starInfoReplyerIO.getRedditTools.getCommentStream,
+            starInfoReplyerIO.getRedditTools.getCommentStreamFactory,
             stopCondition,
             StarInfoReplyer.PROGRAM_NAME
         )

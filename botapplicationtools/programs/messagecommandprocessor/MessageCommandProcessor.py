@@ -2,14 +2,15 @@ from typing import Dict
 
 from praw import Reddit
 from praw.models import Message
-from praw.models.util import stream_generator
 
 from botapplicationtools.programs.messagecommandprocessor.commandprocessors.CommandProcessor import CommandProcessor
 from botapplicationtools.programs.messagecommandprocessor \
     .messagecommandprocessortools.testfeaturetools.FeatureTesterDAO import FeatureTesterDAO
 from botapplicationtools.programs.programtools.generaltools.Decorators import consumestransientapierrors
-from botapplicationtools.programs.programtools.programnatures.SimpleStreamProcessorNature import \
-    SimpleStreamProcessorNature
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleCustomStreamFactory import \
+    SimpleCustomStreamFactory
+from botapplicationtools.programs.programtools.programnatures.streamprocessingnature.SimpleStreamProcessorNature \
+    import SimpleStreamProcessorNature
 
 
 class MessageCommandProcessor(SimpleStreamProcessorNature):
@@ -25,10 +26,8 @@ class MessageCommandProcessor(SimpleStreamProcessorNature):
             stopCondition
     ):
         super().__init__(
-            # Stream of unread inbox messages
-            stream_generator(
-                prawReddit.inbox.unread,
-                pause_after=0
+            SimpleCustomStreamFactory(
+                lambda: prawReddit.inbox.unread
             ),
             stopCondition,
             MessageCommandProcessor.PROGRAM_NAME
