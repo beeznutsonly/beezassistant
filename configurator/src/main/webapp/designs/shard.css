@@ -40,6 +40,9 @@ img.form-icon {
 .form-heading {
     font-size: calc(1.3rem + .6vw);
 }
+.nav.nav-tabs {
+    margin-bottom: 10px;
+}
 .nav-tabs {
     border-bottom: 1px solid var(--COLOR-3);
     border-color: transparent;
@@ -65,7 +68,6 @@ img.form-icon {
     color: var(--ACCENT-COLOR);
 }
 .tab-content {
-    padding: 10px 40px;
     max-width: 100%;
     width: 100%;
 }
@@ -77,9 +79,6 @@ img.form-icon {
     background-color: transparent;
     border-color: var(--ACCENT-COLOR);
     box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR2);
-}
-.input-group {
-    justify-content: center;
 }
 .list-group-item {
     background-color: transparent;
