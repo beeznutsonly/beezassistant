@@ -1,76 +1,113 @@
 $(document).ready(
     function(){
-        $("#starForm").submit(
+        $("#name").on(
+            "input",
+            determineAddStarLinkButtonStatus
+        )
+        $("#linkName").on(
+            "input",
+            determineAddStarLinkButtonStatus
+        )
+        $("#link").on(
+            "input",
+            determineAddStarLinkButtonStatus
+        )
+        $("#btnAddStarLink").click(
+            addStarLink
+        )
+        $("#btnRemoveStarLink").click(
+            removeStarLink
+        )
+        $("#star-form").submit(
             function(event){
                 event.preventDefault();
                 ajaxPost();
             }
         );
-
-        function ajaxPost(){
-            var formData = {
-                name : $("#name").val() == '' ? null : $("#name").val(),
-                birthday : $('#birthday').val() == '' ? null : 
-                    getISODateFromPicker("#birthday"),
-                nationality : $("#nationality").val() == '' ? null : 
-                    $("#nationality").val(),
-                birthPlace : $("#birthPlace").val() == '' ? null :
-                    $("#birthPlace").val(),
-                yearsActive : $("#yearsActive").val() == '' ? null :
-                    $("#yearsActive").val(),
-                description : $("#description").val() == '' ? null :
-                    $("#description").val()
-            }
-
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                url: window.location.protocol + "//" + window.location.host + "/stars",
-                data: JSON.stringify(formData),
-                dataType: "json",
-                success: function(){
-                    alert("Star info successfully added");
-                    const starLinks = [];
-                    $('.node').each(function(){
-                        starLinks.push($(this).data())
-                    });
-                    for (const starLink of starLinks){
-                        $.ajax({
-                            type: "POST",
-                            contentType: "application/json",
-                            url: window.location.protocol + "//" + window.location.host + "/starlinks",
-                            data: JSON.stringify(starLink),
-                            dataType: "json",
-                            error: function(error){
-                                alert("Failed to register starlink: " + JSON.stringify(error));
-                            }
-                        })
-                    }
-                },
-                error: function(error){
-                    alert("Failed to add star info: " + error)
-                }
-            })
-        }
     }
-)
-function addStarLink(){
+);
+
+function determineAddStarLinkButtonStatus() {
+    if (checkStarLinkFormData()) {
+        $("#btnAddStarLink").removeAttr("disabled");
+    }
+    else {
+        $("#btnAddStarLink").attr("disabled", "true");
+    }
+}
+
+function checkStarLinkFormData() {
+    return !(
+        isTextEmpty($("#name").val()) || 
+        isTextEmpty($("#linkName").val()) || 
+        isTextEmpty($("#link").val())
+    );
+}
+
+function addStarLink() {
     var starLink = {
         name : $("#name").val(),
         linkName : $("#linkName").val(),
         link : $("#link").val()
     };
-    var starLinksListView = Metro.getPlugin("#starLinksListView", "listview");
-    var listViewItem = starLinksListView.add(null, starLink);
-    $(listViewItem).data(starLink);
+    var linkNameLabel = $("<label>", {"class": "star-link-label"});
+    var linkLabel = $("<label>", {"class": "star-link-label"});
+    var listItemContent = $("<div>", {"class": "list-group-item-content"});
+    
+    $(linkNameLabel).append(starLink.linkName);
+    $(linkLabel).append(starLink.link);
+    $(listItemContent).append(linkNameLabel, linkLabel);
+    addToListGroup($("#star-links-list-group"), listItemContent, starLink);
 }
 
-function removeStarLink(){
-    var starLinksListView = Metro.getPlugin("#starLinksListView", "listview");
-    selectedNode = $(".node.current.current-select");
-    starLinksListView.del(selectedNode);
+function removeStarLink() {
+    $(".list-group-item.active").remove();
 }
 
-function onNodeClick(){
-    $("#btnRemoveStarLink").removeAttr("disabled");
+function ajaxPost(){
+    var formData = convertBlanksToNulls({
+        name : $("#name").val(),
+        birthday : getISODateFromPicker("#birthday"),
+        nationality : $("#nationality").val(),
+        birthPlace : $("#birthPlace").val(),
+        yearsActive : $("#yearsActive").val(),
+        description : $("#description").val()
+    });
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: window.location.protocol + "//" + window.location.host + "/stars",
+        data: JSON.stringify(formData),
+        dataType: "json",
+        success: function(){
+            submissionFeedBackAlert("Star info successfully added", "success");
+            const starLinks = [];
+            $('.list-group-item').each(function(){
+                starLinks.push($(this).data())
+            });
+            for (const starLink of starLinks){
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    url: window.location.protocol + "//" + window.location.host + "/starlinks",
+                    data: JSON.stringify(starLink),
+                    dataType: "json",
+                    error: function(error){
+                        submissionFeedBackAlert(
+                            "Failed to register starlink: " + 
+                            JSON.stringify(error),
+                            "danger"
+                        );
+                    }
+                })
+            }
+        },
+        error: function(error){
+            submissionFeedBackAlert(
+                "Failed to add star info: " + error, 
+                "danger"
+            )
+        }
+    });
 }

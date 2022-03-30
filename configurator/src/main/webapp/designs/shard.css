@@ -1,0 +1,124 @@
+* {
+    --COLOR-1: #ffffff;
+    --COLOR-2: #fdfdfd;
+    --COLOR-3: #dee2e6;
+    --COLOR-4: #222222;
+    --COLOR-5: #495057;
+    --COLOR-6: #6d6d6d;
+    --ACCENT-COLOR: #0d6efd;
+    --ACOLOR-1: #ffffffd0;
+    --ACOLOR-2: #fdfdfdd0;
+    --ACOLOR-3: #dee2e6d0;
+    --ACOLOR-4: #222222d0;
+    --ACOLOR-5: #495057d0;
+    --ACOLOR-6: #6d6d6dd0;
+    --ACCENT-ACOLOR: #0d6efdd0;
+    --ACCENT-ACOLOR2: #0d6efd86;
+}
+html {
+    height: 100%;
+}
+body {
+    background-color: var(--COLOR-3);
+}
+.form-panel {
+    padding: 20px;
+    background-image: linear-gradient(to bottom, var(--ACOLOR-1), var(--COLOR-1));
+    width: 100%;
+}
+.v-flexbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 5px;
+    width: 100%;
+}
+img.form-icon {
+    max-width: 50px;
+    max-height: 50px;
+}
+.form-heading {
+    font-size: calc(1.3rem + .6vw);
+}
+.nav-tabs {
+    border-bottom: 1px solid var(--COLOR-3);
+    border-color: transparent;
+}
+.nav-link {
+    color: var(--ACCENT-COLOR)
+}
+.nav-tabs .nav-link {
+    border-color: transparent;
+}
+.nav-tabs .nav-link.active {
+    color: var(--COLOR-5);
+    background-color: transparent;
+    border-color: transparent transparent var(--ACCENT-COLOR);
+}
+.nav-tabs .nav-link:hover {
+    border-color: transparent transparent var(--COLOR-3);
+}
+.nav-tabs .nav-link.active:hover { 
+    border-color: transparent transparent var(--ACCENT-COLOR);
+}
+.nav-link:focus, .nav-link:hover {
+    color: var(--ACCENT-COLOR);
+}
+.tab-content {
+    padding: 10px 40px;
+    max-width: 100%;
+    width: 100%;
+}
+.form-control {
+    background-color: transparent;
+}
+.form-control:focus {
+    color: var(--COLOR-4);
+    background-color: transparent;
+    border-color: var(--ACCENT-COLOR);
+    box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR2);
+}
+.input-group {
+    justify-content: center;
+}
+.list-group-item {
+    background-color: transparent;
+}
+.list-group {
+    width: 100%
+}
+.list-group-item.active {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-ACOLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.list-group-item-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+.btn-outline-primary {
+    color: var(--ACCENT-COLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary:disabled {
+    color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary:hover {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-ACOLOR);
+    border-color: var(--ACCENT-ACOLOR);
+}
+.btn-outline-primary:focus {
+    box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR2);
+}
+.btn-outline-primary:active {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-COLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary:active:focus {
+    box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR2);
+}

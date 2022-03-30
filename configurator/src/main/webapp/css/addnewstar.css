@@ -1,0 +1,20 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    min-height: 100%;
+}
+.form-panel {
+    max-width: 600px;
+    width: 600px;
+}
+#tab-pane-star-links > .v-flexbox {
+    gap: 15px;
+}
+.feedback-alert-card {
+    width: 100%;
+    text-align: center;
+}

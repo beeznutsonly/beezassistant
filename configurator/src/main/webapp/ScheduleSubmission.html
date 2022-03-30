@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Schedule Submission</title>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/build/jquery.datetimepicker.min.css"/>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<title>Schedule Submission</title>
+	<link rel="stylesheet" type="text/css" href="thirdpartyresources/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="thirdpartyresources/jquery.datetimepicker.min.css"/>
+	<link rel="stylesheet" type="text/css" href="designs/shard.css"/>
+	<link rel="stylesheet" type="text/css" href="themes/romanticxxx/romanticxxx.css"/>
+	<link rel="stylesheet" type="text/css" href="css/schedulesubmission.css"/>
+	<script src="thirdpartyresources/bootstrap.bundle.min.js"></script>
+	<script src="thirdpartyresources/jquery.min.js"></script>
+	<script src="thirdpartyresources/moment.min.js"></script>
+	<script src="thirdpartyresources/jquery.datetimepicker.full.min.js"></script>
 </head>
 <body>
-	<h1>Schedule Submission</h1>
-	<form id="scheduledSubmissionForm">
-		<label for="url">URL:</label><br>
-		<input type="text" id="url" name="url"><br>
-		<label for="title">Title:</label><br>
-		<input type="text" id="title" name="title"><br>
-		<label for="scheduledTime">Scheduled time:</label><br>
-		<input type="text" id="scheduledTime" class="datetimepicker" name="scheduledTime"><br>
-		<label for="flairId">Flair ID:</label><br>
-		<input type="text" id="flairId" name="flairId"><br>
-		<label for="subreddit">Subreddit:</label><br>
-		<input type="text" id="subreddit" name="subreddit"><br>
-		<label for="Auto Reply">Auto Reply:</label><br>
-		<input type="text" id="commentBody" class="text" name="commentBody"><br>
-		<button type="submit" class="btn btn-primary">Submit</button>
+	<form class="form-panel" id="scheduledSubmissionForm">
+		<div class="v-flexbox">
+			<img class="form-icon">
+			<h1 class="form-heading">Schedule Submission</h1>
+			<input class="form-control" type="text" id="title" name="title" placeholder="Title" autocomplete="off" required>
+			<input class="form-control" type="text" id="url" name="url" placeholder="URL" autocomplete="off" required>
+			<input class="form-control datetimepicker" type="text" id="scheduledTime" name="scheduledTime" placeholder="Scheduled Time" autocomplete="off" required>
+			<input class="form-control" type="text" id="flairId" name="flairId" placeholder="Flair ID">
+			<input class="form-control" type="text" id="subreddit" name="subreddit" placeholder="Subreddit" required>
+			<textarea class="form-control" type="text" id="commentBody" class="text" name="commentBody" placeholder="Auto Reply" autocomplete="off"></textarea>
+			<div class="feedback-alert-card" id="feedback-alert"></div> 
+			<button type="submit" class="btn btn-outline-primary">Submit</button>
+		</div>
 	</form>
 </body>
 <script src="utilities/datetimecontroldefaults.js"></script>
+<script src="utilities/utilityfunctions.js"></script>
 <script src="schedulesubmission.js"></script>
 </html>

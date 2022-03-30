@@ -2,7 +2,7 @@ $(document).ready(
     function(){
         refreshScheduledSubmissions();
     }
-)
+);
 function refreshScheduledSubmissions(){
     $.ajax({
         url: window.location.protocol + "//" + window.location.host + "/scheduledsubmissions",

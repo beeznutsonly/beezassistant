@@ -23,7 +23,7 @@ $('.datepicker').datetimepicker({
     timepicker: false
 });
 
-function getISODateTimeFromPicker(picker, timezone){
+function getISODateTimeFromPicker(picker, timezone) {
     dateTime = $(picker).datetimepicker('getValue');
     format = timezone ? 'YYYY-MM-DDTHH:mm:00Z' : 'YYYY-MM-DDTHH:mm:00';
     return moment(dateTime).format(format);

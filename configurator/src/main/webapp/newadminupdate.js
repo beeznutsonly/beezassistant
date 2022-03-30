@@ -6,26 +6,26 @@ $(document).ready(
                 ajaxPost();
             }
         );
-
-        function ajaxPost(){
-            var formData = {
-                heading : $("#heading").val() == '' ? null : $("#heading").val(),
-                details : $("#details").val() == '' ? null : $("#details").val(),
-            }
-
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                url: window.location.protocol + "//" + window.location.host + "/adminupdates",
-                data: JSON.stringify(formData),
-                dataType: "json",
-                success: function(){
-                    alert("Admin update successfully added");
-                },
-                error: function(error){
-                    alert("Failed to add admin update: " + JSON.stringify(error))
-                }
-            })
-        }
     }
-)
+);
+
+function ajaxPost(){
+    var formData = convertBlanksToNulls({
+        heading : $("#heading").val(),
+        details : $("#details").val()
+    });
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: window.location.protocol + "//" + window.location.host + "/adminupdates",
+        data: JSON.stringify(formData),
+        dataType: "json",
+        success: function(){
+            submissionFeedbackAlert("Admin update successfully added", "success");
+        },
+        error: function(error){
+            submissionFeedbackAlert("Failed to add admin update: " + JSON.stringify(error), "danger")
+        }
+    })
+};

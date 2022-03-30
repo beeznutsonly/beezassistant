@@ -1,0 +1,21 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    min-height: 100%;
+}
+.form-panel {
+    max-width: 450px;
+    width: 100%;
+}
+.v-flexbox {
+    gap: 10px;
+}
+.form-floating {
+    width: 100%;
+}
+.form-floating > textarea.form-control {
+    height: 100px;
+}

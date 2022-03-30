@@ -1,0 +1,11 @@
+* {
+    --ACCENT-COLOR: #dc3545;
+    --ACCENT-ACOLOR: #dc3545d0;
+    --ACCENT-ACOLOR2: #dc354686;
+}
+body {
+    background-image: url("background.jpg");
+}
+img.form-icon {
+    content: url("r_romanticxxx_logo_small.png");
+}

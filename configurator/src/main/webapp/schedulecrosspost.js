@@ -6,27 +6,27 @@ $(document).ready(
                 ajaxPost();
             }
         );
-        function ajaxPost(){
-            var formData = {
-                url : $("#url").val(),
-                title : $("#title").val(),
-                scheduledTime : getISODateTimeFromPicker("#scheduledTime", true),
-                subreddit : $("#subreddit").val()
-            }
-
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                url: window.location.protocol + "//" + window.location.host + "/scheduledcrossposts",
-                data: JSON.stringify(formData),
-                dataType: "json",
-                success: function() {                  
-                    alert("Crosspost successfully scheduled");
-                },
-                error: function(er) {
-                    alert("Failed to schedule your crosspost: " + er);
-                }
-            })
-        }
     }
-)
+);
+function ajaxPost(){
+    var formData = convertBlanksToNulls({
+        url : $("#url").val(),
+        title : $("#title").val(),
+        scheduledTime : getISODateTimeFromPicker("#scheduledTime", true),
+        subreddit : $("#subreddit").val()
+    });
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: window.location.protocol + "//" + window.location.host + "/scheduledcrossposts",
+        data: JSON.stringify(formData),
+        dataType: "json",
+        success: function() {                  
+            submissionFeedbackAlert("Crosspost successfully scheduled", "success");
+        },
+        error: function(er) {
+            submissionFeedbackAlert("Failed to schedule your crosspost: " + er, "danger");
+        }
+    });
+}

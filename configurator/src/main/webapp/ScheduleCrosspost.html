@@ -1,27 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Schedule Crosspost</title>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/webjars/datetimepicker/build/jquery.datetimepicker.min.css"/>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<title>Schedule Crosspost</title>
+	<link rel="stylesheet" type="text/css" href="thirdpartyresources/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="thirdpartyresources/jquery.datetimepicker.min.css"/>
+	<link rel="stylesheet" type="text/css" href="designs/shard.css"/>
+	<link rel="stylesheet" type="text/css" href="themes/romanticxxx/romanticxxx.css"/>
+	<link rel="stylesheet" type="text/css" href="css/schedulecrosspost.css"/>
+	<script src="thirdpartyresources/bootstrap.bundle.min.js"></script>
+	<script src="thirdpartyresources/jquery.min.js"></script>
+	<script src="thirdpartyresources/moment.min.js"></script>
+	<script src="thirdpartyresources/jquery.datetimepicker.full.min.js"></script>
+
 </head>
 <body>
-	<h1>Schedule Crosspost</h1>
-	<form id="scheduledCrosspostForm">
-		<label for="url">URL:</label><br>
-		<input type="text" id="url" name="url"><br>
-		<label for="title">Title:</label><br>
-		<input type="text" id="title" name="title"><br>
-		<label for="scheduledTime">Scheduled time:</label><br>
-		<input type="text" id="scheduledTime" name="scheduledTime" class='datetimepicker'><br>
-		<label for="subreddit">Subreddit:</label><br>
-		<input type="text" id="subreddit" name="subreddit"><br>
-		<button type="submit" class="btn btn-primary">Submit</button>
+	<form class="form-panel" id="scheduledCrosspostForm">
+		<div class="v-flexbox">
+			<img class="form-icon">
+			<h1 class="form-heading">Schedule Crosspost</h1>
+			<div class="form-floating">
+				<input class="form-control" type="text" id="title" name="title" placeholder="Title" autocomplete="off">
+				<label for="title">Title</label>
+			</div>
+			<div class="form-floating">
+				<input class="form-control" type="text" id="url" name="url" placeholder="URL" autocomplete="off" required>
+				<label for="url">URL</label>
+			</div>
+			<div class="form-floating">
+				<input class="form-control datetimepicker" type="text" id="scheduledTime" name="scheduledTime" placeholder="Scheduled Time" autocomplete="off" required>
+				<label for="scheduledTime">Scheduled Time</label>
+			</div>
+			<div class="form-floating">
+				<input class="form-control" type="text" id="subreddit" name="subreddit" placeholder="Subreddit">
+				<label for="subreddit">Subreddit</label>
+			</div>
+			<div class="feedback-alert-card" id="feedback-alert"></div> 
+			<button type="submit" class="btn btn-outline-primary">Submit</button>
+		</div>
 	</form>
 </body>
 <script src="utilities/datetimecontroldefaults.js"></script>
+<script src="utilities/utilityfunctions.js"></script>
 <script src="schedulecrosspost.js"></script>
 </html>
