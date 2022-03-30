@@ -9,7 +9,6 @@ body {
 }
 .form-panel {
     max-width: 600px;
-    width: 600px;
 }
 #tab-pane-star-links > .v-flexbox {
     gap: 15px;

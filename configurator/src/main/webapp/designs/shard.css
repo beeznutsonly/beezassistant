@@ -24,7 +24,6 @@ body {
 .form-panel {
     padding: 20px;
     background-image: linear-gradient(to bottom, var(--ACOLOR-1), var(--COLOR-1));
-    width: 100%;
 }
 .v-flexbox {
     display: flex;
