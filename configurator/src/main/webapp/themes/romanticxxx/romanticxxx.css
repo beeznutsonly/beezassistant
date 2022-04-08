@@ -7,5 +7,6 @@ body {
     background-image: url("background.jpg");
 }
 img.form-icon {
-    content: url("r_romanticxxx_logo_small.png");
+    content: url("r_romanticxxx_logo.svg");
+    fill: black;
 }

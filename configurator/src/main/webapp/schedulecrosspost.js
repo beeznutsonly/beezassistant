@@ -9,7 +9,7 @@ $(document).ready(
     }
 );
 function ajaxPost(){
-    var formData = convertBlanksToNulls({
+    var formData = cureFormData({
         url : $("#url").val(),
         title : $("#title").val(),
         scheduledTime : getISODateTimeFromPicker("#scheduledTime", true),

@@ -1,17 +1,14 @@
 body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     flex-wrap: wrap;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    min-height: 100%;
+    padding-block: 30px;
+    padding-inline: 15px;
 }
-.form-panel {
-    max-width: 600px;
-}
-#tab-pane-star-links > .v-flexbox {
-    gap: 15px;
+.form-pane {
+    max-width: 500px;
 }
 .feedback-alert-card {
     width: 100%;

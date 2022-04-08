@@ -10,7 +10,7 @@ $(document).ready(
 );
 
 function ajaxPost(){
-    var formData = convertBlanksToNulls({
+    var formData = cureFormData({
         heading : $("#heading").val(),
         details : $("#details").val()
     });

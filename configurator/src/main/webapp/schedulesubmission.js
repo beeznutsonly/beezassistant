@@ -7,9 +7,9 @@ $(document).ready(
             }
         );
     }
-)
+);
 function ajaxPost(){
-    var formData = convertBlanksToNulls({
+    var formData = cureFormData({
         url : $("#url").val(),
         title : $("#title").val(),
         scheduledTime : getISODateTimeFromPicker(
@@ -27,7 +27,7 @@ function ajaxPost(){
         data: JSON.stringify(formData),
         dataType: "json",
         success: function() {
-            if (formData.commentBody){
+            if (!isTextEmpty(formData.commentBody)) {
                 var autoReply = {
                     url: formData.url,
                     subreddit: formData.subreddit,

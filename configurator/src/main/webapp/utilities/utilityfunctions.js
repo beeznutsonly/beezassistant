@@ -1,22 +1,55 @@
+const normalInputRegex = ".*[a-zA-Z0-9]+.*";
+
 $(document).ready(function(){
     $(".list-group").each(function(){
         makeListGroupNavigable($(this));
     });
+    $(".form-fields .form-control").each(function() {
+        $(this).attr("pattern", normalInputRegex)
+    })
+    enableCustomValidation();
 });
 
 function isTextEmpty(text) {
-    return $.trim(text) == '';
+    return $.trim(text) == "";
+}
+
+function enableCustomValidation() {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopImmediatePropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
 }
 
 function convertBlanksToNulls(dataObject) {
     const newDataObject = dataObject;
     Object.keys(newDataObject).forEach((key, index) => {
         if (isTextEmpty(newDataObject[key])) {
-            console.log(newDataObject[key])
             newDataObject[key] = null;
         }
     })
     return newDataObject;
+}
+
+function cureFormData(dataObject) {
+    const newDataObject = dataObject;
+    Object.keys(newDataObject).forEach((key, index) => {
+        newDataObject[key] = $.trim(newDataObject[key])
+    })
+    return convertBlanksToNulls(newDataObject);
 }
 
 function submissionFeedbackAlert(message, type) {

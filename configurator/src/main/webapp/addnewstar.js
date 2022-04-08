@@ -1,5 +1,5 @@
 $(document).ready(
-    function(){
+    function() {
         $("#name").on(
             "input",
             determineAddStarLinkButtonStatus
@@ -65,7 +65,7 @@ function removeStarLink() {
 }
 
 function ajaxPost(){
-    var formData = convertBlanksToNulls({
+    var formData = cureFormData({
         name : $("#name").val(),
         birthday : getISODateFromPicker("#birthday"),
         nationality : $("#nationality").val(),
@@ -81,7 +81,7 @@ function ajaxPost(){
         data: JSON.stringify(formData),
         dataType: "json",
         success: function(){
-            submissionFeedBackAlert("Star info successfully added", "success");
+            submissionFeedbackAlert("Star info successfully added", "success");
             const starLinks = [];
             $('.list-group-item').each(function(){
                 starLinks.push($(this).data())
@@ -94,7 +94,7 @@ function ajaxPost(){
                     data: JSON.stringify(starLink),
                     dataType: "json",
                     error: function(error){
-                        submissionFeedBackAlert(
+                        submissionFeedbackAlert(
                             "Failed to register starlink: " + 
                             JSON.stringify(error),
                             "danger"
@@ -104,7 +104,7 @@ function ajaxPost(){
             }
         },
         error: function(error){
-            submissionFeedBackAlert(
+            submissionFeedbackAlert(
                 "Failed to add star info: " + error, 
                 "danger"
             )

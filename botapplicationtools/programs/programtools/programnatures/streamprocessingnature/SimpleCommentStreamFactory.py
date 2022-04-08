@@ -6,7 +6,10 @@ from botapplicationtools.programs.programtools.programnatures.streamprocessingna
 
 
 class SimpleCommentStreamFactory(StreamFactory):
-    """"""
+    """
+    Class responsible for producing
+    new Comment streams at request
+    """
 
     def __init__(
             self,

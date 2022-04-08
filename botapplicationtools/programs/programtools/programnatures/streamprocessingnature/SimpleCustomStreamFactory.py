@@ -7,7 +7,11 @@ from botapplicationtools.programs.programtools.programnatures.streamprocessingna
 
 
 class SimpleCustomStreamFactory(StreamFactory):
-    """"""
+    """
+    Class responsible for producing new
+    stream of custom Reddit objects according to
+    the provided Listing Generator
+    """
 
     def __init__(
             self,

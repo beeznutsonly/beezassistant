@@ -1,4 +1,4 @@
-* {
+:root {
     --COLOR-1: #ffffff;
     --COLOR-2: #fdfdfd;
     --COLOR-3: #dee2e6;
@@ -20,17 +20,23 @@ html {
 }
 body {
     background-color: var(--COLOR-3);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100%;
 }
-.form-panel {
+.dynamic-shard {
     padding: 20px;
     background-image: linear-gradient(to bottom, var(--ACOLOR-1), var(--COLOR-1));
+}
+.form-pane {
+    margin-inline: auto;
 }
 .v-flexbox {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
-    gap: 5px;
+    gap: 10px;
     width: 100%;
 }
 img.form-icon {
@@ -39,9 +45,7 @@ img.form-icon {
 }
 .form-heading {
     font-size: calc(1.3rem + .6vw);
-}
-.nav.nav-tabs {
-    margin-bottom: 10px;
+    margin-bottom: 0;
 }
 .nav-tabs {
     border-bottom: 1px solid var(--COLOR-3);
@@ -70,6 +74,10 @@ img.form-icon {
 .tab-content {
     max-width: 100%;
     width: 100%;
+}
+.form-fields.v-flexbox {
+    gap: 5px;
+    padding-inline: 10px;
 }
 .form-control {
     background-color: transparent;
@@ -119,4 +127,17 @@ img.form-icon {
 }
 .btn-outline-primary:active:focus {
     box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR2);
+}
+.feedback-alert-card {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+}
+.alert {
+    margin: 0;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

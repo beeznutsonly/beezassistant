@@ -6,7 +6,10 @@ from botapplicationtools.programs.programtools.programnatures.streamprocessingna
 
 
 class SimpleSubmissionStreamFactory(StreamFactory):
-    """"""
+    """
+    Class responsible for producing
+    new Submission streams at request
+    """
 
     def __init__(
             self,
