@@ -5,12 +5,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class HomeController {
+public class ScheduleCrosspostController {
 	
-	@RequestMapping("/")
-	public ModelAndView home(){
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("webpages/home/index.html");
-		return modelAndView;
+	@RequestMapping("schedulecrosspost")
+	public ModelAndView returnPage() {
+		return new ModelAndView(
+			"webpages/schedule-crosspost/index.html"
+		);
 	}
+	
 }

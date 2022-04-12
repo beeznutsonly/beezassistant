@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Scheduled Submissions</title>
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+<script src="https://cdn.metroui.org.ua/v4.5.0/js/metro.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer referrerpolicy="no-referrer"></script>
+<script src="/webpages/scheduled-submissions/scheduled-submissions.js" defer></script>
+</head>
+<body>
+    <h1>Scheduled Submissions</h1>
+    <button id="btnAddSubmission" class="button" onclick="scheduleSubmission()">Add Scheduled Submission</button>
+    <button id="btnRemoveSubmission"class="button" onclick="deleteScheduledSubmission()" disabled=true>Delete Scheduled Submission</button><br>
+    <ul id="scheduledSubmissionsListView"
+        data-role="listview"
+        data-view="table"
+        data-select-node="true"
+        data-structure='{"title": true, "subreddit": true, "scheduledTime": true, "url": true, "flairId": true}'
+        data-on-node-click='onNodeClick'>
+    </ul>
+</body>
+</html>

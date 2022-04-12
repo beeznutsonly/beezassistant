@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Stars</title>
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+<script src="https://cdn.metroui.org.ua/v4.5.0/js/metro.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer referrerpolicy="no-referrer"></script>
+<script src="/webpages/stars/stars.js" defer></script>
+</head>
+<body>
+    <h1>Stars</h1>
+    <button id="btnAddStar" class="button" onclick="addstar()">Add Star</button>
+    <button id="btnRemoveStar"class="button" onclick="deleteStar()" disabled=true>Delete Star</button><br>
+    <ul id="starsListView"
+        data-role="listview"
+        data-view="table"
+        data-select-node="true"
+        data-structure='{"name": true, "birthday": true, "nationality": true, "birthPlace": true, "yearsActive": true}'
+        data-on-node-click='onNodeClick'>
+    </ul>
+</body>
+</html>

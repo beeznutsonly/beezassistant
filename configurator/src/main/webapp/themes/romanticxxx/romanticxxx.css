@@ -5,6 +5,8 @@
 }
 body {
     background-image: url("background.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;    
 }
 img.form-icon {
     content: url("r_romanticxxx_logo.svg");

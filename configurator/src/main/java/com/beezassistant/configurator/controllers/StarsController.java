@@ -5,12 +5,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class HomeController {
-	
-	@RequestMapping("/")
-	public ModelAndView home(){
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("webpages/home/index.html");
-		return modelAndView;
+public class StarsController {
+
+	@RequestMapping("stars")
+	public ModelAndView returnPage() {
+		return new ModelAndView(
+			"webpages/stars/index.html"
+		);
 	}
+	
 }

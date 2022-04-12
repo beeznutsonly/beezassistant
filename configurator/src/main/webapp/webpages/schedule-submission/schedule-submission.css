@@ -1,0 +1,17 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    padding-block: 2em;
+    padding-inline: 1em;
+}
+.form-fields.v-flexbox {
+    gap: 10px;
+}
+.form-floating {
+    width: fit-content;
+}
+.form-floating > textarea.form-control {
+    height: 100px;
+}

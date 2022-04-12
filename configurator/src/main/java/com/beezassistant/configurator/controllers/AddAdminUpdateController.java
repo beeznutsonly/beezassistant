@@ -5,12 +5,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class HomeController {
+public class AddAdminUpdateController {
 	
-	@RequestMapping("/")
-	public ModelAndView home(){
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("webpages/home/index.html");
-		return modelAndView;
+	@RequestMapping("addadminupdate")
+	public ModelAndView returnPage() {
+		return new ModelAndView("webpages/addadminupdate/index.html");
 	}
+	
 }

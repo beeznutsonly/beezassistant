@@ -20,41 +20,42 @@ html {
 }
 body {
     background-color: var(--COLOR-3);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     min-height: 100%;
 }
 .dynamic-shard {
     padding: 20px;
     background-image: linear-gradient(to bottom, var(--ACOLOR-1), var(--COLOR-1));
 }
-.form-pane {
+.form-pane-standard {
+    max-width: 450px;
     margin-inline: auto;
 }
 .v-flexbox {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: center;
     gap: 10px;
     width: 100%;
 }
-img.form-icon {
+.form-icon {
     max-width: 50px;
     max-height: 50px;
 }
-.form-heading {
+.form-title {
     font-size: calc(1.3rem + .6vw);
     margin-bottom: 0;
+}
+.form-content {
+    width: 100%;
+    height:100%;
 }
 .nav-tabs {
     border-bottom: 1px solid var(--COLOR-3);
     border-color: transparent;
 }
 .nav-link {
-    color: var(--ACCENT-COLOR)
-}
-.nav-tabs .nav-link {
+    color: var(--ACCENT-COLOR);
     border-color: transparent;
 }
 .nav-tabs .nav-link.active {
@@ -132,12 +133,15 @@ img.form-icon {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    min-width: 100%;
     max-width: 100%;
 }
 .alert {
     margin: 0;
-    width: 100%;
+    margin-block: .25rem;
+    min-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
 }

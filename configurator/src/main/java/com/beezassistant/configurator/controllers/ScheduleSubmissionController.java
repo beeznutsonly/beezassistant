@@ -5,12 +5,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class HomeController {
+public class ScheduleSubmissionController {
 	
-	@RequestMapping("/")
-	public ModelAndView home(){
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("webpages/home/index.html");
-		return modelAndView;
+	@RequestMapping("/schedulesubmission")
+	public ModelAndView returnPage(){
+		return new ModelAndView(
+			"webpages/schedule-submission/index.html"
+		);
 	}
+	
 }
