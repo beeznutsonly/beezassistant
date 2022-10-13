@@ -1,14 +1,15 @@
 * {
     --ACCENT-COLOR: #dc3545;
+    --ACCENT-COLOR2: #b30000;
     --ACCENT-ACOLOR: #dc3545d0;
-    --ACCENT-ACOLOR2: #dc354686;
+    --ACCENT-ACOLOR2: #b30000d0;
 }
 body {
     background-image: url("background.jpg");
     background-repeat: no-repeat;
     background-attachment: fixed;    
 }
-img.form-icon {
+img.form-icon, img.shard-icon {
     content: url("r_romanticxxx_logo.svg");
     fill: black;
 }

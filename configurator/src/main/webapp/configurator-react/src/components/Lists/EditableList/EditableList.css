@@ -1,0 +1,23 @@
+.editable-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+}
+.list-group {
+    width: 100%
+}
+.edit-panel {
+    display: flex;
+    justify-content: flex-end;
+}
+.edit-panel > *{
+    padding-left: 0.6em;
+}
+.edit-panel .btn {
+    vertical-align: baseline;
+    font-size: 0.8em;
+    color: var(--COLOR-6);
+    padding-block: 0;
+    padding-inline: 0.4em;
+    border-radius: 0;
+}

@@ -1,0 +1,138 @@
+:root {
+    --COLOR-1: #ffffff;
+    --COLOR-2: #fdfdfd;
+    --COLOR-3: #dee2e6;
+    --COLOR-4: #222222;
+    --COLOR-5: #495057;
+    --COLOR-6: #6d6d6d;
+    --ACCENT-COLOR: #0d6efd;
+    --ACOLOR-1: #fff0;
+    --ACOLOR-2: #fdfdfdd0;
+    --ACOLOR-3: #dee2e6d0;
+    --ACOLOR-4: #222222d0;
+    --ACOLOR-5: #495057d0;
+    --ACOLOR-6: #6d6d6dd0;
+    --ACOLOR-7: #707070;
+    --ACCENT-ACOLOR: #0d6efdd0;
+    --ACCENT-ACOLOR2: #0d6efd86;
+}
+body {
+    background-color: var(--COLOR-3);
+}
+.dynamic-shard {
+    background-image: linear-gradient(to bottom, var(--ACOLOR-1), var(--COLOR-1));
+}
+
+.form-pane-standard {
+    max-width: 450px;
+    margin-inline: auto;
+}
+.form-title {
+    font-size: calc(1.3rem + .6vw);
+    margin-bottom: 0;
+}
+.form-content {
+    width: 100%;
+    height: 100%;
+}
+.v-flexbox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.nav-tabs {
+    border-bottom: 1px solid var(--COLOR-3);
+    border-color: transparent;
+}
+.nav-link {
+    color: var(--ACCENT-COLOR);
+    border-color: transparent;
+}
+.nav-tabs .nav-link.active {
+    color: var(--COLOR-5);
+    background-color: transparent;
+    border-color: transparent transparent var(--ACCENT-COLOR);
+}
+.nav-tabs .nav-link:hover {
+    border-color: transparent transparent var(--COLOR-3);
+}
+.nav-tabs .nav-link.active:hover { 
+    border-color: transparent transparent var(--ACCENT-COLOR);
+}
+.nav-link:focus, .nav-link:hover {
+    color: var(--ACCENT-COLOR);
+}
+.tab-content {
+    max-width: 100%;
+    width: 100%;
+}
+.form-fields.v-flexbox {
+    gap: 5px;
+    padding-inline: 10px;
+}
+.form-control {
+    background-color: transparent;
+}
+.form-control:focus {
+    color: var(--COLOR-4);
+    background-color: transparent;
+    border-color: var(--ACCENT-COLOR);
+    box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR2);
+}
+.btn-primary {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-COLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary {
+    color: var(--ACCENT-COLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary:disabled {
+    color: var(--ACCENT-COLOR);
+}
+.btn-primary:hover {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-ACOLOR2);
+    border-color: var(--ACCENT-ACOLOR2);;
+}
+.btn-outline-primary:hover {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-ACOLOR);
+    border-color: var(--ACCENT-ACOLOR);
+}
+.btn-primary:focus {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-COLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary:focus, .btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR3);
+}
+.btn-outline-primary:active, .btn-primary:active {
+    color: var(--COLOR-1);
+    background-color: var(--ACCENT-COLOR);
+    border-color: var(--ACCENT-COLOR);
+}
+.btn-outline-primary:active:focus, .btn-primary:active:focus {
+    box-shadow: 0 0 0 0.25rem var(--ACCENT-ACOLOR3);
+}
+.feedback-alert-card {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: stretch;
+    min-width: 100%;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+.alert {
+    margin: 0;
+    margin-bottom: .6rem;
+    min-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

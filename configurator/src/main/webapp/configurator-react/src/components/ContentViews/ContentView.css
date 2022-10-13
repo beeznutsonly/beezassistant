@@ -1,0 +1,4 @@
+.content-view {
+    display: flex;
+    flex-grow: 1;
+}

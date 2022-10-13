@@ -1,0 +1,39 @@
+.standard-content-shard {
+    background-color: var(--ACOLOR-2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    padding-inline: 1em;
+    padding-block: 1.5em;
+    margin-inline: auto;
+}
+.shard-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 2rem;
+    margin-bottom: -0.4rem;
+}
+.shard-title {
+    text-align: center;
+    font-size: min(2rem, calc(1.375rem + 1.5vw));
+    margin-bottom: 0rem;
+}
+.shard-content {
+    width: 100%;
+    flex-grow: 1;
+}
+
+@media screen and (min-width: 500px){
+    .standard-content-shard {
+        justify-content: inherit;
+        padding-inline: 3em;
+    }
+    .shard-title-container {
+        justify-content: space-between;
+    }
+    .shard-title {
+        text-align: inherit;
+    }
+}

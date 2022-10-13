@@ -1,0 +1,19 @@
+.form-fields.v-flexbox {
+    gap: 10px;
+}
+.form-floating {
+    width: 100%;
+}
+.form-floating > textarea.form-control {
+    height: 100px;
+}
+.form-pane-standard .feedback-alert-card {
+    margin: 0;
+}
+.form-pane-standard .alert {
+    text-align: center;
+    margin-block: .5rem;
+}
+.form-heading {
+    margin-bottom: 1rem
+}

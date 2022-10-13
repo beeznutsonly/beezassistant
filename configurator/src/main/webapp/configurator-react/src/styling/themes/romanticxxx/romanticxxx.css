@@ -1,0 +1,30 @@
+* {
+    --ACCENT-COLOR: #dc3545;
+    --ACCENT-COLOR2: #b30000;
+    --ACCENT-ACOLOR: #dc3545d0;
+    --ACCENT-ACOLOR2: #b30000d0;
+    --ACCENT-ACOLOR3: #ff5c6b2b;
+
+    --font-family-main: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
+}
+body {
+    background-image: url("background.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;    
+}
+h1, h2, h3 {
+    font-family: var(--font-family-main);
+    font-weight: 400;
+}
+.logo {
+    content: url("r_romanticxxx_logo.svg");
+}
+
+.logo-light {
+    content: url("r_romanticxxx_logo_light.svg");
+}
+
+.logo-dark {
+    content: url("r_romanticxxx_logo_dark.svg")
+}

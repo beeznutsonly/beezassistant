@@ -1,0 +1,39 @@
+.list-group-item {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+}
+.list-group-item.disabled {
+    background-color: transparent;
+}
+.list-group-item:focus-visible {
+    outline-style: none;
+}
+.list-group-item.active {
+    z-index: inherit;
+    color: inherit;
+    background-color: var(--ACCENT-ACOLOR3);
+    border-color: var(--ACCENT-ACOLOR3);
+}
+.list-group-item.active:hover, .list-group-item.active:focus {
+    background-color: var(--ACCENT-ACOLOR3);
+}
+.list-group-item-action:focus, .list-group-item-action:hover {
+    z-index: 0;
+}
+.list-group-item-action:focus {
+    border-color: #dc354578;
+    background-color: transparent;
+}
+.list-group-item-action:hover {
+    background-color: #ffcfcf3b;
+    color: inherit;
+}
+.list-group-item+.list-group-item:focus {
+    margin-top: -1px;
+    border-top-width: 1px;
+}
+.general-list-group-item-content {
+    padding-block: .5em;
+    padding-inline: 1em;
+}

@@ -1,0 +1,8 @@
+.edit-tools {
+    display: flex;
+    gap: 0.2em;
+    border-left-color: var(--ACOLOR-6);
+    border-left-style: solid;
+    border-left-width: 1px;
+    transition: cubic-bezier(0.4, 0, 0.2, 1),display .15s
+}

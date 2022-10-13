@@ -1,0 +1,13 @@
+.star {
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+    
+.star-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 0;
+    margin-bottom: 0.25em;
+}

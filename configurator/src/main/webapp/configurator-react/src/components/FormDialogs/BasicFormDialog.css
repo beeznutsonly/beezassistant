@@ -1,0 +1,12 @@
+.form-dialog .modal-content {
+    border-radius: 0;
+    border-color: transparent;
+}
+
+.form-dialog .modal-header {
+    border-bottom-width: 0;
+}
+
+.form-dialog .modal-body {
+    padding-top: 0;
+}

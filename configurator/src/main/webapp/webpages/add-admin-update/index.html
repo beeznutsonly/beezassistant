@@ -18,25 +18,27 @@
 	<script src="/webpages/addadminupdate/addadminupdate.js" defer></script>
 </head>
 <body>
-	<form class="form-pane-standard dynamic-shard v-flexbox needs-validation" id="adminUpdateForm" novalidate>
-		<div class="form-heading v-flexbox">
-			<img class="form-icon">
-			<h1 class="form-title">New Update</h1>
-		</div>
-		<div class="form-content">
-			<div class="form-fields v-flexbox">
-				<div class="form-floating">
-					<input class="form-control" id="heading" name="heading" placeholder="Heading" autocomplete="off" required>
-					<label for="heading">Heading</label>
-				</div>
-				<div class="form-floating">
-					<textarea class="form-control" id="details" name="details" placeholder="Details" autocomplete="off"></textarea>
-					<label for="details">Details</label>
+	<main>
+		<form class="form-pane-standard dynamic-shard v-flexbox needs-validation" id="adminUpdateForm" novalidate>
+			<header class="form-heading v-flexbox">
+				<img class="form-icon">
+				<h1 class="form-title">New Update</h1>
+			</header>
+			<div class="form-content">
+				<div class="form-fields v-flexbox">
+					<div class="form-floating">
+						<input class="form-control" id="heading" name="heading" placeholder="Heading" autocomplete="off" required>
+						<label for="heading">Heading</label>
+					</div>
+					<div class="form-floating">
+						<textarea class="form-control" id="details" name="details" placeholder="Details" autocomplete="off"></textarea>
+						<label for="details">Details</label>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="feedback-alert-card" id="feedback-alert"></div>
-		<button type="submit" class="btn btn-outline-primary">Submit</button>
-	</form>
+			<div class="feedback-alert-card" id="feedback-alert"></div>
+			<button type="submit" class="btn btn-outline-primary">Submit</button>
+		</form>
+	</main>
 </body>
 </html>

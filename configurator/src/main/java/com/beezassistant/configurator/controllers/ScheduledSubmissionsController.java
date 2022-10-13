@@ -6,7 +6,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class ScheduledSubmissionsController {
-	
+
 	@RequestMapping("scheduledsubmissions")
 	public ModelAndView returnPage() {
 		return new ModelAndView(

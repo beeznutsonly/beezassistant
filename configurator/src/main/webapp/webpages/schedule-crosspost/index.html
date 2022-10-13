@@ -28,33 +28,35 @@
 
 </head>
 <body>
-	<form class="form-pane-standard dynamic-shard v-flexbox needs-validation" id="scheduledCrosspostForm" novalidate>
-		<div class="form-heading v-flexbox">
-			<img class="form-icon">
-			<h1 class="form-title">Schedule Crosspost</h1>
-		</div>
-		<div class="form-content">
-			<div class="form-fields v-flexbox">
-				<div class="form-floating">
-					<input class="form-control" type="text" id="title" name="title" placeholder="Title" autocomplete="off">
-					<label for="title">Title</label>
-				</div>
-				<div class="form-floating">
-					<input class="form-control" type="text" inputmode="url" id="url" name="url" placeholder="URL" autocomplete="off" required>
-					<label for="url">URL</label>
-				</div>
-				<div class="form-floating">
-					<input class="form-control datetimepicker" type="text" id="scheduledTime" name="scheduledTime" placeholder="Scheduled Time" autocomplete="off" required>
-					<label for="scheduledTime">Scheduled Time</label>
-				</div>
-				<div class="form-floating">
-					<input class="form-control" type="text" id="subreddit" name="subreddit" placeholder="Subreddit" required>
-					<label for="subreddit">Subreddit</label>
+	<main>
+		<form class="form-pane-standard dynamic-shard v-flexbox needs-validation" id="scheduledCrosspostForm" novalidate>
+			<header class="form-heading v-flexbox">
+				<img class="form-icon">
+				<h1 class="form-title">Schedule Crosspost</h1>
+			</header>
+			<div class="form-content">
+				<div class="form-fields v-flexbox">
+					<div class="form-floating">
+						<input class="form-control" type="text" id="title" name="title" placeholder="Title" autocomplete="off">
+						<label for="title">Title</label>
+					</div>
+					<div class="form-floating">
+						<input class="form-control" type="text" inputmode="url" id="url" name="url" placeholder="URL" autocomplete="off" required>
+						<label for="url">URL</label>
+					</div>
+					<div class="form-floating">
+						<input class="form-control datetimepicker" type="text" id="scheduledTime" name="scheduledTime" placeholder="Scheduled Time" autocomplete="off" required>
+						<label for="scheduledTime">Scheduled Time</label>
+					</div>
+					<div class="form-floating">
+						<input class="form-control" type="text" id="subreddit" name="subreddit" placeholder="Subreddit" required>
+						<label for="subreddit">Subreddit</label>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="feedback-alert-card" id="feedback-alert"></div>
-		<button type="submit" class="btn btn-outline-primary">Submit</button>
-	</form>
+			<div class="feedback-alert-card" id="feedback-alert"></div>
+			<button type="submit" class="btn btn-outline-primary">Submit</button>
+		</form>
+	</main>
 </body>
 </html>

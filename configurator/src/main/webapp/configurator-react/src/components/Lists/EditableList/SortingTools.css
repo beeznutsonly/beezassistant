@@ -1,0 +1,13 @@
+.sorting-tools {
+    padding-right: 0.6em;
+}
+.active-sort {
+    margin-left: .5em;
+}
+.dropdown-menu {
+    z-index: 1;
+    background-color: var(--ACOLOR-2);
+}
+.dropdown-toggle::after {
+    display: none;
+}

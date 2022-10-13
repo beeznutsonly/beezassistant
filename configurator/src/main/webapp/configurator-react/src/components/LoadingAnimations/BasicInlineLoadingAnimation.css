@@ -1,0 +1,4 @@
+.loading-animation {
+    color: var(--ACCENT-COLOR);
+    border-width: .15em
+}

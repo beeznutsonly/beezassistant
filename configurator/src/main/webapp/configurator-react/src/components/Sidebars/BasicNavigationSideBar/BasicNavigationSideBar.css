@@ -1,0 +1,35 @@
+.navigation-side-bar {
+    background-color: var(--COLOR-2);
+    display: flex;
+    min-width: min-content;
+    max-width: min-content;
+    flex-wrap: wrap;
+    max-width: 100px;
+    padding-inline: 2em;
+    padding-block: 2em;
+    gap: 2em;
+}
+
+.navigation-links {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 1em;
+}
+
+.navigation-links a {
+    color: var(--COLOR-5);
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.navigation-links a:hover {
+    color: var(--ACCENT-COLOR);
+}
+
+.navigation-links .active {
+    color: var(--ACCENT-COLOR2);
+}

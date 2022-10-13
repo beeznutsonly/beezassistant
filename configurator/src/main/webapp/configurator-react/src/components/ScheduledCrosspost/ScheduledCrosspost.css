@@ -1,0 +1,21 @@
+.scheduled-crosspost {
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+  }
+    
+.scheduled-crosspost-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 0;
+    margin-bottom: 0.25em;
+}
+
+.scheduled-crosspost-default-title { 
+    font-style: italic;
+}
+
+.scheduled-crosspost-time {
+    color: #707070;
+}

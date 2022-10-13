@@ -1,0 +1,9 @@
+.content-view .navigation-side-bar {
+    display: none;
+}
+
+@media screen and (min-width: 500px) {
+    .content-view .navigation-side-bar {
+        display: inherit;
+    }
+}
