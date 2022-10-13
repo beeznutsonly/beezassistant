@@ -35,7 +35,8 @@ public class ConfiguratorApplication implements RepositoryRestConfigurer {
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(Arrays.asList(
-        		"http://localhost:3000", "http://192.168.*.*:3000"
+        		"http://localhost:3000", "http://192.168.*.*:3000",
+                "https://*.herokuapp.com"
         ));
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setExposedHeaders(Arrays.asList("*"));
