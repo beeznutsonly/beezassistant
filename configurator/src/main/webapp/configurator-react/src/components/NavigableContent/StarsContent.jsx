@@ -14,7 +14,7 @@ const StarsContent = () => {
       />
     }
     const itemsRepository = new ItemsRepository(
-      window.location.protocol + "//" + window.location.hostname + ":8080/api/stars"
+      window.location.protocol + "//" + window.location.hostname + "/api/stars"
     );
     const sortingFunctions = {
       "Name": (items, isSortAscend) => sortByStrings("name", items, isSortAscend),

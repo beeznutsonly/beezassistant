@@ -13,7 +13,7 @@ const ScheduledCrosspostsContent = () => {
       />
     }
     const itemsRepository = new ItemsRepository(
-      window.location.protocol + "//" + window.location.hostname + ":8080/api/scheduledcrossposts"
+      window.location.protocol + "//" + window.location.hostname + "/api/scheduledcrossposts"
     );
     const sortingFunctions = {
       "Scheduled Time": (items, isSortAscend) => sortByTime("scheduledTime", items, isSortAscend),

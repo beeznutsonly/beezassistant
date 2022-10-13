@@ -13,7 +13,7 @@ const ScheduledSubmissionsContent = () => {
       />
     }
     const itemsRepository = new ItemsRepository(
-      window.location.protocol + "//" + window.location.hostname + ":8080/api/scheduledsubmissions"
+      window.location.protocol + "//" + window.location.hostname + "/api/scheduledsubmissions"
     );
     const sortingFunctions = {
       "Scheduled Time": (items, isSortAscend) => sortByTime("scheduledTime", items, isSortAscend),
