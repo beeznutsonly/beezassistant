@@ -5,6 +5,10 @@
     flex-grow: 1;
     width: 100%;
     border: 1px solid var(--COLOR-3);
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+    border-bottom-right-radius: .25rem;
 }
 
 .message-container {

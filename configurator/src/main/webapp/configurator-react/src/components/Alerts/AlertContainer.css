@@ -1,0 +1,9 @@
+.feedback-alert-card {
+    text-align: center;
+}
+
+@media screen and (min-width: 500px) {
+    .feedback-alert-card {
+        text-align: initial;
+    }   
+}

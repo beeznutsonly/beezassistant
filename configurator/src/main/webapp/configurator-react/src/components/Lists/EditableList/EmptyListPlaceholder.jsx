@@ -1,4 +1,4 @@
-import { faList as NothingFound } from "@fortawesome/free-solid-svg-icons";
+import { faTableList as NothingFound } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./EmptyListPlaceholder.css";
 

@@ -1,4 +1,5 @@
 import Alert from 'react-bootstrap/Alert';
+import './AlertContainer.css';
 
 const AlertContainer = (props) => {
     const [alertModel, setAlertModel] = props.alertState;
