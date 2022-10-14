@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styling/designs/shard.css';
-import './styling/themes/romanticxxx/romanticxxx.css';
-import './index.css';
 import AppView from './components/AppViews/BasicSinglePageAppView';
 import reportWebVitals from './miscellaneous/reportWebVitals';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import './styling/designs/shard.css';
+import './styling/themes/romanticxxx/romanticxxx.css';
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
