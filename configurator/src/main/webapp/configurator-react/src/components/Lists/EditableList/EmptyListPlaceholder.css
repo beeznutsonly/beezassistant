@@ -1,0 +1,20 @@
+.empty-list-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+    border: 1px solid var(--COLOR-3);
+}
+
+.message-container {
+    display:flex;
+    flex-direction: column;
+    font-size: large;
+    gap: .8rem;
+    color: var(--COLOR-6);
+}
+
+/* .message-container-icon {
+    size: 5x;
+} */

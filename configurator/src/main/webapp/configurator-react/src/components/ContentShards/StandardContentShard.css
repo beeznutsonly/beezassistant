@@ -4,6 +4,7 @@
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
+    max-width: 100%;
     padding-inline: 1em;
     padding-block: 1.5em;
     margin-inline: auto;

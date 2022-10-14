@@ -9,7 +9,7 @@ const ScheduledCrosspost = props => {
         <>
             <div className="scheduled-crosspost general-list-group-item-content">
                 {
-                    Boolean(props.title)
+                    !Boolean(props.title)
                     ? <h2 className="scheduled-crosspost-title scheduled-crosspost-default-title">
                         Original submission title
                     </h2>
