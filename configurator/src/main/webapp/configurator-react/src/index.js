@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styling/designs/shard.css'
-import './styling/themes/romanticxxx/romanticxxx.css'
+import './styling/designs/shard.css';
+import './styling/themes/romanticxxx/romanticxxx.css';
 import './index.css';
 import AppView from './components/AppViews/BasicSinglePageAppView';
 import reportWebVitals from './miscellaneous/reportWebVitals';
