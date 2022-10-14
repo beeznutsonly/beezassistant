@@ -1,3 +1,5 @@
+import DateAdapter from '@date-io/date-fns';
+
 class ScheduledSubmissionModel {
     
     constructor(
@@ -10,14 +12,15 @@ class ScheduledSubmissionModel {
     ) {
         this.title = title;
         this.url = url;
-        this.scheduledTime =scheduledTime;
+        this.scheduledTime = scheduledTime;
         this.flairId = flairId;
         this.subreddit = subreddit;
         this.commentBody = commentBody;
     }
 
     static defaultItemModel() {
-        return new ScheduledSubmissionModel("", "", Date.now(), "", "", "");
+        const dateAdapter = new DateAdapter();
+        return new ScheduledSubmissionModel("", "", dateAdapter.date(), "", "", "");
     }
 
 }

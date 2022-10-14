@@ -20,13 +20,19 @@ const EditTools = (props) => {
                 <div 
                     className="selection-manipulation-tools btn-group"
                     style={
-                        props.selectedItems.size === 0
-                        ? {display: 'none'}
-                        : {display: 'initial'}
+                        props.selectedItems.size !== 0
+                        ? {
+                            display: 'initial',
+                            visibility: 'visible'
+                        }
+                        : {
+                            display: 'none',
+                            visibility: 'hidden'
+                        }
                     }
                 >
                     <button
-                        className="btn remove-button"
+                        className="btn edit-tools-button remove-button"
                         style={
                             Boolean(props.editItemHandler) && props.selectedItems.size === 1
                             ? {display: 'initial'}
@@ -38,7 +44,7 @@ const EditTools = (props) => {
                         <FontAwesomeIcon icon={Edit}></FontAwesomeIcon>
                     </button>
                     <button
-                        className="btn remove-button"
+                        className="btn edit-tools-button remove-button"
                         style={
                             Boolean(props.removeSelectedHandler)
                             ? {display: 'initial'}
@@ -51,12 +57,12 @@ const EditTools = (props) => {
                     >
                         <FontAwesomeIcon icon={Remove}></FontAwesomeIcon>
                     </button>
-                    <button className="btn cancel-button" onClick={() => props.clearSelectionHandler()}>
+                    <button className="btn edit-tools-button cancel-button" onClick={() => props.clearSelectionHandler()}>
                         <FontAwesomeIcon icon={Cancel}></FontAwesomeIcon>
                     </button>
                 </div>
                 <button 
-                    className="btn add-item-button" 
+                    className="btn edit-tools-button add-item-button" 
                     style={
                         Boolean(props.addItemHandler)
                         ? {display: 'initial'}
@@ -68,7 +74,7 @@ const EditTools = (props) => {
                     <FontAwesomeIcon icon={Add}></FontAwesomeIcon>
                 </button>
                 <button 
-                    className="btn refresh-button" 
+                    className="btn edit-tools-button refresh-button" 
                     style={
                         Boolean(props.refreshItemsHandler)
                         ? {display: 'initial'}

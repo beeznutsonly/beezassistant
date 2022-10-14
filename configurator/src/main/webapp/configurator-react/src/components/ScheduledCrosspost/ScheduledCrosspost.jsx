@@ -1,15 +1,15 @@
-import DateAdapter from '@date-io/date-fns'
+import DateAdapter from '@date-io/date-fns';
 import './ScheduledCrosspost.css';
 
 const ScheduledCrosspost = props => {
 
     const dateAdapter = new DateAdapter();
-
+    
     return (
         <>
             <div className="scheduled-crosspost general-list-group-item-content">
                 {
-                    (props.title === undefined || props.title === null)
+                    Boolean(props.title)
                     ? <h2 className="scheduled-crosspost-title scheduled-crosspost-default-title">
                         Original submission title
                     </h2>

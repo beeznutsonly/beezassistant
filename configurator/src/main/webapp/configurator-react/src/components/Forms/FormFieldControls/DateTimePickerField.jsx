@@ -1,4 +1,4 @@
-import { MobileDateTimePicker as DateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useState } from "react";
 import { Form } from "react-bootstrap";
 
@@ -15,19 +15,12 @@ const DateTimePickerField = (props) => {
                 open={isOpen}
                 onClose={() => setOpen(false)}
                 renderInput={(defaultInputProps) => 
-                    props.inputProps.required
-                    ? <Form.Control
+                    <Form.Control
                         {...defaultInputProps.inputProps}
-                        {...props.inputProps}
                         onClick={() => setOpen(true)}
-                        required
-                    >
-                    </Form.Control>
-                    : <Form.Control
-                        {...defaultInputProps.inputProps}
-                        {...props.inputProps}
-                        type="text"
-                        onClick={() => setOpen(true)}
+                        required={Boolean(props.inputProps.required)}
+                        type={defaultInputProps.type}
+                        ref={defaultInputProps.inputRef}
                     >
                     </Form.Control>
                 }
@@ -36,7 +29,11 @@ const DateTimePickerField = (props) => {
                     formItemModel[dateTimeFieldName] = newValue
                     setFormItemModel({...formItemModel});
                 }}
-                views={props.isDateOnly ? ['year', 'month', 'day'] : ['year', 'day', 'hours', 'minutes']}
+                views={
+                    props.isDateOnly 
+                    ? ['year', 'month', 'day'] 
+                    : ['year', 'day', 'hours', 'minutes']
+                }
                 ampm={false}
                 inputFormat={props.inputFormat}
                 minDateTime={props.minDateTime}

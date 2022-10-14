@@ -10,7 +10,9 @@ const Star = (props) => {
             <div className="star general-list-group-item-content">
                 <h2 className="star-name">{props.name}</h2>
                 <label className="star-birthday">{
-                    dateAdapter.formatByString(dateAdapter.date(props.birthday), 'PP')
+                    Boolean(props.birthday)
+                    ? dateAdapter.formatByString(dateAdapter.date(props.birthday), 'PP')
+                    : props.birthday
                 }</label>
                 <label className="star-nationality">Nationality: {props.nationality}</label>
                 <label className="star-birth-place">Birth Place: {props.birthPlace}</label>

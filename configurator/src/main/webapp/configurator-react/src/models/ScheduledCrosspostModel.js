@@ -1,3 +1,5 @@
+import DateAdapter from '@date-io/date-fns';
+
 class ScheduledCrosspostModel {
     
     constructor(
@@ -13,7 +15,8 @@ class ScheduledCrosspostModel {
     }
 
     static defaultItemModel() {
-        return new ScheduledCrosspostModel("", "", Date.now(), "");
+        const dateAdapter = new DateAdapter();
+        return new ScheduledCrosspostModel("", "", dateAdapter.date(), "");
     }
 
 }
