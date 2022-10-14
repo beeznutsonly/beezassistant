@@ -36,7 +36,8 @@ public class ConfiguratorApplication implements RepositoryRestConfigurer {
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(Arrays.asList(
         		"http://localhost:3000", "http://192.168.*.*:3000",
-                "https://*.herokuapp.com"
+                "https://configurator-react.herokuapp.com",
+                "https://beezassistant-configurator.onrender.com"
         ));
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setExposedHeaders(Arrays.asList("*"));
