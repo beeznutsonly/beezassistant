@@ -17,6 +17,9 @@ import StarFormDialog from "../FormDialogs/OutletBasedStarFormDialog";
 
 const BasicSinglePageAppView = () => {
 
+  const apiURL = process.env.NODE_ENV === "development" 
+    ? process.env.REACT_APP_DEV_URL : process.env.REACT_APP_PROD_URL;
+
   const homeNavigable = {
     "path": "/",
     "linkName": "Home",
@@ -25,7 +28,7 @@ const BasicSinglePageAppView = () => {
   const scheduledSubmissionsNavigable = {
     "path": "/ScheduledSubmissions",
     "linkName": "Scheduled Submissions",
-    "linkContent": <ScheduledSubmissionsContent />,
+    "linkContent": <ScheduledSubmissionsContent apiURL={apiURL}/>,
     "subNavigables": [
       {
         "path": "add",
@@ -52,7 +55,7 @@ const BasicSinglePageAppView = () => {
   const scheduledCrosspostsNavigable = {
     "path": "/ScheduledCrossposts",
     "linkName": "Scheduled Crossposts",
-    "linkContent": <ScheduledCrosspostsContent />,
+    "linkContent": <ScheduledCrosspostsContent apiURL={apiURL}/>,
     "subNavigables": [
       {
         "path": "add",
@@ -79,7 +82,7 @@ const BasicSinglePageAppView = () => {
   const starsNavigable = {
     "path": "/Stars",
     "linkName": "Stars",
-    "linkContent": <StarsContent />,
+    "linkContent": <StarsContent apiURL={apiURL}/>,
     "subNavigables": [
       {
         "path": "add",

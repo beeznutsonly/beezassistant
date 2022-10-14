@@ -3,7 +3,7 @@ import Star from "../Star/Star";
 import { sortByStrings, sortByTime } from "../../utilities/CommonListSortingFunctions";
 import EditableListContent from "./OutletBasedEditableListContent";
 
-const StarsContent = () => {
+const StarsContent = (props) => {
     const itemMappingFunction = star => {
       return <Star
           name={star.name}
@@ -14,7 +14,7 @@ const StarsContent = () => {
       />
     }
     const itemsRepository = new ItemsRepository(
-      window.location.protocol + "//" + window.location.hostname + "/api/stars"
+      props.apiURL + "stars"
     );
     const sortingFunctions = {
       "Name": (items, isSortAscend) => sortByStrings("name", items, isSortAscend),

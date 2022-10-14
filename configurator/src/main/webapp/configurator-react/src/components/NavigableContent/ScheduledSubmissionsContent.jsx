@@ -3,7 +3,7 @@ import ScheduledSubmission from "../ScheduledSubmission/ScheduledSubmission";
 import { sortByStrings, sortByTime } from "../../utilities/CommonListSortingFunctions";
 import EditableListContent from "./OutletBasedEditableListContent";
 
-const ScheduledSubmissionsContent = () => {
+const ScheduledSubmissionsContent = (props) => {
     const itemMappingFunction = scheduledSubmission => {
       return <ScheduledSubmission
           title={scheduledSubmission.title}
@@ -13,7 +13,7 @@ const ScheduledSubmissionsContent = () => {
       />
     }
     const itemsRepository = new ItemsRepository(
-      window.location.protocol + "//" + window.location.hostname + "/api/scheduledsubmissions"
+      props.apiURL + "scheduledsubmissions"
     );
     const sortingFunctions = {
       "Scheduled Time": (items, isSortAscend) => sortByTime("scheduledTime", items, isSortAscend),

@@ -3,7 +3,7 @@ import ScheduledCrosspost from "../ScheduledCrosspost/ScheduledCrosspost";
 import { sortByStrings, sortByTime } from "../../utilities/CommonListSortingFunctions";
 import EditableListContent from "./OutletBasedEditableListContent";
 
-const ScheduledCrosspostsContent = () => {
+const ScheduledCrosspostsContent = (props) => {
     const itemMappingFunction = scheduledCrosspost => {
       return <ScheduledCrosspost
           title={scheduledCrosspost.title}
@@ -13,7 +13,7 @@ const ScheduledCrosspostsContent = () => {
       />
     }
     const itemsRepository = new ItemsRepository(
-      window.location.protocol + "//" + window.location.hostname + "/api/scheduledcrossposts"
+      props.apiURL +  "scheduledcrossposts"
     );
     const sortingFunctions = {
       "Scheduled Time": (items, isSortAscend) => sortByTime("scheduledTime", items, isSortAscend),
