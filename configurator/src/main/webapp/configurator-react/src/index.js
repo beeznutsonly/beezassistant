@@ -10,8 +10,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-require('dotenv').config();
-
 root.render(
   <React.StrictMode>
     <LocalizationProvider dateAdapter={AdapterDateFns}>
