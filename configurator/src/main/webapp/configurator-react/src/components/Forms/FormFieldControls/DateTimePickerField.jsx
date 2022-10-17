@@ -17,9 +17,9 @@ const DateTimePickerField = (props) => {
                 renderInput={(defaultInputProps) => 
                     <Form.Control
                         {...defaultInputProps.inputProps}
+                        {...props.inputProps}
                         onClick={() => setOpen(true)}
-                        required={Boolean(props.inputProps.required)}
-                        type={defaultInputProps.type}
+                        type={defaultInputProps.inputProps.type}
                         ref={defaultInputProps.inputRef}
                     >
                     </Form.Control>

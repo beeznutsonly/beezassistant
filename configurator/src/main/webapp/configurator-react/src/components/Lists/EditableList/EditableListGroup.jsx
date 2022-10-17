@@ -24,10 +24,11 @@ const EditableListGroup = (props) => {
                 ? <EmptyListPlaceholder />
                 : <ListGroup onKeyDown={handleListKeyDown}>
                     {(() => {
-                        const sortedItems = props.sortingFunctions
-                        [props.currentSortingFunction](
+                        const sortedItems = Boolean(props.sortingFunctions)
+                        ? props.sortingFunctions[props.currentSortingFunction](
                             props.items, props.isSortAscend
-                        );
+                        )
+                        : props.items;
                         const renderedListItems = [];
 
                         for (let index = 0; index < sortedItems.length; index++) {
@@ -39,7 +40,11 @@ const EditableListGroup = (props) => {
                                     nextItem={sortedItems[index + 1]}
                                     focusedItemState={props.focusedItemState}
                                     selectedItemsState={props.selectedItemsState}
-                                    key={sortedItems[index]._links.self.href}
+                                    key={
+                                        sortedItems[index]._links 
+                                        ? sortedItems[index]._links.self.href
+                                        : index
+                                    }
                                     disabled={props.disabled}
                                 />
                             )

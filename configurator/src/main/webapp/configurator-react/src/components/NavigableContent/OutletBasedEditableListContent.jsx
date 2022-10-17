@@ -229,10 +229,10 @@ const OutletBasedEditableListContent = (props) => {
             refreshItemsHandler={refreshItemsHandler}
             removeSelectedHandler={removeSelectedHandler}
             actionStatuses={{
-              isRefreshing: isRefreshing,
-              isAdding: isAdding,
-              isEditing: isEditing,
-              isRemoving: isRemoving
+              isRefreshingAvailable: !isRefreshing,
+              isAddingAvailable: !isAdding,
+              isEditingAvailable: !isEditing,
+              isRemovingAvailable: !isRemoving
             }}
           />
         </ContentShard>

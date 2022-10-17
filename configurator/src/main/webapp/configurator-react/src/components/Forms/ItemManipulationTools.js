@@ -15,11 +15,11 @@ export { ItemTools };
 class ItemManipulationTools {
     
     constructor (
-        itemsAPI,
+        itemsRepository,
         addItemTools,
         editItemTools
     ) {
-        this.itemsAPI = itemsAPI
+        this.itemsAPI = itemsRepository
         this.addItemTools = addItemTools;
         this.editItemTools = editItemTools;
     }

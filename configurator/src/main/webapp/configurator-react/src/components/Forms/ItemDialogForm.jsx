@@ -41,13 +41,16 @@ const ItemDialogForm = (props) => {
                 return Promise.reject(new Error(response.status));
             }
         })
-        .then((responseBody) => {
+        .then((item) => {
             openAlert(
                 props.successMessage,
                 "success"
             )
             if (props.submitSuccessHandler) {
-                props.submitSuccessHandler(responseBody);
+                props.submitSuccessHandler(item);
+            }
+            if (props.secondarySuccessCallback) {
+                props.secondarySuccessCallback(item);
             }
         })
         .catch((error) => openAlert(

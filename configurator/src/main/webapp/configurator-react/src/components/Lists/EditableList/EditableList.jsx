@@ -10,13 +10,20 @@ const EditableList = (props) => {
     const sortingFunctions = props.sortingFunctions;
 
     const [currentSortingFunction, setCurrentSortingFunction] = useState(
-        Object.keys(sortingFunctions)[0]
+        Boolean(sortingFunctions) 
+        ? Object.keys(sortingFunctions)[0] : undefined
     );
+
     const [isSortAscend, setSortAscend] = useState(true);
     const [focusedItem, setFocusedItem] = useState(null);
     const [selectedItems, setSelectedItems] = useState(new Set());
     
-    const { isAdding, isRemoving, isEditing, isRefreshing } = props.actionStatuses;
+    const { 
+        isAdding: isAddAvailable, 
+        isRemoving: isRemoveAvailable, 
+        isEditing: isEditAvailable, 
+        isRefreshing: isRefreshAvailable 
+    } = props.actionStatuses;
 
     const selectAll = () => {
         setSelectedItems(new Set([...items]));
@@ -35,16 +42,19 @@ const EditableList = (props) => {
             className="editable-list"
         >
                 <div className="edit-panel">
-                    <SortingTools 
-                        sortAscendState={[isSortAscend, setSortAscend]}
-                        sortingFunctions={sortingFunctions}
-                        currentSortingFunctionState={
-                            [
-                                currentSortingFunction,
-                                setCurrentSortingFunction
-                            ]
-                        }
-                    />
+                    { Boolean(sortingFunctions)
+                        ? <SortingTools 
+                            sortAscendState={[isSortAscend, setSortAscend]}
+                            sortingFunctions={sortingFunctions}
+                            currentSortingFunctionState={
+                                [
+                                    currentSortingFunction,
+                                    setCurrentSortingFunction
+                                ]
+                            }
+                        />
+                        : <></>
+                    }
                     <EditTools 
                         selectedItems={selectedItems}
                         focusedItem= {focusedItem}
@@ -67,7 +77,7 @@ const EditableList = (props) => {
                     itemMappingFunction={props.itemMappingFunction}
                     focusedItemState={[focusedItem, setFocusedItem]}
                     selectedItemsState={[selectedItems, setSelectedItems]}
-                    disabled={isRefreshing || isAdding || isEditing || isRemoving}
+                    disabled={isRefreshAvailable || isAddAvailable || isEditAvailable || isRemoveAvailable}
                 />
         </div>
     );

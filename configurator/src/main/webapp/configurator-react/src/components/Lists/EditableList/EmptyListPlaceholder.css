@@ -3,7 +3,9 @@
     justify-content: center;
     align-items: center;
     flex-grow: 1;
-    width: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    padding: 1em;
     border: 1px solid var(--COLOR-3);
     border-top-left-radius: .25rem;
     border-top-right-radius: .25rem;
@@ -14,7 +16,7 @@
 .message-container {
     display:flex;
     flex-direction: column;
-    font-size: large;
+    font-size: 1em;
     gap: .8rem;
     color: var(--COLOR-6);
 }

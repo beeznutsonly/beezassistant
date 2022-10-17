@@ -10,7 +10,12 @@ import "./EditTools.css";
 
 const EditTools = (props) => {
 
-    const { isRefreshing, isAdding, isEditing, isRemoving } = props.actionStatuses
+    const { 
+        isRefreshingAvailable, 
+        isAddingAvailable, 
+        isEditingAvailable, 
+        isRemovingAvailable 
+    } = props.actionStatuses
 
     return(
         <>
@@ -38,8 +43,11 @@ const EditTools = (props) => {
                             ? {display: 'initial'}
                             : {display: 'none'}
                         }
-                        onClick={() => props.editItemHandler(props.focusedItem)}
-                        disabled={isEditing || !Boolean(props.editItemHandler)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            props.editItemHandler(props.focusedItem);
+                        }}
+                        disabled={!(isEditingAvailable && Boolean(props.editItemHandler))}
                     >
                         <FontAwesomeIcon icon={Edit}></FontAwesomeIcon>
                     </button>
@@ -50,14 +58,20 @@ const EditTools = (props) => {
                             ? {display: 'initial'}
                             : {display: 'none'}
                         }
-                        onClick={() => props.removeSelectedHandler(
-                            props.selectedItems
-                        )}
-                        disabled={isRemoving || !Boolean(props.removeSelectedHandler)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            props.removeSelectedHandler(
+                                props.selectedItems
+                            );
+                        }}
+                        disabled={!(isRemovingAvailable && Boolean(props.removeSelectedHandler))}
                     >
                         <FontAwesomeIcon icon={Remove}></FontAwesomeIcon>
                     </button>
-                    <button className="btn edit-tools-button cancel-button" onClick={() => props.clearSelectionHandler()}>
+                    <button className="btn edit-tools-button cancel-button" onClick={(e) => {
+                        e.preventDefault();
+                        props.clearSelectionHandler();
+                    }}>
                         <FontAwesomeIcon icon={Cancel}></FontAwesomeIcon>
                     </button>
                 </div>
@@ -68,8 +82,11 @@ const EditTools = (props) => {
                         ? {display: 'initial'}
                         : {display: 'none'}
                     }
-                    onClick={() => props.addItemHandler()}
-                    disabled={isAdding || !Boolean(props.addItemHandler)}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        props.addItemHandler();
+                    }}
+                    disabled={!(isAddingAvailable && Boolean(props.addItemHandler))}
                 >
                     <FontAwesomeIcon icon={Add}></FontAwesomeIcon>
                 </button>
@@ -80,8 +97,11 @@ const EditTools = (props) => {
                         ? {display: 'initial'}
                         : {display: 'none'}
                     }
-                    onClick={() => props.refreshItemsHandler()}
-                    disabled={isRefreshing || !Boolean(props.refreshItemsHandler)}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        props.refreshItemsHandler();
+                    }}
+                    disabled={!(isRefreshingAvailable && Boolean(props.refreshItemsHandler))}
                 >
                     <FontAwesomeIcon icon={Refresh}></FontAwesomeIcon>
                 </button>

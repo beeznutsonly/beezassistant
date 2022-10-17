@@ -18,7 +18,7 @@ class StarModel {
 
     static defaultItemModel() {
         return new StarModel(
-            "", "", "", "", "", ""
+            "", "", "", null, "", ""
         );
     }
 }

@@ -6,22 +6,22 @@ import BasicFormDialog from './BasicFormDialog';
 const OutletBasedFormDialog = (props) => {
     
     const [itemModel, setItemModel] = props.itemModelState;
-    const itemManipulationTools = useOutletContext();
+    const context = useOutletContext();
     const location = useLocation();
     const params = useParams();
     const [isEditForm, setIsEditForm] = props.isEditFormState;
 
     const submitSuccessHandler = useCallback((item) => {
         if (isEditForm) {
-            itemManipulationTools.editItemTools.submitSuccessCallback(item);
+            context.editItemTools.submitSuccessCallback(item);
         }
         else {
-            itemManipulationTools.addItemTools.submitSuccessCallback(item);
+            context.addItemTools.submitSuccessCallback(item);
         }
     }, [
         isEditForm,
-        itemManipulationTools.addItemTools,
-        itemManipulationTools.editItemTools
+        context.addItemTools,
+        context.editItemTools
     ])
 
     const retrieveItemModel = useCallback(() => {
@@ -30,7 +30,7 @@ const OutletBasedFormDialog = (props) => {
         }
         else {
             if (params["itemId"]) {
-                const promise = itemManipulationTools.itemsAPI.retrieveItem(
+                const promise = context.itemsAPI.retrieveItem(
                     encodeURI(params["itemId"])
                 );
                 promise.then((response) => {
@@ -54,7 +54,7 @@ const OutletBasedFormDialog = (props) => {
         location.state,
         isEditForm,
         setIsEditForm,
-        itemManipulationTools.itemsAPI,
+        context.itemsAPI,
         setItemModel,
         params
     ])
@@ -72,12 +72,13 @@ const OutletBasedFormDialog = (props) => {
                         formTitle={props.formTitle}
                         itemModel={itemModel}
                         submitSuccessHandler={submitSuccessHandler}
+                        secondarySuccessCallback={context.secondarySuccessCallback}
                         isActionInProgressState={
                             isEditForm
-                            ? itemManipulationTools.editItemTools.isActionInProgressState
-                            : itemManipulationTools.addItemTools.isActionInProgressState
+                            ? context.editItemTools.isActionInProgressState
+                            : context.addItemTools.isActionInProgressState
                         }
-                        itemAPIAction={(item) => itemManipulationTools.itemsAPI.addItem(item)}
+                        itemAPIAction={(item) => context.itemsAPI.addItem(item)}
                         successMessage={
                             `Item successfully ${isEditForm ? "modified" : "added"}`
                         }
