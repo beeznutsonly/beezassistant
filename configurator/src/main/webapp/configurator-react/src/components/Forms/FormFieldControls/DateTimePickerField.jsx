@@ -35,6 +35,7 @@ const DateTimePickerField = (props) => {
                     : ['year', 'day', 'hours', 'minutes']
                 }
                 ampm={false}
+                disableMaskedInput
                 inputFormat={props.inputFormat}
                 minDateTime={props.minDateTime}
             />

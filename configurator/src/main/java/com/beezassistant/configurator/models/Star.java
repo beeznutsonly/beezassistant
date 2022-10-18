@@ -1,9 +1,11 @@
 package com.beezassistant.configurator.models;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Star {
@@ -16,6 +18,9 @@ public class Star {
 	private String birthPlace;
 	private String yearsActive;
 	private String description;
+
+	@OneToMany(mappedBy="starLinkId.name")
+	private List<StarLink> starLinks;
 	
 	public Star() {
 		super();

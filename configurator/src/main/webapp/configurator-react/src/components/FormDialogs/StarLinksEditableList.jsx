@@ -47,21 +47,6 @@ const StarLinksEditableList = (props) => {
 
     return (
         <div className="v-flexbox">
-            <InputGroup>
-                <Form.Control
-                    type="text"
-                    placeholder="Link Name"
-                    onChange={(e) => updateField(e, "linkName", starLinkModelState)}
-                    value={getValidFormValue(starLinkModel.linkName)}>
-                </Form.Control>
-                <Form.Control
-                    type="url"
-                    inputMode="url"
-                    placeholder="Link"
-                    onChange={(e) => updateField(e, "link", starLinkModelState)}
-                    value={getValidFormValue(starLinkModel.link)}>
-                </Form.Control>
-            </InputGroup>
             <EditableList
                 items={starLinks}
                 addItemHandler={addItemHandler}
@@ -74,6 +59,23 @@ const StarLinksEditableList = (props) => {
                     isRemovingAvailable: true,
                     isRefreshingAvailable: false
                 }}
+                listAdornment={
+                    <InputGroup>
+                        <Form.Control
+                            type="text"
+                            placeholder="Link Name"
+                            onChange={(e) => updateField(e, "linkName", starLinkModelState)}
+                            value={getValidFormValue(starLinkModel.linkName)}>
+                        </Form.Control>
+                        <Form.Control
+                            type="url"
+                            inputMode="url"
+                            placeholder="Link"
+                            onChange={(e) => updateField(e, "link", starLinkModelState)}
+                            value={getValidFormValue(starLinkModel.link)}>
+                        </Form.Control>
+                    </InputGroup>
+                }
             />
         </div>
     );

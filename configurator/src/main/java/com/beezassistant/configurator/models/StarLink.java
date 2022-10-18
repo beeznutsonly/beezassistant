@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -18,6 +20,10 @@ public class StarLink implements Serializable {
 	@EmbeddedId
 	private StarLinkId starLinkId;
 	
+	@ManyToOne
+	@JoinColumn(name="name", insertable=false, updatable=false)
+	private Star star;
+
 	private String linkName;
 	
 	public StarLink() {
@@ -33,13 +39,13 @@ public class StarLink implements Serializable {
 		this.starLinkId = starLinkId;
 	}
 
-	public String getName() {
-		return starLinkId.getName();
-	}
+	// public String getName() {
+	// 	return starLinkId.getName();
+	// }
 
-	public void setName(String name) {
-		starLinkId.setName(name);
-	}
+	// public void setName(String name) {
+	// 	starLinkId.setName(name);
+	// }
 
 	public String getLink() {
 		return starLinkId.getLink();

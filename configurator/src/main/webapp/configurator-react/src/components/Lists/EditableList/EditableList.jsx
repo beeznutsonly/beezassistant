@@ -42,7 +42,13 @@ const EditableList = (props) => {
             className="editable-list"
         >
                 <div className="edit-panel">
-                    { Boolean(sortingFunctions)
+                    { 
+                        Boolean(props.listAdornment)
+                        ? props.listAdornment
+                        : <></>
+                    }
+                    { 
+                        Boolean(sortingFunctions)
                         ? <SortingTools 
                             sortAscendState={[isSortAscend, setSortAscend]}
                             sortingFunctions={sortingFunctions}

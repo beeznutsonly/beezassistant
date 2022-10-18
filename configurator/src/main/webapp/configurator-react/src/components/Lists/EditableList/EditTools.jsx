@@ -27,7 +27,7 @@ const EditTools = (props) => {
                     style={
                         props.selectedItems.size !== 0
                         ? {
-                            display: 'initial',
+                            display: 'inherit',
                             visibility: 'visible'
                         }
                         : {
@@ -37,7 +37,7 @@ const EditTools = (props) => {
                     }
                 >
                     <button
-                        className="btn edit-tools-button remove-button"
+                        className="btn edit-tools-button edit-button"
                         style={
                             Boolean(props.editItemHandler) && props.selectedItems.size === 1
                             ? {display: 'initial'}
@@ -79,7 +79,7 @@ const EditTools = (props) => {
                     className="btn edit-tools-button add-item-button" 
                     style={
                         Boolean(props.addItemHandler)
-                        ? {display: 'initial'}
+                        ? {display: 'inherit'}
                         : {display: 'none'}
                     }
                     onClick={(e) => {
@@ -94,7 +94,7 @@ const EditTools = (props) => {
                     className="btn edit-tools-button refresh-button" 
                     style={
                         Boolean(props.refreshItemsHandler)
-                        ? {display: 'initial'}
+                        ? {display: 'inherit'}
                         : {display: 'none'}
                     }
                     onClick={(e) => {

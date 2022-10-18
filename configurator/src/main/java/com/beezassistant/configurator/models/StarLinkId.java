@@ -11,6 +11,7 @@ public class StarLinkId implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -6429952764822658339L;
+
 	private String name;
 	private String link;
 	

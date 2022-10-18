@@ -1,5 +1,8 @@
 .sorting-tools {
     padding-right: 0.6em;
+    border-right-color: var(--ACOLOR-6);
+    border-right-style: solid;
+    border-right-width: 1px;
 }
 .active-sort {
     margin-left: .5em;
