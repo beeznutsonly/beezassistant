@@ -31,7 +31,6 @@ public class ScheduledSubmissionIdConverter implements BackendIdConverter {
 			);
 		} 
 		catch (UnsupportedEncodingException e) {
-			System.out.println("Error\n");
 			scheduledSubmissionId = null;
 		}
 		return scheduledSubmissionId;

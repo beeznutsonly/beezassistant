@@ -19,7 +19,7 @@ public class Star {
 	private String yearsActive;
 	private String description;
 
-	@OneToMany(mappedBy="starLinkId.name")
+	@OneToMany(mappedBy="star")
 	private List<StarLink> starLinks;
 	
 	public Star() {

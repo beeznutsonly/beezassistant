@@ -19,10 +19,10 @@ const EditableList = (props) => {
     const [selectedItems, setSelectedItems] = useState(new Set());
     
     const { 
-        isAdding: isAddAvailable, 
-        isRemoving: isRemoveAvailable, 
-        isEditing: isEditAvailable, 
-        isRefreshing: isRefreshAvailable 
+        isAddAvailable, 
+        isRemoveAvailable, 
+        isEditAvailable, 
+        isRefreshAvailable 
     } = props.actionStatuses;
 
     const selectAll = () => {

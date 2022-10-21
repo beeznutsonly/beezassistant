@@ -22,7 +22,7 @@ public class ScheduledCrosspostId implements Serializable {
 			String url, 
 			String subreddit
 	) {
-		super();
+		this();
 		this.url = url;
 		this.subreddit = subreddit;
 	}

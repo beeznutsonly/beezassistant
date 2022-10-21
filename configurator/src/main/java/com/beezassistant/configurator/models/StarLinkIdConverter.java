@@ -21,7 +21,7 @@ public class StarLinkIdConverter implements BackendIdConverter {
 	public Serializable fromRequestId(String id, Class<?> entityType) {
 		String[] parts = id.split("__");
 		StarLinkId starLinkId = new StarLinkId();
-		starLinkId.setName(parts[0]);
+		starLinkId.setStarName(parts[0]);
 		try {
 			starLinkId.setLink(
 					URLDecoder.decode(
@@ -42,7 +42,7 @@ public class StarLinkIdConverter implements BackendIdConverter {
 		try {
 			return String.format(
 					"%s__%s", 
-					starLinkId.getName(),
+					starLinkId.getStarName(),
 					URLEncoder.encode(
 							starLinkId.getLink(), 
 							StandardCharsets.UTF_8.toString()

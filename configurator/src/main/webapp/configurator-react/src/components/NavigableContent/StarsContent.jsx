@@ -11,6 +11,7 @@ const StarsContent = (props) => {
           nationality={star.nationality}
           birthPlace={star.birthPlace}
           yearsActive={star.yearsActive}
+          description={star.description}
       />
     }
     const itemsRepository = new ItemsRepository(

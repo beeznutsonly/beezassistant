@@ -25,6 +25,7 @@ const OutletBasedScheduledCrosspostFormDialog = () => {
                         <FloatingLabel controlId="title" label="Title">
                             <Form.Control
                                 type="text"
+                                name="title"
                                 placeholder="Title"
                                 onChange={(e) => updateField(e, "title", itemModelState)}
                                 autoComplete="off"
@@ -34,6 +35,7 @@ const OutletBasedScheduledCrosspostFormDialog = () => {
                         <FloatingLabel controlId="url" label="URL">
                             <Form.Control
                                 type="url"
+                                name="url"
                                 placeholder="URL"
                                 inputMode="url"
                                 onChange={(e) => updateField(e, "url", itemModelState)}
@@ -51,6 +53,7 @@ const OutletBasedScheduledCrosspostFormDialog = () => {
                                 inputFormat={'E, dd MMM yyyy HH:mm'}
                                 minDateTime={Date.now()}
                                 inputProps={{
+                                    name: "scheduledTime",
                                     placeholder: "Scheduled Time",
                                     autoComplete: "off",
                                     required: true
@@ -60,6 +63,7 @@ const OutletBasedScheduledCrosspostFormDialog = () => {
                         <FloatingLabel controlId="subreddit" label="Subreddit">
                             <Form.Control
                                 type="text"
+                                name="subreddit"
                                 placeholder="Subreddit"
                                 autoCapitalize="off"
                                 onChange={(e) => updateField(e, "subreddit", itemModelState)}

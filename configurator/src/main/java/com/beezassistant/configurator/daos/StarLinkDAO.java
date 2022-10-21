@@ -7,6 +7,4 @@ import com.beezassistant.configurator.models.StarLink;
 import com.beezassistant.configurator.models.StarLinkId;
 
 @RepositoryRestResource(exported=true, path="starlinks")
-public interface StarLinkDAO extends JpaRepository<StarLink, StarLinkId> {
-
-}
+public interface StarLinkDAO extends JpaRepository<StarLink, StarLinkId> {}

@@ -24,7 +24,7 @@ const StarLinksEditableList = (props) => {
     }
 
     const editItemHandler = (itemToBeEdited) => {
-        setStarLinkModel(itemToBeEdited);
+        setStarLinkModel({...itemToBeEdited});
     }
 
     const removeSelectedHandler = (selectedItems) => {

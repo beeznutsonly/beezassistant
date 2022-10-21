@@ -6,14 +6,12 @@
     min-width: 100%;
 }
 .list-group {
-    width: 100%
+    min-width: 100%
 }
 .edit-panel {
     display: flex;
     justify-content: flex-end;
-}
-.edit-panel > *{
-    padding-left: 0.6em;
+    gap: .6em;
 }
 .edit-panel .btn {
     font-size: 0.8em;
@@ -21,4 +19,7 @@
     padding-block: 0;
     padding-inline: 0.4em;
     border-radius: 0;
+}
+.edit-panel .btn:hover {
+    color: var(--ACCENT-COLOR);
 }

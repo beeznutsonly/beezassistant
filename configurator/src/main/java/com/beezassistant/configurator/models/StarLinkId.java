@@ -12,19 +12,28 @@ public class StarLinkId implements Serializable {
 	 */
 	private static final long serialVersionUID = -6429952764822658339L;
 
-	private String name;
+	private String starName;
 	private String link;
 	
 	public StarLinkId() {
 		super();
 	}
 
-	public String getName() {
-		return name;
+	public StarLinkId(
+		String starName,
+		String link
+	) {
+		this();
+		this.starName = starName;
+		this.link = link;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getStarName() {
+		return starName;
+	}
+
+	public void setStarName(String starName) {
+		this.starName = starName;
 	}
 
 	public String getLink() {
@@ -40,7 +49,7 @@ public class StarLinkId implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((starName == null) ? 0 : starName.hashCode());
 		return result;
 	}
 
@@ -58,10 +67,10 @@ public class StarLinkId implements Serializable {
 				return false;
 		} else if (!link.equals(other.link))
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (starName == null) {
+			if (other.starName != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!starName.equals(other.starName))
 			return false;
 		return true;
 	}

@@ -5,6 +5,13 @@
     min-width: fit-content;
     transition: cubic-bezier(0.4, 0, 0.2, 1),visibility .15s
 }
+/* .edit-tools-button {
+    font-size: 0.8em;
+    color: var(--COLOR-6);
+    padding-block: 0;
+    padding-inline: 0.4em;
+    border-radius: 0;
+} */
 .edit-tools-button:focus {
     box-shadow: 0 0 0 0 transparent;
 }

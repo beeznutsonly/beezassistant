@@ -1,13 +1,24 @@
-.star {
+.star, .star-core-details {
     font-size: 0.8rem;
     display: flex;
     flex-direction: column;
     gap: 0.25em;
 }
-    
+.star-core {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}  
 .star-name {
     font-size: 0.9rem;
     font-weight: 500;
     margin-top: 0;
     margin-bottom: 0.25em;
+}
+.secondary-details-button-group {
+    align-self: flex-end;
+    visibility: hidden;
+}
+.secondary-details-button-group:hover {
+    visibility: visible;
 }

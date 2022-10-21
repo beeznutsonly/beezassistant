@@ -2,39 +2,59 @@ import { getValidFormValue, isEditForm as isEditFormFunction, updateField } from
 import OutletBasedFormDialog from './OutletBasedFormDialog';
 import Form from 'react-bootstrap/Form';
 import ItemModel from '../../models/StarModel';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useOutletContext, useParams } from 'react-router-dom';
 import DateTimePickerField from '../Forms/FormFieldControls/DateTimePickerField';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-import './OutletBasedStarFormDialog.css';
 import ItemsRepository from '../../utilities/ItemsRepository';
 import StarLinksEditableList from './StarLinksEditableList';
+import './OutletBasedStarFormDialog.css';
 
 const OutletBasedStarFormDialog = () => {
 
     const itemModelState = useState(ItemModel.defaultItemModel());
     const itemModel = itemModelState[0];
-    const isEditFormState = useState(isEditFormFunction(useLocation(), useParams()));
-    const isEditForm = isEditFormState[0];
-    const starLinksState = useState([]);
-    const [starLinks, setStarLinks] = starLinksState;
-    const starLinksPendingRemovalState = useState(new Set());
+    const [isEditForm, setEditForm] = useState(
+        isEditFormFunction(useLocation(), useParams())
+        );
+    const [starLinks, setStarLinks] = useState([]);
+    const [starLinksPendingRemoval, setStarLinksPendingRemoval] = useState(new Set());
+    const [starLinksRepository, setStarLinksRepository] = useState();
+
+    const retrieveStarLinks = useCallback(() => {
+        starLinksRepository.retrieveItems()
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            return Promise.reject(new Error(response.status));
+        })
+        .then((responseBody) => {
+            setStarLinks(Object.values(responseBody._embedded)[0]);
+        })
+        .catch((error) => {
+            console.error(`Could not retrieve star links: ${error}`);
+        });
+    }, [starLinksRepository]);
 
     const starSubmitSuccessCallback = (star) => {
         const starStarLinksRepository = new ItemsRepository(
-            star._links.starLinks
+            star._links.starLinks.href
         )
         if (isEditForm) {
-            starLinksPendingRemovalState[0].forEach(
-                starLinkPendingRemoval => starStarLinksRepository.removeItem(
-                    starLinkPendingRemoval
-                )
-                .catch((error) => {
-                    return Promise.reject(new Error(error))
-                })
+            starLinksPendingRemoval.forEach(
+                starLinkPendingRemoval => {
+                    if (starLinkPendingRemoval._links)
+                        starStarLinksRepository.removeItem(
+                            starLinkPendingRemoval
+                        )
+                        .catch((error) => {
+                            return Promise.reject(new Error(error))
+                        })
+                }
             )
-            starLinksPendingRemovalState[1](
+            setStarLinksPendingRemoval(
                 new Set()
             );
         }
@@ -51,31 +71,35 @@ const OutletBasedStarFormDialog = () => {
     useOutletContext().secondarySuccessCallback = starSubmitSuccessCallback;
 
     useEffect(() => {
-        if (isEditForm && itemModel._links) {
-            const starStarLinksRepository = new ItemsRepository(
-                itemModel._links.starLinks.href
-            )
-            starStarLinksRepository.retrieveItems()
-            .then((response) => {
-                if (response.ok) {
-                    return response.json()
+        setStarLinksRepository(
+            previousStarLinksRepository => {
+                if (!previousStarLinksRepository) {
+                   if (itemModel._links) {
+                        return new ItemsRepository(
+                            itemModel._links.starLinks.href
+                        )
+                   } 
                 }
-                return Promise.reject(new Error(response.status))
-            })
-            .then((responseBody) => {
-                setStarLinks(Object.values(responseBody._embedded)[0])
-            })
-            .catch((error) => {
-                console.error(`Could not retrieve star links: ${error}`);
-            })
+                return previousStarLinksRepository
+            }
+        )
+    }, [itemModel]);
+
+    useEffect(() => {
+        if (isEditForm && starLinksRepository) {
+            retrieveStarLinks()
         }
-    }, [itemModel, isEditForm, setStarLinks])
+    }, [
+        isEditForm, 
+        starLinksRepository, 
+        retrieveStarLinks
+    ]);
 
     return (
         <>
             <OutletBasedFormDialog
                 itemModelState={itemModelState}
-                isEditFormState={isEditFormState}
+                isEditFormState={[isEditForm, setEditForm]}
                 formTitle="Star"
                 itemFormContent={
                     <Tabs
@@ -88,6 +112,7 @@ const OutletBasedStarFormDialog = () => {
                             <div className="form-fields v-flexbox">
                                 <Form.Control
                                     type="text"
+                                    name="name"
                                     placeholder="Name"
                                     onChange={(e) => updateField(e, "name", itemModelState)}
                                     autoComplete="off"
@@ -101,12 +126,14 @@ const OutletBasedStarFormDialog = () => {
                                     isDateOnly={true}
                                     inputFormat={'PP'}
                                     inputProps={{
+                                        name: "birthday",
                                         placeholder: "Birthday",
                                         autoComplete: "off"
                                     }}
                                 />
                                 <Form.Control
                                     type="text"
+                                    name="nationality"
                                     placeholder="Nationality"
                                     onChange={(e) => updateField(e, "nationality", itemModelState)}
                                     value={getValidFormValue(itemModel.nationality)}
@@ -115,6 +142,7 @@ const OutletBasedStarFormDialog = () => {
                                 </Form.Control>
                                 <Form.Control
                                     type="text"
+                                    name="birthPlace"
                                     placeholder="Birth Place"
                                     onChange={(e) => updateField(e, "birthPlace", itemModelState)}
                                     value={getValidFormValue(itemModel.birthPlace)}
@@ -122,13 +150,16 @@ const OutletBasedStarFormDialog = () => {
                                 </Form.Control>
                                 <Form.Control
                                     type="text"
+                                    name="yearsActive"
                                     placeholder="Years Active"
+                                    autoComplete="off"
                                     onChange={(e) => updateField(e, "yearsActive", itemModelState)}
                                     value={getValidFormValue(itemModel.yearsActive)}>
                                 </Form.Control>
                                 <Form.Control
                                     as="textarea"
                                     type="text"
+                                    name="description"
                                     placeholder="Description"
                                     onChange={(e) => updateField(e, "description", itemModelState)}
                                     autoComplete="off"
@@ -141,8 +172,10 @@ const OutletBasedStarFormDialog = () => {
                             title="Star Links"
                         >
                             <StarLinksEditableList
-                                starLinksState={starLinksState}
-                                starLinksPendingRemovalState={starLinksPendingRemovalState}
+                                starLinksState={[starLinks, setStarLinks]}
+                                starLinksPendingRemovalState={
+                                    [starLinksPendingRemoval, setStarLinksPendingRemoval]
+                                }
                             />
                         </Tab>
                     </Tabs>

@@ -23,6 +23,7 @@ const OutletBasedScheduledSubmissionFormDialog = () => {
                     <div className="form-fields v-flexbox">
                         <Form.Control
                             type="text"
+                            name="title"
                             placeholder="Title"
                             onChange={(e) => updateField(e, "title", itemModelState)}
                             autoComplete="off"
@@ -31,6 +32,7 @@ const OutletBasedScheduledSubmissionFormDialog = () => {
                         </Form.Control>
                         <Form.Control
                             type="url"
+                            name="url"
                             placeholder="URL"
                             inputMode="url"
                             onChange={(e) => updateField(e, "url", itemModelState)}
@@ -46,6 +48,7 @@ const OutletBasedScheduledSubmissionFormDialog = () => {
                             inputFormat={'E, dd MMM yyyy HH:mm'}
                             minDateTime={Date.now()}
                             inputProps={{
+                                name:"scheduledTime",
                                 placeholder: "Scheduled Time",
                                 autoComplete: "off",
                                 required: true
@@ -53,6 +56,7 @@ const OutletBasedScheduledSubmissionFormDialog = () => {
                         />
                         <Form.Control
                             type="text"
+                            name="flairId"
                             placeholder="Flair ID"
                             autoCapitalize="off"
                             onChange={(e) => updateField(e, "flairId", itemModelState)}
@@ -61,6 +65,7 @@ const OutletBasedScheduledSubmissionFormDialog = () => {
                         </Form.Control>
                         <Form.Control
                             type="text"
+                            name="subreddit"
                             placeholder="Subreddit"
                             autoCapitalize="off"
                             onChange={(e) => updateField(e, "subreddit", itemModelState)}
@@ -71,6 +76,7 @@ const OutletBasedScheduledSubmissionFormDialog = () => {
                         <Form.Control
                             as="textarea"
                             type="text"
+                            name="commentBody"
                             placeholder="Auto Reply"
                             onChange={(e) => updateField(e, "commentBody", itemModelState)}
                             autoComplete="off"
