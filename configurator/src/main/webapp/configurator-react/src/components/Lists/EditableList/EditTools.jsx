@@ -37,6 +37,7 @@ const EditTools = (props) => {
                     }
                 >
                     <button
+                        title="Edit"
                         className="btn edit-tools-button edit-button"
                         style={
                             Boolean(props.editItemHandler) && props.selectedItems.size === 1
@@ -52,6 +53,7 @@ const EditTools = (props) => {
                         <FontAwesomeIcon icon={Edit}></FontAwesomeIcon>
                     </button>
                     <button
+                        title="Remove"
                         className="btn edit-tools-button remove-button"
                         style={
                             Boolean(props.removeSelectedHandler)

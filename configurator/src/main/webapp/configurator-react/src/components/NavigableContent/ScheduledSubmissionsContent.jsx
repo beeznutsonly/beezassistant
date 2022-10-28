@@ -5,12 +5,7 @@ import EditableListContent from "./OutletBasedEditableListContent";
 
 const ScheduledSubmissionsContent = (props) => {
     const itemMappingFunction = scheduledSubmission => {
-      return <ScheduledSubmission
-          title={scheduledSubmission.title}
-          url={scheduledSubmission.url}
-          subreddit={scheduledSubmission.subreddit}
-          scheduledTime={scheduledSubmission.scheduledTime}
-      />
+      return <ScheduledSubmission item={scheduledSubmission}/>
     }
     const itemsRepository = new ItemsRepository(
       props.apiURL + "scheduledsubmissions"

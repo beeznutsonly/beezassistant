@@ -1,6 +1,10 @@
 .star-link {
-    display:flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: 5rem auto;
+    column-gap: .8rem;
+    max-width: 100%;
+}
+.star-link-link-name, .star-link-link {
+    word-wrap: break-word;
+    word-break: break-word;
 }

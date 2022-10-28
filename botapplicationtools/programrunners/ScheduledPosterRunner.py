@@ -6,7 +6,6 @@ from botapplicationtools.programrunners.ProgramRunner import ProgramRunner
 from botapplicationtools.programs.scheduledposter.ScheduledPoster import ScheduledPoster
 from botapplicationtools.programs.scheduledposter.CompletedSubmissionDAO import CompletedSubmissionDAO
 from botapplicationtools.programs.scheduledposter.ScheduledPosterStorage import ScheduledPosterStorage
-from botapplicationtools.programs.scheduledposter.ScheduledSubmissionAutoReplyDAO import ScheduledSubmissionAutoReplyDAO
 from botapplicationtools.programs.scheduledposter.ScheduledSubmissionDAO import ScheduledSubmissionDAO
 from botapplicationtools.programsexecutors.programsexecutortools.RedditInterfaceFactory import RedditInterfaceFactory
 
@@ -48,8 +47,7 @@ class ScheduledPosterRunner(ProgramRunner):
 
         scheduledPosterStorage = ScheduledPosterStorage(
             ScheduledSubmissionDAO(connection),
-            CompletedSubmissionDAO(connection),
-            ScheduledSubmissionAutoReplyDAO(connection)
+            CompletedSubmissionDAO(connection)
         )
 
         scheduledPoster = ScheduledPoster(

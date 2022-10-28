@@ -1,25 +1,55 @@
 import DateAdapter from '@date-io/date-fns';
+import { faCheck as Completed } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import '../StandardListItem/StandardListItem.css';
 import './ScheduledCrosspost.css';
 
-const ScheduledCrosspost = props => {
+const ScheduledCrosspost = ({ item }) => {
 
     const dateAdapter = new DateAdapter();
     
     return (
         <>
-            <div className="scheduled-crosspost general-list-group-item-content">
-                {
-                    !Boolean(props.title)
-                    ? <h2 className="scheduled-crosspost-title scheduled-crosspost-default-title">
-                        Original submission title
-                    </h2>
-                    : <h2 className="scheduled-crosspost-title">{props.title}</h2>
-                }
-                <label className="scheduled-crosspost-url">{props.url}</label>
-                <label className="scheduled-crosspost-subreddit">r/{props.subreddit}</label>
-                <label className="scheduled-crosspost-time">{
-                    dateAdapter.formatByString(dateAdapter.date(props.scheduledTime), 'E, dd MMM yyyy HH:mm O')
-                }</label>
+            <div className="item general-list-group-item-content">
+                <div className="item-core">
+                    <div className="item-core-details">
+                        {
+                            <label className={
+                                `item-title ${
+                                    !Boolean(item.title)
+                                    ? 'scheduled-crosspost-default-title'
+                                    : ''
+                                }`
+                            }>
+                                {
+                                    Boolean(item.title)
+                                    ? item.title
+                                    : "Original submission title"
+                                }
+                            </label>
+                        }
+                        <label className="scheduled-crosspost-url">{item.url}</label>
+                        <label className="scheduled-crosspost-subreddit">r/{item.subreddit}</label>
+                        <label className="scheduled-crosspost--scheduled-time">{
+                            dateAdapter.formatByString(dateAdapter.date(item.scheduledTime), 'E, dd MMM yyyy HH:mm O')
+                        }</label>
+                    </div>
+                    <div className="additional-information-pane">
+                        {
+                            Boolean(item.completed)
+                            ? (
+                                <div
+                                    title="Crosspost was completed"
+                                    className="item-core-icon completed-check"
+                                >
+                                    <FontAwesomeIcon icon={Completed}/>
+                                </div>
+                            )
+                            : <></>
+                        }
+                    </div>
+                </div>
+                
             </div>
         </>
     )

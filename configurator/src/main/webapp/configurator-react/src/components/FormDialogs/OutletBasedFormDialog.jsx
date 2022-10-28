@@ -31,7 +31,7 @@ const OutletBasedFormDialog = (props) => {
         else {
             if (params["itemId"]) {
                 const promise = context.itemsAPI.retrieveItem(
-                    encodeURI(params["itemId"])
+                    encodeURI(`${params["itemId"]}?projection=detailed`)
                 );
                 promise.then((response) => {
                     if (response.ok) {

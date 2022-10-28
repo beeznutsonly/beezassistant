@@ -10,18 +10,15 @@ class ScheduledPosterStorage:
 
     __scheduledSubmissionDAO: ScheduledSubmissionDAO
     __completedSubmissionDAO: CompletedSubmissionDAO
-    __scheduledSubmissionAutoReplyDAO: ScheduledSubmissionAutoReplyDAO
 
     def __init__(
             self,
             scheduledSubmissionDAO: ScheduledSubmissionDAO,
-            completedSubmissionDAO: CompletedSubmissionDAO,
-            scheduledSubmissionAutoReplyDAO: ScheduledSubmissionAutoReplyDAO
+            completedSubmissionDAO: CompletedSubmissionDAO
     ):
 
         self.__scheduledSubmissionDAO = scheduledSubmissionDAO
         self.__completedSubmissionDAO = completedSubmissionDAO
-        self.__scheduledSubmissionAutoReplyDAO = scheduledSubmissionAutoReplyDAO
 
     @property
     def getScheduledSubmissionDAO(self):
@@ -30,7 +27,3 @@ class ScheduledPosterStorage:
     @property
     def getCompletedSubmissionDAO(self):
         return self.__completedSubmissionDAO
-
-    @property
-    def getScheduledSubmissionAutoReplyDAO(self):
-        return self.__scheduledSubmissionAutoReplyDAO

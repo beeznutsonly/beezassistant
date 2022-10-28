@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Table;
 
@@ -21,6 +22,9 @@ public class ScheduledCrosspost implements Serializable {
 	
 	private ZonedDateTime scheduledTime;
 	private String title;
+
+	@OneToOne(mappedBy = "scheduledCrosspost")
+	private CompletedCrosspost completed;
 	
 	public ScheduledCrosspost() {
 		super();
@@ -71,5 +75,14 @@ public class ScheduledCrosspost implements Serializable {
 	public void setUrl(String url) {
 		scheduledCrosspostId.setUrl(url);
 	}
-	
+
+    public CompletedCrosspost getCompleted() {
+        return completed;
+    }
+
+
+    public void setCompleted(CompletedCrosspost completed) {
+        this.completed = completed;
+    }
+
 }

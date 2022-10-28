@@ -24,7 +24,7 @@ const BasicNavigationBar = (props) => {
         <>
             <nav className={`basic-navigation-bar ${navigationBarType}`}>
                 <Link to="/">
-                    <img className={logoType} />
+                    <img title="Home" className={logoType} />
                 </Link>
                 <label className="navigation-bar-label">{props.label}</label>
             </nav>

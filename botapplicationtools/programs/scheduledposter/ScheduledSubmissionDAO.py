@@ -19,7 +19,7 @@ class ScheduledSubmissionDAO:
     def getDueSubmissions(self) -> List[ScheduledSubmission]:
         """Retrieve all due scheduled submissions"""
 
-        sqlString = "SELECT url, subreddit, title, scheduled_time, flair_id " \
+        sqlString = "SELECT url, subreddit, title, scheduled_time, flair_id, comment_body " \
                     "FROM ScheduledSubmission " \
                     "WHERE scheduled_time <= %s;"
 
@@ -37,7 +37,8 @@ class ScheduledSubmissionDAO:
                         record[1],
                         record[2],
                         record[3],
-                        record[4]
+                        record[4],
+                        record[6]
                     )
                 )
             return dueSubmissions

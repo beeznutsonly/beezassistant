@@ -15,5 +15,8 @@
     margin-block: .5rem;
 }
 .form-heading {
-    margin-bottom: 1rem
+    text-align: center;
+    max-width: 100%;
+    min-width: 100%;
+    margin-bottom: 1rem;
 }

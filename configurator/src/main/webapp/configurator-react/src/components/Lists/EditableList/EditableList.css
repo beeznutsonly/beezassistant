@@ -4,6 +4,7 @@
     gap: .5em;
     min-height: 100%;
     min-width: 100%;
+    max-width: 100%;
 }
 .list-group {
     min-width: 100%

@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -16,7 +17,10 @@ public class ScheduledSubmission {
 	private String title;
 	private ZonedDateTime scheduledTime;
 	private String flairId;
-	
+	private String commentBody;
+
+	@OneToOne(mappedBy="scheduledSubmission")
+	private CompletedSubmission completed;
 	
 	public ScheduledSubmission() {
 		super();
@@ -88,4 +92,11 @@ public class ScheduledSubmission {
 		this.flairId = flairId;
 	}
 	
+	public String getCommentBody() {
+		return commentBody;
+	}
+
+	public void setCommentBody(String commentBody) {
+		this.commentBody = commentBody;
+	}
 }

@@ -1,50 +1,144 @@
 import DateAdapter from '@date-io/date-fns';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Accordion from 'react-bootstrap/Accordion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import "../StandardListItem/StandardListItem.css"
 import "./Star.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLink as Links } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser as Description } from '@fortawesome/free-regular-svg-icons';
+import Collapse from 'react-bootstrap/Collapse';
+import { useState } from 'react';
 
-const Star = (props) => {
+const Star = ({ item }) => {
 
     const dateAdapter = new DateAdapter();
 
+    const [isDescriptionOpen, setDescriptionOpen] = useState(false);
+    const [isStarLinksOpen, setStarLinksOpen] = useState(false);
+
     return (
         <>
-            <div className="star general-list-group-item-content">
-                <div className="star-core">
-                    <div className="star-core-details">
-                        <h2 className="star-name">{props.name}</h2>
+            <div className="item general-list-group-item-content">
+                <div className="item-core">
+                    <div className="item-core-details">
+                        <h2 className="item-title">{item.name}</h2>
                         <label className="star-birthday">{
-                            Boolean(props.birthday)
-                            ? dateAdapter.formatByString(dateAdapter.date(props.birthday), 'PP')
-                            : props.birthday
+                            Boolean(item.birthday)
+                            ? dateAdapter.formatByString(dateAdapter.date(item.birthday), 'PP')
+                            : item.birthday
                         }</label>
-                        <label className="star-nationality">Nationality: {props.nationality}</label>
-                        <label className="star-birth-place">Birth Place: {props.birthPlace}</label>
-                        <label className="star-years-active">Years Active: {props.yearsActive}</label>
+                        <label className="star-nationality">Nationality: {item.nationality}</label>
+                        <label className="star-birth-place">Birth Place: {item.birthPlace}</label>
+                        <label className="star-years-active">Years Active: {item.yearsActive}</label>
                     </div>
-                    <ButtonGroup className="secondary-details-button-group">
-                        <button className="btn">
-                        </button>
-                        <button className="btn">
-                    
-                        </button>
-                    </ButtonGroup>
+                    {
+                        Boolean(item.description) || Boolean (item.starLinks)
+                        ?(
+                            <div 
+                                className={`item-secondary-details-selector-group ${
+                                    isDescriptionOpen || isStarLinksOpen
+                                    ? "active"
+                                    : ""
+                                }`}
+                            >
+                                {Boolean(item.description)
+                                ?(
+                                    <div
+                                        title="Bio"
+                                        className={
+                                            `item-core-icon item-secondary-details-selector ${
+                                                isDescriptionOpen
+                                                ? "active"
+                                                : ""
+                                            }`
+                                        }
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setDescriptionOpen(value => !value)
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={Description}/>
+                                    </div>
+                                )
+                                : <></>}
+                                {Boolean(item.starLinks)
+                                ?(
+                                    <div 
+                                        title="Links"
+                                        className={
+                                            `item-core-icon item-secondary-details-selector ${
+                                                isStarLinksOpen
+                                                ? "active"
+                                                : ""
+                                            }`
+                                        }
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStarLinksOpen(value => !value)
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={Links}/>
+                                    </div>
+                                )
+                                : <></>}
+                            </div>
+                        )
+                        : <></>
+                    }
                 </div>
                 {
-                    Boolean(props.description)
+                    Boolean(item.description) || Boolean(item.starLinks)
                     ? (
-                        <Accordion flush>
-                            <Accordion.Item eventKey="0">
-                                {/* <Accordion.Header>Description</Accordion.Header> */}
-                                <Accordion.Body>
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        { props.description }
-                                    </ReactMarkdown>
-                                </Accordion.Body>
-                            </Accordion.Item>
-                        </Accordion>
+                        <div className="item-secondary-details">
+                            {Boolean(item.description)
+                                ?(
+                                    <Collapse
+                                        in={isDescriptionOpen}
+                                    >
+                                        <div className='star-description'>
+                                            <hr/>
+                                            <ReactMarkdown 
+                                                remarkPlugins={[remarkGfm]}
+                                            >
+                                                { item.description }
+                                            </ReactMarkdown>
+                                        </div>
+                                    </Collapse>
+                                )
+                                : <></>}
+                            {Boolean(item.starLinks)
+                                ?(
+                                    <Collapse
+                                        in={isStarLinksOpen}
+                                    >
+                                        <div className="star-links">
+                                            <hr/>
+                                            <ul>
+                                                {
+                                                    item.starLinks.map(starLink => (
+                                                        <li key={
+                                                            `${starLink.linkName}__${starLink.link}`
+                                                        }>
+                                                            <a 
+                                                                rel="noreferrer"
+                                                                href={starLink.link}
+                                                                target="_blank"
+                                                            >
+                                                                {
+                                                                    starLink.linkName
+                                                                    ? starLink.linkName
+                                                                    : <></>
+                                                                }
+                                                            </a>
+                                                        </li>
+                                                    ))
+                                                }
+                                            </ul>
+                                        </div>
+                                    </Collapse>
+                                )
+                                : <></>}
+                        </div>
                     )
                     : <></>
                 }

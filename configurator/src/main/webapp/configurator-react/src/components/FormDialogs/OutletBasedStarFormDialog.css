@@ -2,3 +2,6 @@
     justify-content: center;
     margin-bottom: .5rem;
 }
+textarea.form-control {
+    min-height: 6em;
+}

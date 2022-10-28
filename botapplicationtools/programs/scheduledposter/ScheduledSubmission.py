@@ -17,6 +17,7 @@ class ScheduledSubmission:
             title: str,
             scheduledTime: datetime,
             flairId: str = None,
+            commentBody: str = None
     ):
 
         self.__url = url
@@ -24,6 +25,7 @@ class ScheduledSubmission:
         self.__title = title
         self.__scheduledTime = scheduledTime
         self.__flairId = flairId
+        self.__commentBody = commentBody
 
     @property
     def getUrl(self):
@@ -44,3 +46,7 @@ class ScheduledSubmission:
     @property
     def getFlairId(self):
         return self.__flairId
+
+    @property
+    def getCommentBody(self):
+        return self.__commentBody

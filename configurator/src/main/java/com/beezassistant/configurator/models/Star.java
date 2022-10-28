@@ -21,7 +21,7 @@ public class Star {
 
 	@OneToMany(mappedBy="star")
 	private List<StarLink> starLinks;
-	
+
 	public Star() {
 		super();
 	}
@@ -94,6 +94,14 @@ public class Star {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public List<StarLink> getStarLinks() {
+		return starLinks;
+	}
+
+	public void setStarLinks(List<StarLink> starLinks) {
+		this.starLinks = starLinks;
 	}
 
 	@Override

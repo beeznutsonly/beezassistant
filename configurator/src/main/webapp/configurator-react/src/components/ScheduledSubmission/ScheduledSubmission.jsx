@@ -1,19 +1,94 @@
 import DateAdapter from '@date-io/date-fns';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState } from 'react';
+import Collapse from 'react-bootstrap/Collapse';
+import { faMessage as Comment } from '@fortawesome/free-regular-svg-icons';
+import { faCheck as Completed } from '@fortawesome/free-solid-svg-icons';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import "../StandardListItem/StandardListItem.css"
 import './ScheduledSubmission.css';
 
-const ScheduledSubmission = props => {
+const ScheduledSubmission = ({ item }) => {
     
     const dateAdapter = new DateAdapter();
+    const [isCommentBodyOpen, setCommentBodyOpen] = useState(false);
 
     return (
         <>
-            <div className="scheduled-submission general-list-group-item-content">
-                <h2 className="scheduled-submission-title">{props.title}</h2>
-                <label className="scheduled-submission-url">{props.url}</label>
-                <label className="scheduled-submission-subreddit">r/{props.subreddit}</label>
-                <label className="scheduled-submission-time">{
-                    dateAdapter.formatByString(dateAdapter.date(props.scheduledTime), 'E, dd MMM yyyy HH:mm O')
-                }</label>
+            <div className="item general-list-group-item-content">
+                <div className="item-core">
+                    <div className="item-core-details">
+                        <label className="item-title">{item.title}</label>
+                        <label className="scheduled-submission-url">{item.url}</label>
+                        <label className="scheduled-submission-subreddit">r/{item.subreddit}</label>
+                        <label className="scheduled-submission-scheduled-time">{
+                            dateAdapter.formatByString(dateAdapter.date(item.scheduledTime), 'E, dd MMM yyyy HH:mm O')
+                        }</label>
+                    </div>
+                    <div className="additional-information-pane">
+                        {
+                            Boolean(item.completed)
+                            ? (
+                                <div
+                                    title="Submission was completed"
+                                    className="item-core-icon completed-check"
+                                >
+                                    <FontAwesomeIcon icon={Completed}/>
+                                </div>
+                            )
+                            : <></>
+                        }
+                        {
+                            Boolean(item.commentBody)
+                            ? (
+                                <div
+                                    className={`item-secondary-details-selector-group ${
+                                        isCommentBodyOpen
+                                        ? "active"
+                                        : ""
+                                    }`}
+                                >
+                                    <div
+                                        title="Comment"
+                                        className={`item-secondary-details-selector ${
+                                            isCommentBodyOpen
+                                            ? "active"
+                                            : ""
+                                        }`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCommentBodyOpen(value => !value)
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={Comment}/>
+                                    </div>
+                                </div>
+                            )
+                            : <></>
+                        }
+                    </div>
+                </div>
+                {
+                    Boolean(item.commentBody)
+                    ?(
+                        <div className="item-secondary-details">
+                            <Collapse
+                                in={isCommentBodyOpen}
+                            >
+                                <div className="scheduled-submission-comment-body">
+                                    <hr/>
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                    >
+                                        { item.commentBody }
+                                    </ReactMarkdown>
+                                </div>
+                            </Collapse>
+                        </div>
+                    )
+                    : <></>
+                }
             </div>
         </>
     )

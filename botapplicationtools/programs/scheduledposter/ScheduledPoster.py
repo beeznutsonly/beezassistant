@@ -42,9 +42,6 @@ class ScheduledPoster(RecurringProgramNature):
         completedSubmissionDAO = scheduledPosterStorage \
             .getCompletedSubmissionDAO
 
-        scheduledSubmissionAutoReplyDAO = scheduledPosterStorage \
-            .getScheduledSubmissionAutoReplyDAO
-
         dueSubmissions = scheduledSubmissionDAO.getDueSubmissions()
 
         for dueSubmission in dueSubmissions:
@@ -80,12 +77,10 @@ class ScheduledPoster(RecurringProgramNature):
                     'Completed submission (ID: {}) successfully '
                     'acknowledged'.format(submission.id)
                 )
-                # Processing auto-replies for the given submission
-                scheduledSubmissionAutoReplies = scheduledSubmissionAutoReplyDAO \
-                    .getScheduledSubmissionAutoReplies(dueSubmission)
 
-                for scheduledSubmissionAutoReply in scheduledSubmissionAutoReplies:
-                    reply = submission.reply(scheduledSubmissionAutoReply)
+                # Processing auto-reply for the given submission
+                if bool(dueSubmission.getCommentBody):
+                    reply = submission.reply(dueSubmission.commentBody)
                     self._programLogger.debug(
                         'Auto reply (ID: {}) for post (ID: {}) '
                         'successfully submitted'.format(

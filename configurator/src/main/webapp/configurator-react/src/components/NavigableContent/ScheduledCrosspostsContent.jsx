@@ -5,12 +5,7 @@ import EditableListContent from "./OutletBasedEditableListContent";
 
 const ScheduledCrosspostsContent = (props) => {
     const itemMappingFunction = scheduledCrosspost => {
-      return <ScheduledCrosspost
-          title={scheduledCrosspost.title}
-          url={scheduledCrosspost.url}
-          subreddit={scheduledCrosspost.subreddit}
-          scheduledTime={scheduledCrosspost.scheduledTime}
-      />
+      return <ScheduledCrosspost item={scheduledCrosspost}/>
     }
     const itemsRepository = new ItemsRepository(
       props.apiURL +  "scheduledcrossposts"

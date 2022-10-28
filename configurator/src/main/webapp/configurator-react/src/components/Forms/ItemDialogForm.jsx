@@ -85,7 +85,7 @@ const ItemDialogForm = (props) => {
                 validated={isFormValidated} 
                 noValidate
             >
-                <div className="form-heading v-flexbox">
+                <div className="form-heading">
                     <h1 className="form-title">{props.formTitle}</h1>
                 </div>
                 <div className="form-content">

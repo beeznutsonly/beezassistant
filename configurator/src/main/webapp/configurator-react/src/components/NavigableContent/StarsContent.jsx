@@ -5,14 +5,7 @@ import EditableListContent from "./OutletBasedEditableListContent";
 
 const StarsContent = (props) => {
     const itemMappingFunction = star => {
-      return <Star
-          name={star.name}
-          birthday={star.birthday}
-          nationality={star.nationality}
-          birthPlace={star.birthPlace}
-          yearsActive={star.yearsActive}
-          description={star.description}
-      />
+      return <Star item={star}/>
     }
     const itemsRepository = new ItemsRepository(
       props.apiURL + "stars"
