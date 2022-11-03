@@ -22,25 +22,27 @@
 .additional-information-pane {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-end;
+    justify-content: space-evenly;
+    align-items: center;
     gap: .9em;
+    min-width: fit-content;
 }
 .item-core-icon {
     font-size: 1rem;
     padding: 0;
 }
 .item-secondary-details-selector-group {
-    display: flex;
+    display: none;
     gap: .5rem;
     min-width: fit-content;
-    align-self: flex-end;
     visibility: hidden;
 }
 .item-secondary-details-selector-group.active {
+    display: flex;
     visibility: visible;
 }
 .item:hover .item-secondary-details-selector-group {
+    display: flex;
     visibility: visible;
 }
 .item-secondary-details-selector {

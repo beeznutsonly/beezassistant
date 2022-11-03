@@ -1,6 +1,7 @@
 package com.beezassistant.configurator.models;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -25,6 +26,7 @@ public class CompletedSubmission implements Serializable {
 		@JoinColumn(name="subreddit", referencedColumnName="subreddit")
 	})
 	private ScheduledSubmission scheduledSubmission;
+	private ZonedDateTime completedTime;
 	
 	public CompletedSubmission() {
 		super();
@@ -50,5 +52,13 @@ public class CompletedSubmission implements Serializable {
 	public String getSubreddit() {
 		return scheduledSubmission.getSubreddit();
 	}
-	
+
+	public ZonedDateTime getCompletedTime() {
+		return completedTime;
+	}
+
+	public void setCompletedTime(ZonedDateTime completedTime) {
+		this.completedTime = completedTime;
+	}
+
 }

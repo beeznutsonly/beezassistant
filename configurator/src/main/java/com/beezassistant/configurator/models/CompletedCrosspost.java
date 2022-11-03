@@ -1,6 +1,7 @@
 package com.beezassistant.configurator.models;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -25,6 +26,7 @@ public class CompletedCrosspost implements Serializable {
 		@JoinColumn(name = "subreddit", referencedColumnName = "subreddit")
 	})
 	private ScheduledCrosspost scheduledCrosspost;
+	private ZonedDateTime completedTime;
 
 	public CompletedCrosspost() {
 		super();
@@ -50,4 +52,13 @@ public class CompletedCrosspost implements Serializable {
 	public String getSubreddit() {
 		return scheduledCrosspost.getSubreddit();
 	}
+
+	public ZonedDateTime getCompletedTime() {
+		return completedTime;
+	}
+
+	public void setCompletedTime(ZonedDateTime completedTime) {
+		this.completedTime = completedTime;
+	}
+
 }

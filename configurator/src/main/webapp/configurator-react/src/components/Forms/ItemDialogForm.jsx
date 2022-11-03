@@ -31,7 +31,7 @@ const ItemDialogForm = (props) => {
     }
 
     const submitForm = () => {
-        setIsActionInProgress(true);
+        setIsActionInProgress(true);  
         const promise = props.itemAPIAction(props.itemModel);
         promise.then((response) => {
             if (response.ok) {

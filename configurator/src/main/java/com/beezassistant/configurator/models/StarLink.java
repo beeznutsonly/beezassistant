@@ -8,6 +8,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name="starlink")
 public class StarLink implements Serializable {
@@ -22,6 +24,7 @@ public class StarLink implements Serializable {
 	
 	@ManyToOne
 	@MapsId("starName")
+	@JsonBackReference 
 	private Star star;
 
 	private String linkName;
@@ -38,8 +41,6 @@ public class StarLink implements Serializable {
 	public void setStarLinkId(StarLinkId starLinkId) {
 		this.starLinkId = starLinkId;
 	}
-
-	
 
 	// public String getStarName() {
 	// 	return starLinkId.getStarName();
@@ -63,6 +64,14 @@ public class StarLink implements Serializable {
 	
 	public void setLinkName(String linkName) {
 		this.linkName = linkName;
+	}
+
+	public Star getStar() {
+		return star;
+	}
+
+	public void setStar(Star star) {
+		this.star = star;
 	}
 	
 }

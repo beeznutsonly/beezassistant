@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.springframework.data.rest.core.config.Projection;
 
-@Projection(
-    name = "detailed",
-    types = {Star.class}
-)
+// @Projection(
+//     name = "detailed",
+//     types = {Star.class}
+// )
 public interface DetailedStar {
     String getName();
     LocalDate getBirthday();

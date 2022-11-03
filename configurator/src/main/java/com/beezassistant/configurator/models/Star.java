@@ -3,9 +3,12 @@ package com.beezassistant.configurator.models;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Star {
@@ -19,7 +22,8 @@ public class Star {
 	private String yearsActive;
 	private String description;
 
-	@OneToMany(mappedBy="star")
+	@OneToMany(mappedBy="star", cascade = CascadeType.ALL)
+	@JsonManagedReference
 	private List<StarLink> starLinks;
 
 	public Star() {

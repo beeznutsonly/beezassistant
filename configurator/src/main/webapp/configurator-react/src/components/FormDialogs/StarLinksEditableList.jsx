@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import StarLinkModel from "../../models/StarLinkModel";
@@ -12,15 +12,22 @@ const StarLinksEditableList = (props) => {
         new StarLinkModel("", "")
     )
     const [starLinkModel, setStarLinkModel] = starLinkModelState;
-    const [starLinks, setStarLinks] = props.starLinksState;
-    const [starLinksPendingRemoval, setStarLinksPendingRemoval] = props.starLinksPendingRemovalState;
+    const [itemModel, setItemModel] = props.itemModelState;
+    // const [starLinks, setStarLinks] = props.starLinksState;
+    // const [starLinksPendingRemoval, setStarLinksPendingRemoval] = props.starLinksPendingRemovalState;
+
 
     const itemMappingFunction = starLink => (
         <StarLink linkName={starLink.linkName} link={starLink.link}/>
     );
 
     const addItemHandler = () => {
-        setStarLinks([...starLinks, {...starLinkModel}]);
+        setItemModel(currentItemModel => {
+                return {
+                    ...currentItemModel,
+                    starLinks: [...currentItemModel.starLinks, starLinkModel]
+                }
+        });
     }
 
     const editItemHandler = (itemToBeEdited) => {
@@ -28,27 +35,30 @@ const StarLinksEditableList = (props) => {
     }
 
     const removeSelectedHandler = (selectedItems) => {
-        setStarLinksPendingRemoval(
-            new Set([
-                ...starLinksPendingRemoval,
-                ...selectedItems
-            ])
-        );
+        setItemModel(currentItemModel => {
+                return {
+                    ...currentItemModel,
+                    starLinks: [...currentItemModel.starLinks.filter(
+                        starLink => !selectedItems.has(starLink)
+                    )]
+                }
+        });
+        //TODO:
     }
 
-    useEffect(() => {
-        if (starLinksPendingRemoval)
-            setStarLinks(unfilteredStarLinks =>
-                unfilteredStarLinks.filter(starLink => 
-                    !starLinksPendingRemoval.has(starLink)
-                )
-            );
-    }, [setStarLinks, starLinksPendingRemoval])
+    // useEffect(() => {
+    //     if (starLinksPendingRemoval)
+    //         setStarLinks(unfilteredStarLinks =>
+    //             unfilteredStarLinks.filter(starLink => 
+    //                 !starLinksPendingRemoval.has(starLink)
+    //             )
+    //         );
+    // }, [setStarLinks, starLinksPendingRemoval])
 
     return (
         <div className="v-flexbox">
             <EditableList
-                items={starLinks}
+                items={itemModel.starLinks}
                 addItemHandler={addItemHandler}
                 editItemHandler={editItemHandler}
                 removeSelectedHandler={removeSelectedHandler}

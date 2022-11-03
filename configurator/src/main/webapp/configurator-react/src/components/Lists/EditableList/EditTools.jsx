@@ -1,11 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
     faUndo as Refresh,  
-    faAdd as Add, 
-    faEdit as Edit,
-    faTrashCan as Remove, 
+    faAdd as Add,
     faMultiply as Cancel 
 } from "@fortawesome/free-solid-svg-icons";
+import {
+    faTrashCan as Remove, 
+    faEdit as Edit,
+} from "@fortawesome/free-regular-svg-icons";
 import "./EditTools.css";
 
 const EditTools = (props) => {

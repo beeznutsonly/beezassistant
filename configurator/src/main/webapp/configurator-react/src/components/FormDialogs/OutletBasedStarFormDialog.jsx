@@ -17,13 +17,7 @@ const OutletBasedStarFormDialog = () => {
     const itemModel = itemModelState[0];
     const [isEditForm, setEditForm] = useState(
         isEditFormFunction(useLocation(), useParams())
-        );
-    const [starLinks, setStarLinks] = useState(
-        Boolean(itemModel.starLinks)
-        ? itemModel.starLinks
-        : []
     );
-    const [starLinksPendingRemoval, setStarLinksPendingRemoval] = useState(new Set());
 
     // const [starLinksRepository, setStarLinksRepository] = useState();
 
@@ -43,46 +37,46 @@ const OutletBasedStarFormDialog = () => {
     //     });
     // }, [starLinksRepository]);
 
-    const starSubmitSuccessCallback = (star) => {
-        const starStarLinksRepository = new ItemsRepository(
-            star._links.starLinks.href
-        )
-        if (isEditForm) {
-            starLinksPendingRemoval.forEach(
-                starLinkPendingRemoval => {
-                    if (starLinkPendingRemoval._links)
-                        starStarLinksRepository.removeItem(
-                            starLinkPendingRemoval
-                        )
-                        .catch((error) => {
-                            return Promise.reject(new Error(error))
-                        })
-                }
-            )
-            setStarLinksPendingRemoval(
-                new Set()
-            );
-        }
-        starLinks.forEach(
-            starLink => starStarLinksRepository.addItem(
-                starLink
-            )
-            .catch((error) => {
-                return Promise.reject(new Error(error))
-            })
-        )
-    }
+    // const starSubmitSuccessCallback = (star) => {
+    //     const starStarLinksRepository = new ItemsRepository(
+    //         star._links.starLinks.href
+    //     )
+    //     if (isEditForm) {
+    //         starLinksPendingRemoval.forEach(
+    //             starLinkPendingRemoval => {
+    //                 if (starLinkPendingRemoval._links)
+    //                     starStarLinksRepository.removeItem(
+    //                         starLinkPendingRemoval
+    //                     )
+    //                     .catch((error) => {
+    //                         return Promise.reject(new Error(error))
+    //                     })
+    //             }
+    //         )
+    //         setStarLinksPendingRemoval(
+    //             new Set()
+    //         );
+    //     }
+    //     starLinks.forEach(
+    //         starLink => starStarLinksRepository.addItem(
+    //             starLink
+    //         )
+    //         .catch((error) => {
+    //             return Promise.reject(new Error(error))
+    //         })
+    //     )
+    // }
 
-    useOutletContext().secondarySuccessCallback = starSubmitSuccessCallback;
+    // useOutletContext().secondarySuccessCallback = starSubmitSuccessCallback;
 
-    useEffect(() => {
-        if (
-            !(starLinks.length || starLinksPendingRemoval.size) 
-            && Boolean(itemModel.starLinks)
-        ) {
-            setStarLinks(itemModel.starLinks)
-        }
-    }, [starLinks, starLinksPendingRemoval, itemModel]);
+    // useEffect(() => {
+    //     if (
+    //         !(starLinks.length || starLinksPendingRemoval.size) 
+    //         && Boolean(itemModel.starLinks)
+    //     ) {
+    //         setStarLinks(itemModel.starLinks)
+    //     }
+    // }, [starLinks, starLinksPendingRemoval, itemModel]);
 
     // useEffect(() => {
     //     if (isEditForm && starLinksRepository) {
@@ -171,10 +165,11 @@ const OutletBasedStarFormDialog = () => {
                             title="Star Links"
                         >
                             <StarLinksEditableList
-                                starLinksState={[starLinks, setStarLinks]}
-                                starLinksPendingRemovalState={
-                                    [starLinksPendingRemoval, setStarLinksPendingRemoval]
-                                }
+                                // starLinksState={[starLinks, setStarLinks]}
+                                // starLinksPendingRemovalState={
+                                //     [starLinksPendingRemoval, setStarLinksPendingRemoval]
+                                // }
+                                itemModelState={itemModelState}
                             />
                         </Tab>
                     </Tabs>

@@ -15,6 +15,17 @@ class ItemsRepository {
         );
     }
 
+    updateItem(item) {
+        return fetch(
+            item._links.self.href,
+            {
+                method: "PATCH",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify(item)
+            }
+        );
+    }
+
     removeItem(item) {
         return fetch(
             item._links.self.href,

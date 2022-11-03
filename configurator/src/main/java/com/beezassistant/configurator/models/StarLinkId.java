@@ -1,6 +1,9 @@
 package com.beezassistant.configurator.models;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.persistence.Embeddable;
 
@@ -43,6 +46,23 @@ public class StarLinkId implements Serializable {
 	public void setLink(String link) {
 		this.link = link;
 	}
+
+	@Override
+    public String toString() {
+        try {
+            return String.format(
+                    "%s__%s", 
+                    getStarName(),
+                    URLEncoder.encode(
+                            getLink(), 
+                            StandardCharsets.UTF_8.toString()
+                    )
+            );
+        }
+        catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
 
 	@Override
 	public int hashCode() {

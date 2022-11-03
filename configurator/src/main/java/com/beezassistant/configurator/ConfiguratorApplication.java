@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import com.beezassistant.configurator.models.Star;
+import com.beezassistant.configurator.models.StarLinkIdConverter;
 
 @SpringBootApplication
 public class ConfiguratorApplication implements RepositoryRestConfigurer {
@@ -23,6 +25,11 @@ public class ConfiguratorApplication implements RepositoryRestConfigurer {
 	public static void main(String[] args) {
 		SpringApplication.run(ConfiguratorApplication.class, args);
 	}
+
+    @Override
+    public void configureConversionService(ConfigurableConversionService conversionService) {
+        conversionService.addConverter(new StarLinkIdConverter());
+    }
 	
 	@Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {

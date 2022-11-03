@@ -1,5 +1,5 @@
 import DateAdapter from '@date-io/date-fns';
-import { faCheck as Completed } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarCheck as Completed } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '../StandardListItem/StandardListItem.css';
 import './ScheduledCrosspost.css';
@@ -30,8 +30,8 @@ const ScheduledCrosspost = ({ item }) => {
                         }
                         <label className="scheduled-crosspost-url">{item.url}</label>
                         <label className="scheduled-crosspost-subreddit">r/{item.subreddit}</label>
-                        <label className="scheduled-crosspost--scheduled-time">{
-                            dateAdapter.formatByString(dateAdapter.date(item.scheduledTime), 'E, dd MMM yyyy HH:mm O')
+                        <label className="scheduled-crosspost-scheduled-time">{
+                            dateAdapter.formatByString(dateAdapter.date(item.scheduledTime), 'E, dd MMM yyyy HH:mm')
                         }</label>
                     </div>
                     <div className="additional-information-pane">
@@ -39,7 +39,14 @@ const ScheduledCrosspost = ({ item }) => {
                             Boolean(item.completed)
                             ? (
                                 <div
-                                    title="Crosspost was completed"
+                                    title={
+                                        `Crosspost was completed ${
+                                            dateAdapter.formatByString(
+                                                dateAdapter.date(item.completed.completedTime),
+                                                'PPPpp'
+                                            )
+                                        }`
+                                    }
                                     className="item-core-icon completed-check"
                                 >
                                     <FontAwesomeIcon icon={Completed}/>

@@ -41,9 +41,7 @@ const EditableListGroup = (props) => {
                                     focusedItemState={props.focusedItemState}
                                     selectedItemsState={props.selectedItemsState}
                                     key={
-                                        sortedItems[index]._links 
-                                        ? sortedItems[index]._links.self.href
-                                        : index
+                                        JSON.stringify(sortedItems[index])
                                     }
                                     disabled={props.disabled}
                                 />

@@ -6,7 +6,8 @@ class StarModel {
         nationality,
         birthPlace,
         yearsActive,
-        description
+        description,
+        starLinks
     ) {
         this.name = name;
         this.birthday = birthday;
@@ -14,11 +15,12 @@ class StarModel {
         this.birthPlace = birthPlace;
         this.yearsActive = yearsActive;
         this.description = description;
+        this.starLinks = starLinks
     }
 
     static defaultItemModel() {
         return new StarModel(
-            "", "", "", null, "", ""
+            "", "", "", null, "", "", []
         );
     }
 }

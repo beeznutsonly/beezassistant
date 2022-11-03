@@ -31,60 +31,62 @@ const Star = ({ item }) => {
                         <label className="star-birth-place">Birth Place: {item.birthPlace}</label>
                         <label className="star-years-active">Years Active: {item.yearsActive}</label>
                     </div>
-                    {
-                        Boolean(item.description) || Boolean (item.starLinks)
-                        ?(
-                            <div 
-                                className={`item-secondary-details-selector-group ${
-                                    isDescriptionOpen || isStarLinksOpen
-                                    ? "active"
-                                    : ""
-                                }`}
-                            >
-                                {Boolean(item.description)
-                                ?(
-                                    <div
-                                        title="Bio"
-                                        className={
-                                            `item-core-icon item-secondary-details-selector ${
-                                                isDescriptionOpen
-                                                ? "active"
-                                                : ""
-                                            }`
-                                        }
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setDescriptionOpen(value => !value)
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={Description}/>
-                                    </div>
-                                )
-                                : <></>}
-                                {Boolean(item.starLinks)
-                                ?(
-                                    <div 
-                                        title="Links"
-                                        className={
-                                            `item-core-icon item-secondary-details-selector ${
-                                                isStarLinksOpen
-                                                ? "active"
-                                                : ""
-                                            }`
-                                        }
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setStarLinksOpen(value => !value)
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={Links}/>
-                                    </div>
-                                )
-                                : <></>}
-                            </div>
-                        )
-                        : <></>
-                    }
+                    <div className="additional-information-pane">
+                        {
+                            Boolean(item.description) || Boolean (item.starLinks)
+                            ?(
+                                <div
+                                    className={`item-secondary-details-selector-group ${
+                                        isDescriptionOpen || isStarLinksOpen
+                                        ? "active"
+                                        : ""
+                                    }`}
+                                >
+                                    {Boolean(item.description)
+                                    ?(
+                                        <div
+                                            title="Bio"
+                                            className={
+                                                `item-core-icon item-secondary-details-selector ${
+                                                    isDescriptionOpen
+                                                    ? "active"
+                                                    : ""
+                                                }`
+                                            }
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDescriptionOpen(value => !value)
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={Description}/>
+                                        </div>
+                                    )
+                                    : <></>}
+                                    {Boolean(item.starLinks)
+                                    ?(
+                                        <div
+                                            title="Links"
+                                            className={
+                                                `item-core-icon item-secondary-details-selector ${
+                                                    isStarLinksOpen
+                                                    ? "active"
+                                                    : ""
+                                                }`
+                                            }
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setStarLinksOpen(value => !value)
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={Links}/>
+                                        </div>
+                                    )
+                                    : <></>}
+                                </div>
+                            )
+                            : <></>
+                        }
+                    </div>
                 </div>
                 {
                     Boolean(item.description) || Boolean(item.starLinks)
