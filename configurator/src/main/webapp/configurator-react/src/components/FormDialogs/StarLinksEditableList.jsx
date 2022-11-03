@@ -13,9 +13,6 @@ const StarLinksEditableList = (props) => {
     )
     const [starLinkModel, setStarLinkModel] = starLinkModelState;
     const [itemModel, setItemModel] = props.itemModelState;
-    // const [starLinks, setStarLinks] = props.starLinksState;
-    // const [starLinksPendingRemoval, setStarLinksPendingRemoval] = props.starLinksPendingRemovalState;
-
 
     const itemMappingFunction = starLink => (
         <StarLink linkName={starLink.linkName} link={starLink.link}/>
@@ -25,7 +22,7 @@ const StarLinksEditableList = (props) => {
         setItemModel(currentItemModel => {
                 return {
                     ...currentItemModel,
-                    starLinks: [...currentItemModel.starLinks, starLinkModel]
+                    starLinks: [...currentItemModel.starLinks, {...starLinkModel}]
                 }
         });
     }
@@ -43,17 +40,7 @@ const StarLinksEditableList = (props) => {
                     )]
                 }
         });
-        //TODO:
     }
-
-    // useEffect(() => {
-    //     if (starLinksPendingRemoval)
-    //         setStarLinks(unfilteredStarLinks =>
-    //             unfilteredStarLinks.filter(starLink => 
-    //                 !starLinksPendingRemoval.has(starLink)
-    //             )
-    //         );
-    // }, [setStarLinks, starLinksPendingRemoval])
 
     return (
         <div className="v-flexbox">

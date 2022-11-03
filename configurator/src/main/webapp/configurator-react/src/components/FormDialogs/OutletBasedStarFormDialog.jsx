@@ -2,12 +2,11 @@ import { getValidFormValue, isEditForm as isEditFormFunction, updateField } from
 import OutletBasedFormDialog from './OutletBasedFormDialog';
 import Form from 'react-bootstrap/Form';
 import ItemModel from '../../models/StarModel';
-import { useEffect, useState } from 'react';
-import { useLocation, useOutletContext, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import DateTimePickerField from '../Forms/FormFieldControls/DateTimePickerField';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-import ItemsRepository from '../../utilities/ItemsRepository';
 import StarLinksEditableList from './StarLinksEditableList';
 import './OutletBasedStarFormDialog.css';
 
@@ -18,75 +17,6 @@ const OutletBasedStarFormDialog = () => {
     const [isEditForm, setEditForm] = useState(
         isEditFormFunction(useLocation(), useParams())
     );
-
-    // const [starLinksRepository, setStarLinksRepository] = useState();
-
-    // const retrieveStarLinks = useCallback(() => {
-    //     starLinksRepository.retrieveItems()
-    //     .then((response) => {
-    //         if (response.ok) {
-    //             return response.json();
-    //         }
-    //         return Promise.reject(new Error(response.status));
-    //     })
-    //     .then((responseBody) => {
-    //         setStarLinks(Object.values(responseBody._embedded)[0]);
-    //     })
-    //     .catch((error) => {
-    //         console.error(`Could not retrieve star links: ${error}`);
-    //     });
-    // }, [starLinksRepository]);
-
-    // const starSubmitSuccessCallback = (star) => {
-    //     const starStarLinksRepository = new ItemsRepository(
-    //         star._links.starLinks.href
-    //     )
-    //     if (isEditForm) {
-    //         starLinksPendingRemoval.forEach(
-    //             starLinkPendingRemoval => {
-    //                 if (starLinkPendingRemoval._links)
-    //                     starStarLinksRepository.removeItem(
-    //                         starLinkPendingRemoval
-    //                     )
-    //                     .catch((error) => {
-    //                         return Promise.reject(new Error(error))
-    //                     })
-    //             }
-    //         )
-    //         setStarLinksPendingRemoval(
-    //             new Set()
-    //         );
-    //     }
-    //     starLinks.forEach(
-    //         starLink => starStarLinksRepository.addItem(
-    //             starLink
-    //         )
-    //         .catch((error) => {
-    //             return Promise.reject(new Error(error))
-    //         })
-    //     )
-    // }
-
-    // useOutletContext().secondarySuccessCallback = starSubmitSuccessCallback;
-
-    // useEffect(() => {
-    //     if (
-    //         !(starLinks.length || starLinksPendingRemoval.size) 
-    //         && Boolean(itemModel.starLinks)
-    //     ) {
-    //         setStarLinks(itemModel.starLinks)
-    //     }
-    // }, [starLinks, starLinksPendingRemoval, itemModel]);
-
-    // useEffect(() => {
-    //     if (isEditForm && starLinksRepository) {
-    //         retrieveStarLinks()
-    //     }
-    // }, [
-    //     isEditForm, 
-    //     starLinksRepository, 
-    //     retrieveStarLinks
-    // ]);
 
     return (
         <>
@@ -165,10 +95,6 @@ const OutletBasedStarFormDialog = () => {
                             title="Star Links"
                         >
                             <StarLinksEditableList
-                                // starLinksState={[starLinks, setStarLinks]}
-                                // starLinksPendingRemovalState={
-                                //     [starLinksPendingRemoval, setStarLinksPendingRemoval]
-                                // }
                                 itemModelState={itemModelState}
                             />
                         </Tab>

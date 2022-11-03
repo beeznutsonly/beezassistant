@@ -22,7 +22,7 @@ public class Star {
 	private String yearsActive;
 	private String description;
 
-	@OneToMany(mappedBy="star", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy="star", orphanRemoval = true, cascade = CascadeType.ALL)
 	@JsonManagedReference
 	private List<StarLink> starLinks;
 

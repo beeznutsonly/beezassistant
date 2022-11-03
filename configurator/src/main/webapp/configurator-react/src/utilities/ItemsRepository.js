@@ -19,7 +19,7 @@ class ItemsRepository {
         return fetch(
             item._links.self.href,
             {
-                method: "PATCH",
+                method: "PUT",
                 headers: {"Content-Type":"application/json"},
                 body: JSON.stringify(item)
             }
