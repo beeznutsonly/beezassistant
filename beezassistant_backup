@@ -1,0 +1,1853 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.5
+-- Dumped by pg_dump version 14.5
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: citext; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION citext; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: adminupdate; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.adminupdate (
+    id integer NOT NULL,
+    heading character varying NOT NULL,
+    details character varying
+);
+
+
+--
+-- Name: adminupdate_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.adminupdate_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: adminupdate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.adminupdate_id_seq OWNED BY public.adminupdate.id;
+
+
+--
+-- Name: botcredentials; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.botcredentials (
+    user_agent character varying NOT NULL,
+    client_id character varying NOT NULL,
+    client_secret character varying NOT NULL,
+    username character varying NOT NULL,
+    password character varying NOT NULL
+);
+
+
+--
+-- Name: completedcrosspost; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.completedcrosspost (
+    url character varying NOT NULL,
+    subreddit character varying NOT NULL,
+    completed_time timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: completedsubmission; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.completedsubmission (
+    url character varying NOT NULL,
+    subreddit character varying NOT NULL,
+    completed_time timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: featuretester; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.featuretester (
+    username public.citext NOT NULL,
+    expiry timestamp without time zone
+);
+
+
+--
+-- Name: postinfo; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.postinfo (
+    id character varying NOT NULL,
+    title character varying NOT NULL,
+    timecreated integer NOT NULL
+);
+
+
+--
+-- Name: sceneinfo; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sceneinfo (
+    movie character varying NOT NULL,
+    star1 public.citext NOT NULL,
+    star2 public.citext NOT NULL
+);
+
+
+--
+-- Name: scheduledcrosspost; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.scheduledcrosspost (
+    url character varying NOT NULL,
+    subreddit character varying NOT NULL,
+    scheduled_time timestamp with time zone NOT NULL,
+    title character varying
+);
+
+
+--
+-- Name: scheduledsubmission; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.scheduledsubmission (
+    url character varying NOT NULL,
+    title character varying NOT NULL,
+    scheduled_time timestamp with time zone NOT NULL,
+    flair_id character varying,
+    subreddit character varying NOT NULL,
+    comment_body character varying
+);
+
+
+--
+-- Name: scheduledsubmissionautoreply; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.scheduledsubmissionautoreply (
+    url character varying NOT NULL,
+    comment_body character varying NOT NULL,
+    subreddit character varying NOT NULL
+);
+
+
+--
+-- Name: star; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.star (
+    name public.citext NOT NULL,
+    birthday date,
+    nationality character varying,
+    birth_place character varying,
+    years_active character varying,
+    description character varying
+);
+
+
+--
+-- Name: starinforeplyercommented; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.starinforeplyercommented (
+    commentid character varying NOT NULL
+);
+
+
+--
+-- Name: starinforeplyerexcluded; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.starinforeplyerexcluded (
+    username character varying NOT NULL
+);
+
+
+--
+-- Name: starlink; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.starlink (
+    star_name public.citext NOT NULL,
+    link character varying NOT NULL,
+    link_name character varying
+);
+
+
+--
+-- Name: starnotificationsubscription; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.starnotificationsubscription (
+    username character varying NOT NULL,
+    star public.citext NOT NULL
+);
+
+
+--
+-- Name: submissionsandinfo; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.submissionsandinfo (
+    submission_id character varying NOT NULL,
+    movie character varying NOT NULL,
+    star1 public.citext NOT NULL,
+    star2 public.citext NOT NULL
+);
+
+
+--
+-- Name: starpairview; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.starpairview AS
+ SELECT submissionsandinfo.submission_id,
+    submissionsandinfo.star1,
+    submissionsandinfo.star2,
+    submissionsandinfo.movie,
+    postinfo.title
+   FROM (public.submissionsandinfo
+     JOIN public.postinfo ON (((submissionsandinfo.submission_id)::text = (postinfo.id)::text)))
+  ORDER BY submissionsandinfo.star1, submissionsandinfo.star2;
+
+
+--
+-- Name: starview; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.starview AS
+ SELECT unorderedstarview.submission_id,
+    unorderedstarview.star,
+    unorderedstarview.movie,
+    unorderedstarview.title
+   FROM ( SELECT submissionsandinfo.submission_id,
+            submissionsandinfo.star1 AS star,
+            submissionsandinfo.movie,
+            postinfo.title
+           FROM (public.submissionsandinfo
+             JOIN public.postinfo ON (((submissionsandinfo.submission_id)::text = (postinfo.id)::text)))
+        UNION
+         SELECT submissionsandinfo.submission_id,
+            submissionsandinfo.star2 AS star,
+            submissionsandinfo.movie,
+            postinfo.title
+           FROM (public.submissionsandinfo
+             JOIN public.postinfo ON (((submissionsandinfo.submission_id)::text = (postinfo.id)::text)))) unorderedstarview
+  ORDER BY unorderedstarview.star;
+
+
+--
+-- Name: submissionreplydetails; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.submissionreplydetails (
+    url character varying NOT NULL,
+    reply character varying NOT NULL,
+    oneoff boolean NOT NULL
+);
+
+
+--
+-- Name: submissionreplyercommented; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.submissionreplyercommented (
+    commentid character varying NOT NULL,
+    url character varying
+);
+
+
+--
+-- Name: adminupdate id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.adminupdate ALTER COLUMN id SET DEFAULT nextval('public.adminupdate_id_seq'::regclass);
+
+
+--
+-- Data for Name: adminupdate; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.adminupdate (id, heading, details) FROM stdin;
+\.
+
+
+--
+-- Data for Name: botcredentials; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.botcredentials (user_agent, client_id, client_secret, username, password) FROM stdin;
+beezassistant	J0dsbngQhQTWcZolNK0MJQ	2IDM1-YyBhsBduFP99_U0_nQpplO4w	beeznutsonly	Swagger4lyf
+beezassistant	J0dsbngQhQTWcZolNK0MJQ	2IDM1-YyBhsBduFP99_U0_nQpplO4w	beezassistant	Swagger4lyf
+\.
+
+
+--
+-- Data for Name: completedcrosspost; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.completedcrosspost (url, subreddit, completed_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: completedsubmission; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.completedsubmission (url, subreddit, completed_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: featuretester; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.featuretester (username, expiry) FROM stdin;
+kailaniangel	2022-01-20 09:00:00
+dick_pixie	2022-01-20 09:00:00
+OPsGayMother	2022-01-20 09:00:00
+Supbzzzz	2022-01-20 09:00:00
+Warhammerkyojin	2022-01-20 09:00:00
+sthrowaway1221	2022-01-20 09:00:00
+yesthatsearth	2022-01-20 09:00:00
+cubed27	2022-01-20 09:00:00
+justathrowaway018	2022-01-20 09:00:00
+footlover89	2022-01-20 09:00:00
+East_Ad_4339	2022-01-20 09:00:00
+RevolutionaryBook789	2022-01-20 09:00:00
+LittleWolf09	2022-01-20 09:00:00
+RoogieRoog	2022-01-20 09:00:00
+whowhymecuz	2022-01-20 09:00:00
+sarcastictaka	2022-01-20 09:00:00
+Proud_Truck	2022-01-20 09:00:00
+smit_shah3469	2022-01-20 09:00:00
+kgoutham93	2022-01-20 09:00:00
+OinkOinkLittlePiggy	2022-01-20 09:00:00
+dedutchlimited	2022-01-20 09:00:00
+chonknuggets	2022-01-20 09:00:00
+ju_naopako	2022-01-20 09:00:00
+sparre1	2022-01-20 09:00:00
+b7nnd	2022-01-20 09:00:00
+Ok-Statistician-6806	2022-01-20 09:00:00
+JTurn10	2022-01-20 09:00:00
+wolfgangmozart33	2022-01-20 09:00:00
+conflictedpickle123	2022-01-20 09:00:00
+NotSafeForWizard	2022-01-20 09:00:00
+AustinReg	2022-01-20 09:00:00
+127985	2022-01-20 09:00:00
+Shadowstep_Akshat	2022-01-20 09:00:00
+Floating_Cow	2022-01-20 09:00:00
+the_one_with_porn	2022-01-20 09:00:00
+H2DaZ	2022-01-20 09:00:00
+unripeboat	2022-01-20 09:00:00
+horny_voyeur	2022-01-20 09:00:00
+PandaPlayr73	2022-01-20 09:00:00
+WeddingHefty9937	2022-01-20 09:00:00
+throwawayb_r	2022-01-20 09:00:00
+Coristiao	2022-01-20 09:00:00
+MonPanda	2022-01-20 09:00:00
+Orion9328	2022-01-20 09:00:00
+Klipkop	2022-01-20 09:00:00
+redditforeva	2022-01-20 09:00:00
+lgnmorris33	2022-01-20 09:00:00
+Sn0wSparks	2022-01-20 09:00:00
+Ready-Yesterday7075	2022-01-20 09:00:00
+Brilliant_Seaweed	2022-01-20 09:00:00
+optimist_cult	2022-01-20 09:00:00
+Sleepydude2	2022-01-20 09:00:00
+phaltu69	2022-01-20 09:00:00
+tlpedro	2022-01-20 09:00:00
+n0ibn	2022-01-20 09:00:00
+iscreambrownie	2022-01-20 09:00:00
+elmasqueentono	2022-01-20 09:00:00
+Bristolthrowaway77	2022-01-20 09:00:00
+iamayushkr	2022-01-20 09:00:00
+Most-Refrigerator350	2022-01-20 09:00:00
+makeitanuneventhree	2022-01-20 09:00:00
+muhdhaz	2022-01-20 09:00:00
+NakedDuck722	2022-01-20 09:00:00
+CloudyHerald	2022-01-20 09:00:00
+chrisbarc36	2022-01-20 09:00:00
+justdoit8	2022-01-20 09:00:00
+Timely-Recognition36	2022-01-20 09:00:00
+moonfever	2022-01-20 09:00:00
+ExpatKev	2022-01-20 09:00:00
+Jinxdivinity	2022-01-20 09:00:00
+lldolobll	2022-01-20 09:00:00
+travelinghipsterdude	2022-01-20 09:00:00
+hiyoulooknice	2022-01-20 09:00:00
+Tizio73	2022-01-20 09:00:00
+Pracer73	2022-01-20 09:00:00
+iambatman20397	2022-01-20 09:00:00
+veepjr	2022-01-20 09:00:00
+artbypep	2022-01-20 09:00:00
+One-Credit-537	2022-01-20 09:00:00
+ForTheBoys12	2022-01-20 09:00:00
+bongwenxuan	2022-01-20 09:00:00
+Can-o-BakedBeans	2022-01-20 09:00:00
+ComplexImportance794	2022-01-20 09:00:00
+kirstxen	2022-01-20 09:00:00
+crabcakesNfootballl	2022-01-20 09:00:00
+savingthat	2022-01-20 09:00:00
+nameisgeogga	2022-01-20 09:00:00
+Zipun17	2022-01-20 09:00:00
+grimburner	2022-01-20 09:00:00
+draxat	2022-01-20 09:00:00
+MaxYost	2022-01-20 09:00:00
+koreanpeen69	2022-01-20 09:00:00
+saigenicole1	2022-01-20 09:00:00
+breezy514	2022-01-20 09:00:00
+pthrow6968	2022-01-20 09:00:00
+userisntalreadytaken	2022-01-20 09:00:00
+Mysticbob30	2022-01-20 09:00:00
+mountain_maddness	2022-01-20 09:00:00
+justfortonight09	2022-01-20 09:00:00
+Flapperjas	2022-01-20 09:00:00
+Personal_Effective_7	2022-01-20 09:00:00
+LadyNarcisse	2022-01-20 09:00:00
+GroundbreakingPay903	2022-01-20 09:00:00
+generallyembarrassed	2022-01-20 09:00:00
+shipwrecked_stu	2022-01-20 09:00:00
+russianpepsiwarship	2022-01-20 09:00:00
+nat128asha	2022-01-20 09:00:00
+LAbb2019	2022-01-20 09:00:00
+SweetestMinx	2022-01-20 09:00:00
+BerettaBeauty	2022-01-20 09:00:00
+resolvingvhs	2022-01-20 09:00:00
+Emilynovaxo	2022-01-20 09:00:00
+spongeywaffles	2022-01-20 09:00:00
+YourselfSteam	2022-01-20 09:00:00
+TheWifeyandMe	2022-01-20 09:00:00
+jrwever1	2022-01-20 09:00:00
+castaway7489	2022-01-20 09:00:00
+_le_kween_	2022-01-20 09:00:00
+iwantyouhappy	2022-01-20 09:00:00
+saraaaaahahah	2022-01-20 09:00:00
+basementcellar	2022-01-20 09:00:00
+holdyourshares	2022-01-20 09:00:00
+tattedass	2022-01-20 09:00:00
+hithisismypornalt	2022-01-20 09:00:00
+Krustypigs1	2022-01-20 09:00:00
+hajipurwa	2022-01-20 09:00:00
+dr_binbag	2022-01-20 09:00:00
+thrown-away01	2022-01-20 09:00:00
+Grod97	2022-01-20 09:00:00
+beeznutsonly	2038-11-19 23:59:59
+\.
+
+
+--
+-- Data for Name: postinfo; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.postinfo (id, title, timecreated) FROM stdin;
+pehlte	Deep strokes for Abella	1630328419
+pdusx6	She gives her undivided attention	1630242016
+pcmv4b	Clinging on as he cums	1630069227
+pc2fuq	Passionate table-top sex	1629993621
+pbe7mu	Marvelling at the spectacle	1629907218
+paq7qt	Embracing, kissing, and fucking.	1629820843
+pa239w	Owen and Rion fuck to their hearts' content	1629732358
+p9c1se	Sensual fucking ...	1629637231
+p8r17j	Up and down, till Alina cums	1629550814
+p84pd2	She spreads them open for him as he cums	1629464415
+p7edak	A gooey mess from her biggest fan	1629378013
+p6qo7l	"I'm cumming, I can't stop"	1629291615
+p5xvx9	AJ and Danny get intimate	1629179767
+p59vim	A gentle orgasm for Elena	1629092213
+p4maag	Denisa quivers	1628999066
+p3uu1d	Pinned down, and fucked.	1628890804
+p398as	Intimate . . . and Intense . . .	1628803395
+p2oozr	Sincerre and Natasha.	1628723891
+p1ao1r	Love-making silhouettes	1628543633
+p0qea5	Talking dirty	1628468608
+p03il9	Elexis receives the toe-curling 'Sinn Saddle' treatment	1628377841
+ozhn9c	Frisky . . .	1628290815
+oys9be	Heated sex in her bedroom	1628198818
+oy2gzc	Pushing it in further for the orgasm	1628111494
+oxf7ma	Again, and Again, and Again . . .	1628031661
+owomxp	Lisey fucks him on the couch	1627940606
+ow0dko	But he wanted to continue . . .	1627852001
+oveyij	Dani holds her back as she climaxes	1627765219
+outvcr	Full-body contact passion fucking	1627678962
+ou6x84	He lets her use it	1627594545
+otj18g	Alleyway Sex	1627506387
+oswfm8	Angel's oily orgasm	1627423752
+os8nl0	She wants it . . .	1627335162
+ork3mi	Making love against the bed	1627247491
+oqy8co	Passionate missionary fucking	1627160813
+oqbuv6	Climaxing on top of him	1627075374
+opntci	She begs her to push it in deep	1626990130
+ooz91x	Genuinely Lost in the Moment	1626902180
+oobm3s	Getting steamy	1626816673
+omzch1	Working up a sweat . . .	1626642261
+omf97q	RK Prime - Morgan Lee - The Splendor In Gold Lingerie	1626564982
+olmq07	Double stimulation	1626459667
+ol37bp	She's pleasantly surprised	1626387057
+oksvud	He takes her there	1626355855
+okjjeq	Cowgirl cumming	1626316367
+ok5oe5	Against the wall	1626273486
+oji86j	Sinn captured on hidden camera going down on Lily Labeau behind the scenes	1626190899
+oj1dri	Relentless Teasing	1626126743
+oj168s	Missionary on the floor	1626126123
+oictl5	Eye contact is key	1626038174
+oi70mo	BTS - Jane is overwhelmed with emotion	1626019002
+ohr6gj	Admiring a beautiful Keisha	1625952076
+ohhlc3	Kendra and Ricky	1625919163
+oh8lgx	Demi Sutra fucked passionately on the floor	1625878189
+oh7rcs	Things get steamy between Kissa and Abigail	1625875150
+og8wva	"It's you that I want"	1625756229
+ofsuqe	Cuddling and fucking	1625694279
+ofp186	Penny makes him cum	1625682794
+oecv4s	Cherie and AJ make out	1625508602
+odook2	Intense chemistry between Abella and Ricky	1625418701
+od8j3t	Outdoor missionary and orgasm	1625353993
+ocm4tc	She keeps cumming, and he keeps thrusting	1625268153
+obx8ou	I've gotten off to this scene more than I'd like to admit	1625179744
+ob3ojb	Sinn makes her orgasm	1625078633
+oaizh0	"You're so good"	1625005333
+o9ote0	He finishes deep inside her	1624900541
+o973jv	Karlee Grey gets lost in the moment	1624832691
+o8klzz	Bridgette B rides him to orgasm before embrace	1624746774
+o7xoy8	Elena's parting gift	1624658692
+o7a7bi	Banter with Summer Brielle	1624569409
+o6njml	Owen Grey and Rion Rhodes	1624487132
+pf5s8i	"I found your spot"	1630416236
+pfwrlt	Giving it to her	1630511744
+pgkx0r	Holly puts in the work	1630598876
+phr4j5	All afternoon sex at her place	1630760414
+pico84	Easing into it	1630846816
+piyz82	"I wish I knew what to do with you"	1630933218
+pjmlaz	Shagging under night light	1631019614
+pkjhip	She makes him finish	1631136107
+pkxr9t	Fooling around	1631193912
+pn6gk1	Outercourse	1631499779
+pnsil1	Climactic ending	1631581213
+poc0og	"You're so sexy"	1631654687
+pot1xt	Pleasuring her on the table	1631721815
+ppg4ns	Fucking him in high heels and black lingerie	1631808019
+pq3500	Leg lock and reach-around	1631895024
+pqp2jz	She pulls him back in	1631980832
+prkfnn	Mia goes for a quick ride	1632099616
+ps81d2	She gives him more than he bargained for	1632186017
+psz9xs	Dual stimulation	1632282516
+ptj5p5	Getting each other over the edge	1632355399
+pu46x2	Full body experience	1632429582
+pwa8gp	Giving it to Samantha	1632719083
+pwx6by	Orgasmic bliss	1632798230
+pxrf7e	Laser-focused on each other's pleasure	1632906005
+pyazh7	Candlelit sex	1632970819
+pyzdg9	Going back for seconds	1633058068
+pzn2vc	Euphoria	1633143614
+q0h9rs	"That's all I want"	1633266015
+q18fmv	Opening wide and pulling him in	1633363446
+q72cvf	Giggles and orgasms	1634094976
+q7qz1j	Deep finish	1634180472
+q8g6gx	Frisky sex	1634270402
+q91lyz	"Fuck me Sinn!"	1634346001
+q9qsuu	Switching up the pace	1634441134
+qam776	Touching, groping, and fucking	1634562001
+qbej0v	"You're going to make me cum so hard"	1634659201
+q8w7ua	Great start to the day	1634328006
+qcaurp	Taking him in, deep	1634763631
+qd8ffl	Giving it to her	1634873750
+qdwflw	Held down and made love to	1634958004
+qf7zv2	Extracting it out of him	1635132374
+qfxoyd	Fucking and finishing	1635219181
+qhqisf	Quintessential romantic porn	1635437737
+qig1n0	He has his hands full	1635523200
+qj4f2p	Submitting to Lucas	1635609601
+qlenbb	Close Contact	1635888334
+qm607j	Clinging on	1635978401
+qn1qro	Marina rides him	1636081145
+qnrn3r	Grabbed by the breasts	1636168775
+qofpre	Future couple can't keep their hands off of each other on and off camera	1636254009
+qp4i22	Cumming inside the bride	1636340341
+qqlkw5	Fondling them	1636516748
+qrcap3	Rocking the bed	1636603177
+qsfkgp	Deep strokes and a finish	1636736341
+qt5bb6	Back-seat sex	1636822801
+qun4ut	Brought to the edge	1637001412
+qvfhlx	A quickie with Liza	1637089922
+qxl800	Stroking his balls empty after he fucks her	1637343274
+qyg4lb	Fucked against the chair	1637446325
+qzcuao	Banging the butler	1637554856
+r0whry	Envying and lusting after the best friend	1637728457
+r1nfso	Oily embrace	1637812990
+r2evgu	Rocking the chair	1637901260
+r34qyo	Teasing her orgasm	1637985541
+r3v96g	Face to face	1638071941
+r4muvu	Cumming together	1638158341
+r5ec3b	Sun lit	1638245289
+r6y6r6	"I want to feel your cum all over me"	1638417541
+r7pu59	Climaxing inside her	1638503940
+r8gzcq	Giving it to her	1638590341
+r9g9za	Passionate, intense sex	1638712740
+rabyr6	Spreading her legs and taking him in	1638810050
+rb3aju	Adriana gets him off	1638896341
+rclvri	Shared enthusiasm	1639069141
+rdd2nf	Breaking a sweat	1639155541
+re3ug1	On the kitchen floor	1639241940
+rgq2sj	Making him cum	1639541280
+rhhwqi	Maintaining close contact	1639627141
+rikuh3	Passionate sex at the massage parlor	1639757751
+rjcabh	Rubbed the right way	1639848807
+rknvkq	Pinned down	1640008741
+rlkd6p	Cleaning can wait	1640109873
+rm9iv3	She rides him to orgasm	1640192478
+rmzzgp	Sex so good he can't cum enough times	1640278741
+ro1w5q	Giggles and Orgasms — a scene montage	1640404741
+rooqw6	Making love to the bride — a scene montage	1640491140
+rpe3or	Owen and Rion — a scene montage	1640577541
+rs8phx	Passionate sex with Karlee Grey — a scene montage	1640889391
+p24n3w	Passionate amateur sex with Siri	1628651332
+rt09fw	Quick casual hookup — a scene montage	1640975761
+se34gk	She has her way with him	1643303092
+sevdwf	Pure, unbridled passion	1643389453
+sh79in	Showing him a good time	1643651352
+\.
+
+
+--
+-- Data for Name: sceneinfo; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.sceneinfo (movie, star1, star2) FROM stdin;
+Raw 33* with **Abella Danger*	Abella Danger	Manuel Ferrara
+Lesbian Adventures: Strap-On Specialists 15* with **Lena Paul*	Lena Paul	Sinn Sage
+Summer of Love* with **Daisy Haze*	Daisy Haze	Gavin Kane
+Abigail Part 5* with **Abigail Mac*	Abigail Mac	Markus Dupree
+Women Seeking Women 141* with **August Ames*	August Ames	Riley Nixon
+Gigolos* with **Sienna West*	Sienna West	Manuel Ferrara
+Raw and Unfiltered* with **Rion Rhodes*	Rion Rhodes	Owen Gray
+Big Ass Ebony Babe Interracial Sex* with **Zaawaadi*	Zaawaadi	Angelo Godshack
+Black Lingerie (II)* with **Alina Lopez*	Alina Lopez	Bambino
+Mr. Perfect from the Dating App* with **Dana Vespoli*	Dana Vespoli	Damon Dice
+Lesbian PsychoDramas 32* with **Dana DeArmond*	Dana DeArmond	Angela White
+Raw 17* with **Mia Rose*	Mia Rose	Manuel Ferrara
+AJ Applegate's Onlyfans* with **AJ Applegate*	AJ Applegate	Danny Mountain
+Lipstick and Muscles* with **Abella Danger*	Abella Danger	Elena Koshka
+Redhead Has Her Pussy Tenderly Plowed* with **Denisa Haven*	Denisa Haven	George Uhl
+The Stepmother 12* with **Cherie Deville*	Cherie Deville	Evan Stone
+Bounce 3* with **Kissa Sins*	Kissa Sins	Manuel Ferrara
+Lesbian Truth or Dare 5* with **Sincerre Lemore*	Sincerre Lemore	Natasha Nice
+Angel's Boutique* with **Angel Wicky*	Angel Wicky	Kai Taylor
+Bounce 2* with **Lena Paul*	Lena Paul	Manuel Ferrara
+Lesbian Sex 8* with **Elexis Monroe*	Elexis Monroe	Sinn Sage
+The Turn-On* with **Franceska Jaimes*	Franceska Jaimes	Nacho Vidal
+Trashy Love Story* with **Riley Nixon*	Riley Nixon	Stallion
+Erotic pussy eating at the office with Hungarian and Czech blonde lesbians* with **Kathia Nobili*	Kathia Nobili	Lana S
+Raw 32* with **Angela White*	Angela White	Manuel Ferrara
+Charity Case* with **Lisey Sweet*	Lisey Sweet	Will Pounder
+Interracial Milf Massage* with **Julia Ann*	Julia Ann	Nat Turnher
+Dani Loves Girls* with **Natasha Nice*	Natasha Nice	Dani Daniels
+Babysitter 7* with **Veronica Avluv*	Veronica Avluv	Manuel Ferrara
+Slow Deep Penetration For Cute Brunette* with **Iwia*	Iwia	George Uhl
+Sexy Private Dance for Boyfriend* with **Nelly Kent*	Nelly Kent	Erik Everhard
+Huge Tits MILF Gives Oily Titwank* with **Angel Wicky*	Angel Wicky	El Gran Erick
+Raw 24* with **Karlee Grey*	Karlee Grey	Manuel Ferrara
+Nacho's Big Asses* with **Canela Skin*	Canela Skin	Nacho Vidal
+Nubiles Casting 8* with **Holly Michaels*	Holly Michaels	Bruce Venture
+Brandi Loves Girls* with **Brandi Love*	Brandi Love	Abigail Mac
+Raw 33* with **Elena Koshka*	Elena Koshka	Manuel Ferrara
+My Father's Girlfriend* with **AJ Applegate*	AJ Applegate	Tommy Gunn
+Manuel's Maximum Penetration 5* with **Angela White*	Angela White	Manuel Ferrara
+Splendor in Gold Lingerie* with **Morgan Lee*	Morgan Lee	Ricky Johnson
+Road Queen 29* with **Mellanie Monroe*	Mellanie Monroe	Prinzzess
+2 Cute 4 Porn 2* with **Karlee Grey*	Karlee Grey	Manuel Ferrara
+MILF Wakes Up For The Cock Ride Of Her Mature Life* with **Jessica Fiorentino*	Jessica Fiorentino	George Uhl
+Electricity* with **Brittany Bardot*	Brittany Bardot	George Uhl
+Mom Wouldn't Like That!* with **Abella Danger*	Abella Danger	Markus Dupree
+Belladonna's Party of Feet 3* with **Sinn Sage*	Sinn Sage	Lily Labeau
+Lesbian Sports-Widow* with **Shyla Jennings*	Shyla Jennings	Angela White
+Have Fun* with **Ana Ribera*	Ana Ribera	Nacho Vidal
+Lesbian Love Stories 9: Tempted* with **Lisey Sweet*	Lisey Sweet	Prinzzess
+Rocco's Back to America for More Adventures* with **Jane Wilde*	Jane Wilde	Rocco Siffredi
+Internal Damnation 11* with **Keisha Grey*	Keisha Grey	Manuel Ferrara
+Dripping Wet* with **Kendra Sunderland*	Kendra Sunderland	Ricky Johnson
+Holding Out and Giving in 2* with **Demi Sutra*	Demi Sutra	Robby Echo
+Abigail 4* with **Kissa Sins*	Kissa Sins	Abigail Mac
+Persuasive Busty Arguments* with **Angela White*	Angela White	Manuel Ferrara
+2 Cute 4 porn #02* with **Karlee Grey*	Karlee Grey	Manuel Ferrara
+What Dreams may Mean* with **Penny Pax*	Penny Pax	Logan Pierce
+Strapped for Pleasure* with **AJ Applegate*	AJ Applegate	Cherie Deville
+Locked Out* with **Abella Danger*	Abella Danger	Ricky Johnson
+The Personal Trainer* with **Kissa Sins*	Kissa Sins	Manuel Ferrara
+Sun-Lit 3* with **Elena Koshka*	Elena Koshka	Manuel Ferrara
+Girls Kissing Girls 15* with **Sinn Sage*	Sinn Sage	Justine Joli
+Big Wet Breasts 3* with **Karlee Grey*	Karlee Grey	Manuel Ferrara
+Night Caps* with **Julia Ann*	Julia Ann	Nat Turnher
+Bounce 3* with **Manuel Ferrara*	Manuel Ferrara	Bridgette B
+Raw 25* with **Summer Brielle*	Summer Brielle	Manuel Ferrara
+Raw and Unfiltered* with **Owen Gray*	Owen Gray	Rion Rhodes
+Follow Me 1* with **Isis Taylor*	Isis Taylor	Nacho Vidal
+Older Women Younger Guys 2* with **Shay Fox*	Shay Fox	Rocco Reed
+Taken for a Ride* with **Holly Michaels*	Holly Michaels	Bruce Venture
+Raw 11* with **Liza Del Sierra*	Liza Del Sierra	Manuel Ferrara
+Belladonna: The Sexual Explorer* with **Mia Rose*	Mia Rose	Belladonna
+Love is a Dangerous Game* with **Natasha Nice*	Natasha Nice	Richie Calhoun
+Ricky and Ana go at it* with **Ana Foxxx*	Ana Foxxx	Ricky Johnson
+Surrender to Anal 8* with **Angela White*	Angela White	Manuel Ferrara
+Girls Kissing Girls 22* with **April O'Neil*	April O'Neil	Elena Koshka
+TS, I Love You* with **Dana Vespoli*	Dana Vespoli	Xander Corvus
+Recipe For Romance* with **Missy Martinez*	Missy Martinez	Ramon Nomar
+La Mamma Della Mia Ragazza 9* with **Valentina Nappi*	Valentina Nappi	Tyler Nixon
+Mother Lovers Society 11* with **Julia Ann*	Julia Ann	Lola Foxx
+Raw 33* with **Lena Paul*	Lena Paul	Manuel Ferrara
+Lost in the Clouds* with **Mia Malkova*	Mia Malkova	Danny Mountain
+Double Take* with **Alison Tyler*	Alison Tyler	Johnny Castle
+Brandi Loves Girls* with **Kate England*	Kate England	Brandi Love
+Fucking in Robby's Bedroom (Onlyfans)* with **Siri Dahl*	Siri Dahl	Robby Echo
+Raw 23* with **Megan Rain*	Megan Rain	Manuel Ferrara
+Recipe for Romance* with **Samantha Ryan*	Samantha Ryan	Richie Calhoun
+Kira Gets a Creampie* with **Kira Noir*	Kira Noir	Codey Steele
+Twisted Passions 18* with **Prinzzess*	Prinzzess	Dani Daniels
+Light my Fire* with **Angel Wicky*	Angel Wicky	Max Deeds
+Stud is Obsessed With This MILF's Thick Ass* with **Valentina Ross*	Valentina Ross	George Uhl
+Sensual Encounter* with **Demi Sutra*	Demi Sutra	Owen Gray
+Karlee's Big Naturals* with **Karlee Grey*	Karlee Grey	Manuel Ferrara
+Babysitter 5* with **Tanya Tate*	Tanya Tate	Evan Stone
+Babysitter 5	Tanya Tate	Evan Stone
+Karlee's Big Naturals	Karlee Grey	Manuel Ferrara
+Sensual Encounter	Demi Sutra	Owen Gray
+Stud is Obsessed With This MILF's Thick Ass	Valentina Ross	George Uhl
+Light my Fire	Angel Wicky	Max Deeds
+Twisted Passions 18	Prinzzess	Dani Daniels
+Kira Gets a Creampie	Kira Noir	Codey Steele
+Recipe for Romance	Samantha Ryan	Richie Calhoun
+Raw 23	Megan Rain	Manuel Ferrara
+Brandi Loves Girls	Kate England	Brandi Love
+Double Take	Alison Tyler	Johnny Castle
+Lost in the Clouds	Mia Malkova	Danny Mountain
+Raw 33	Lena Paul	Manuel Ferrara
+Mother Lovers Society 11	Julia Ann	Lola Foxx
+La Mamma Della Mia Ragazza 9	Valentina Nappi	Tyler Nixon
+Recipe For Romance	Missy Martinez	Ramon Nomar
+TS, I Love You	Dana Vespoli	Xander Corvus
+Girls Kissing Girls 22	April O'Neil	Elena Koshka
+Surrender to Anal 8	Angela White	Manuel Ferrara
+Ricky and Ana go at it	Ana Foxxx	Ricky Johnson
+Slow Deep Penetration For Cute Brunette	Iwia	George Uhl
+Love is a Dangerous Game	Natasha Nice	Richie Calhoun
+Belladonna: The Sexual Explorer	Mia Rose	Belladonna
+Charity Case	Lisey Sweet	Will Pounder
+Raw 11	Liza Del Sierra	Manuel Ferrara
+Taken for a Ride	Holly Michaels	Bruce Venture
+Older Women Younger Guys 2	Shay Fox	Rocco Reed
+Follow Me 1	Isis Taylor	Nacho Vidal
+Raw 33	Abella Danger	Manuel Ferrara
+Lesbian Adventures: Strap-On Specialists 15	Lena Paul	Sinn Sage
+Summer of Love	Daisy Haze	Gavin Kane
+Abigail Part 5	Abigail Mac	Markus Dupree
+Women Seeking Women 141	August Ames	Riley Nixon
+Gigolos	Sienna West	Manuel Ferrara
+Raw and Unfiltered	Rion Rhodes	Owen Gray
+Big Ass Ebony Babe Interracial Sex	Zaawaadi	Angelo Godshack
+Mr. Perfect from the Dating App	Dana Vespoli	Damon Dice
+Lesbian PsychoDramas 32	Dana DeArmond	Angela White
+Raw 17	Mia Rose	Manuel Ferrara
+AJ Applegate's Onlyfans	AJ Applegate	Danny Mountain
+Lipstick and Muscles	Abella Danger	Elena Koshka
+Redhead Has Her Pussy Tenderly Plowed	Denisa Haven	George Uhl
+The Stepmother 12	Cherie Deville	Evan Stone
+Bounce 3	Kissa Sins	Manuel Ferrara
+Lesbian Truth or Dare 5	Sincerre Lemore	Natasha Nice
+Angel's Boutique	Angel Wicky	Kai Taylor
+Bounce 2	Lena Paul	Manuel Ferrara
+Lesbian Sex 8	Elexis Monroe	Sinn Sage
+The Turn-On	Franceska Jaimes	Nacho Vidal
+Trashy Love Story	Riley Nixon	Stallion
+Erotic pussy eating at the office with Hungarian and Czech blonde lesbians	Kathia Nobili	Lana S
+Raw 32	Angela White	Manuel Ferrara
+Interracial Milf Massage	Julia Ann	Nat Turnher
+Dani Loves Girls	Natasha Nice	Dani Daniels
+Babysitter 7	Veronica Avluv	Manuel Ferrara
+Sexy Private Dance for Boyfriend	Nelly Kent	Erik Everhard
+Huge Tits MILF Gives Oily Titwank	Angel Wicky	El Gran Erick
+Raw 24	Karlee Grey	Manuel Ferrara
+Nacho's Big Asses	Canela Skin	Nacho Vidal
+Nubiles Casting 8	Holly Michaels	Bruce Venture
+Brandi Loves Girls	Brandi Love	Abigail Mac
+Raw 33	Elena Koshka	Manuel Ferrara
+My Father's Girlfriend	AJ Applegate	Tommy Gunn
+Manuel's Maximum Penetration 5	Angela White	Manuel Ferrara
+Splendor in Gold Lingerie	Morgan Lee	Ricky Johnson
+Road Queen 29	Mellanie Monroe	Prinzzess
+2 Cute 4 Porn 2	Karlee Grey	Manuel Ferrara
+MILF Wakes Up For The Cock Ride Of Her Mature Life	Jessica Fiorentino	George Uhl
+Electricity	Brittany Bardot	George Uhl
+Belladonna's Party of Feet 3	Sinn Sage	Lily Labeau
+Lesbian Sports-Widow	Shyla Jennings	Angela White
+Have Fun	Ana Ribera	Nacho Vidal
+Lesbian Love Stories 9: Tempted	Lisey Sweet	Prinzzess
+Rocco's Back to America for More Adventures	Jane Wilde	Rocco Siffredi
+Internal Damnation 11	Keisha Grey	Manuel Ferrara
+Dripping Wet	Kendra Sunderland	Ricky Johnson
+Holding Out and Giving in 2	Demi Sutra	Robby Echo
+Abigail 4	Kissa Sins	Abigail Mac
+Persuasive Busty Arguments	Angela White	Manuel Ferrara
+2 Cute 4 porn #02	Karlee Grey	Manuel Ferrara
+What Dreams may Mean	Penny Pax	Logan Pierce
+Strapped for Pleasure	AJ Applegate	Cherie Deville
+Locked Out	Abella Danger	Ricky Johnson
+The Personal Trainer	Kissa Sins	Manuel Ferrara
+Sun-Lit 3	Elena Koshka	Manuel Ferrara
+Girls Kissing Girls 15	Sinn Sage	Justine Joli
+Big Wet Breasts 3	Karlee Grey	Manuel Ferrara
+Night Caps	Julia Ann	Nat Turnher
+Bounce 3	Manuel Ferrara	Bridgette B
+Raw 25	Summer Brielle	Manuel Ferrara
+Raw and Unfiltered	Owen Gray	Rion Rhodes
+Sensual Suite: Cherie DeVille	Cherie DeVille	Laz Fyre
+Afternoon Delight	Iwia	Steve Q
+Mother Exchange 8	Lisey Sweet	Codey Steele
+Strap On Fucking Courtney Trouble	Courtney Trouble	Sinn Sage
+My Sister's Husband	Brett Rossi	Erik Everhard
+Second Chance	Penny Barber	Ryan McLane
+Performers of the Year 2019	Kissa Sins	Manuel Ferrara
+Morning Stretch	Kalisy	Pavlos
+Use the Rake	Mistress T	Shreddz
+My Husband's Boss: The Power Position	Ana Foxxx	Isiah Maxwell
+The Kendra Sunderland Experience	Kendra Sunderland	Ricky Johnson
+Horizon of Love	Josephine Jackson	Nick Moreno
+Recipe for Romance	Allie Haze	Johnny Castle
+Angela 3	Angela White	Manuel Ferrara
+Snatched	Valentina Nappi	Bruce Venture
+I Dare You	Dana Vespoli	Lucas Frost
+Body Language	Holly Michaels	Tyler Nixon
+Home Wrecker 4	Vicki Chase	Nacho Vidal
+True Blue	Marina Visconti	Danny Mountain
+My Dad, Your Dad 2	Devon Green	Ramon Nomar
+Losing Kayden	Kayden Kross	Manuel Ferrara
+Something Borrowed	Elena Koshka	Seth Gamble
+Home Wrecker 3	Charley Chase	Nacho Vidal
+Father Figure	London Keyes	Evan Stone
+Cum Addiction Intervention	Athena Faris	Codey Steele
+Romantic Getaway	Georgie Lyall	Nick Moreno
+The Female of the Species	Evelyn Claire	Manuel Ferrara
+Kassandra Kelly (Ivy Lebelle) Fucks Her Man's Friend	Ivy Lebelle	Chad White
+Scandale aux vestiaires	Liza Del Sierra	Pascal White
+XConfessions 3	Irina Vega	Fenyx Santos
+Love Marriage and Other Bad Ideas	Alison Tyler	Richie Calhoun
+Dirty Thirty	Alexxa Vice	Lutro
+Madly in Love With My Best Friend	Romy Furie	Cara Vega
+Slow Sensual Blowjob and Doggystyle	Josephine Jackson	Ricky Rascal
+Raw 22	Layla Price	Manuel Ferrara
+Burlesque Story	Cherie DeVille	Codey Steele
+Kira Noir and Nathan Bronson: Romantic Passionate Fuck	Kira Noir	Nathan Bronson
+My Girlfriend's Mother 3	Inari Vachs	Joey Brass
+XConfessions 1	Carol Vega	Cristian Frey
+Virgins	Riley Nixon	Jake Adams
+Hot Creampie for Big Tits UK Blonde	Georgie Lyall	Thomas Crown
+Feeling Playful	Iwia	Unknown Guy
+Raw 9	Veronica Avluv	Manuel Ferrara
+Paparazzi	Brandi Love	Jay Snake
+Striped Shorts	Adriana Chechik	T.J. Cummings
+Serendipity	Angela White	Markus Dupree
+The Intern: A Summer of Lust	Lena Anderson	Michael Vegas
+Almost Heaven	Allie Haze	Xander Corvus
+Sensual Moments 8	Adira Allure	Jay Smooth
+Primary Season 2	Casey Calvert	Ryan Driller
+The Masseuse	Asa Akira	Charles Dera
+Raw 9	Krissy Lynn	Manuel Ferrara
+Only She	Cristal Caitlin	Angelo Godshack
+XConfessions 2	Samantha Bentley	Franck Franco
+The Plumber	Jessy Jones	Bree Daniels
+The Widow	Dana Vespoli	Dante Colle
+Putting the "Lay" in Layover	Siri Dahl	Unknown Male
+Putting the "Lay" in Layover	Siri Dahl	Regular Dude
+My Abduction Fantasy	Katana	Ramon Nomar
+My Daughter's Boyfriend 6	Tanya Tate	Mr. Pete
+My Sinful Valentine	Angela White	Jay Smooth
+\.
+
+
+--
+-- Data for Name: scheduledcrosspost; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.scheduledcrosspost (url, subreddit, scheduled_time, title) FROM stdin;
+\.
+
+
+--
+-- Data for Name: scheduledsubmission; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.scheduledsubmission (url, title, scheduled_time, flair_id, subreddit, comment_body) FROM stdin;
+\.
+
+
+--
+-- Data for Name: scheduledsubmissionautoreply; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.scheduledsubmissionautoreply (url, comment_body, subreddit) FROM stdin;
+\.
+
+
+--
+-- Data for Name: star; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.star (name, birthday, nationality, birth_place, years_active, description) FROM stdin;
+Siri Dahl	1988-06-20	American	Minneapolis, MN, USA	2012-Present	\N
+Manuel Ferrara	1975-11-01	French	Gagny, France	1997-Present	> Manuel Jeannin (French pronunciation: ​[manɥɛl ʒanɛ̃]; born 1 November 1975), known professionally as Manuel Ferrara, is a French pornographic actor and director.\nOne of the leading actors in the porn industry, Ferrara has won over 64 adult industry awards including six AVN Awards as Male Performer of the Year—the record for the accolade, and was inducted into the AVN and XRCO Halls of Fame.\n\n— _Extracted from [Wikipedia](https://en.wikipedia.org/wiki/Manuel_Ferrara) on 21 Sep 2021_.
+Layla Price	1991-08-30	American	Baltimore, MD, USA	2012-2020	
+Holly Michaels	1990-08-16	American	Phoenix, AZ, USA	2011-2016	
+Natasha Nice	1988-07-28	American	Fontenay Sous-Bois, France	2012-Present	\N
+Eva Lovia	1989-05-29	American, Japanese, Spanish	South Carolina, USA	2011-2019	> I got into porn while going to school for my B.A. in Psychology. I started with girl girl to see how I felt about it. I was very shy when I started and wasn't ready to commit to boy girl scenes. After I graduated I felt that I did all I wanted and could in the girl girl world and was ready for boy girl scenes ...\n\n— _Extracted from her [website](https://fallinlovia.com/about) on 25 November 2021_
+Dana Vespoli	1972-09-22	American, Irish, Thai	Hanover, NH, USA 	2003-2020	> Vespoli began performing at age 31 as a stripper at the Mitchell Brothers O'Farrell Theatre in San Francisco, using the stage name "Christa". She entered the adult film industry in 2003, first as a performer, and then as a director and producer.\n\n— _Extracted from Wikipedia on 22 December 2021_
+Karlee Grey	1994-01-25	American	B: Framingham, MA, USA r: South Florida, USA 	2014-2021	
+Elena Koshka	1993-05-18	American, Russian	Kazan, Russia (raised USA)	2016-2022	\N
+Asa Akira	1985-01-03	American, Japanese	New York City, NY, USA	2006-2019	Asa Akira is an American pornographic actress and adult film director. Akira has appeared in over 505 adult films as of May 2016. In 2013, she became the third Asian performer (after Asia Carrera and Stephanie Swift) to win the AVN Female Performer of the Year Award. Akira hosted the 1st and 2nd ceremonies for the Pornhub Awards.\n\n— _Extracted from Wikipedia (17 December 2021)_
+Angela White	1985-03-04	Australian	Sydney, Australia	2003-Present	> Angela Gabrielle White is an Australian pornographic film actress and director. She has been inducted into the AVN Hall of Fame and the XRCO Hall of Fame, and in 2020 became AVN's first three-time Female Performer of the Year winner.\n\n— _Extracted from [Wikipedia](https://en.wikipedia.org/wiki/Angela_White) on 21 Sep 2021_.
+Sara Jay	1977-11-12	American	Cincinnati, OH, USA	2001-Present	
+Cherie DeVille	1978-08-30	American	Durham, NC, USA	2011-Present	Cherie DeVille is an American physical therapist (PhD) and adult entertainment performer. She is a 2x recipient of the AVN MILF Performer of the Year award. Cherie was born in Durham, NC, and grew up in Washington, DC, and Cape Cod, MA. She’s of French-Canadian descent. DeVille also plays drums and teaches swing dancing in her spare time.
+Kissa Sins	1987-06-22	American	Pasadena, California, USA 	2014-Present	
+\.
+
+
+--
+-- Data for Name: starinforeplyercommented; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.starinforeplyercommented (commentid) FROM stdin;
+haze6o5
+hb11v92
+hb11l2b
+hb11vah
+hb11oym
+hb11vbv
+hb11xe5
+hb11xxz
+hajvuhv
+hb12xf0
+hb12xqm
+hasqsr3
+hb12xsv
+hb12y33
+haxaepm
+hb12y49
+hb12yfd
+hb1zeux
+hb2ea6e
+hb2g1ii
+hb2g1v5
+hb853ck
+hb854b5
+hb7934t
+hbblod0
+hbblowj
+hbbxx79
+hbbxy0p
+hbbxyl4
+hbbjbeo
+hbe59zw
+hbbldky
+hbe5a8t
+hbbp718
+hbe5ai8
+hbe5b86
+hbbu8xi
+hbe5cpo
+hbc7v77
+hbe5cw3
+hbe60qi
+hbe61sd
+hbeeuiq
+hbeewrt
+hbeylaf
+hbeylxv
+hbfz974
+hbg59ug
+hbgl52m
+hbgl5mg
+hbgl6b8
+hbifjhf
+hbifki8
+hbokghe
+hbql167
+hbt07w2
+hbt0a8x
+hbt5xso
+hbt71r3
+hbt728o
+hbxd1lm
+hbxd2bo
+hbydve4
+hbydwld
+hc1pk8v
+hc1plxt
+hc3vmwe
+hc3vo5x
+hc3voj6
+hc3xyqq
+hc3y0fn
+hc3y43a
+hc5s69b
+hc5smdo
+hc5smzx
+hc5so9w
+hc6a2bk
+hc6a3jx
+hc6g2ff
+hc6g347
+hc8ql3x
+hc8qmc1
+hcn7h5x
+hcqhczl
+hcqheoi
+hchr2pr
+hcqih5b
+hcrvmmn
+hcrvnnh
+hcshdhc
+hcshe8o
+hcve8xd
+hcve9cj
+hcyigsv
+hcyzccf
+hcyztb5
+hcyzuvk
+hcyzw6x
+hcz0413
+hcz05kh
+hcz06ce
+hcyqp7u
+hd3qv5k
+hd3qvp1
+hd3d654
+hd3qvrk
+hd3qwb4
+hd4pps2
+hd4pq9s
+hd6jwda
+hd6jwxs
+hd898xu
+hd89abg
+hd8ahfy
+hd8aic1
+hdcfb1l
+hdcfcd2
+hdcfgfu
+hdfjj8q
+hdfjjyh
+hdjgsw6
+hdjgty7
+hdk64ux
+hdk65ph
+hdmmtwu
+hdmmv3z
+hdo890e
+hdo8a9m
+hdnvwmr
+hdrbsu2
+hdrbtqs
+hdsztom
+hdszu9m
+hdwjjja
+hdwjjwg
+he0btle
+he0byvp
+he0ofll
+he0ojrj
+he3ly1j
+he3lz9o
+heftaaf
+heftat8
+hejonen
+hejooil
+heka8sr
+heka9sb
+hekaaa5
+helyz3m
+helz03b
+hejv3uq
+hentxb6
+hentxsi
+hepa1tk
+hepa2cz
+hepa2p9
+het2z6y
+het3068
+hew86za
+hew88i1
+hewbayf
+hewbcnk
+hexnqzr
+hexns2v
+hf2hu65
+hf2huqg
+hf2hv0k
+hf6lbqi
+hf6lc8y
+hf7z175
+hf7z2gr
+hf7z5xk
+hfd4vf7
+hfd4wdp
+hg5pw2o
+hgfomcz
+hgfuq4t
+hgfuria
+hgh8nxw
+hgh8ou2
+hgkjeo7
+hgkjfi2
+hgq5b9c
+hgq5bsx
+hgq5cc5
+hgt41zn
+hgt43dt
+hgxxzwp
+hgxy0r1
+hh3qgzt
+hh6qg17
+hh6qgj9
+hh8vlf9
+hh8vn2u
+hh8vssp
+hgs2sus
+hhbf874
+hhbf8ob
+hhbh4fg
+hhbhab8
+hhbhbkh
+hhbhhr0
+hhdei7l
+hhdeqe2
+hhfh0l4
+hhfh80w
+hhfh8i7
+hhesr4p
+hhg5cvt
+hhg5ddm
+hhihwo2
+hhihy3y
+hhjwhh6
+hhjwnss
+hhktzk1
+hhku03c
+hhp9k5k
+hhs47tj
+hhs48du
+hhpmxtr
+hhs4a77
+hhs4atd
+hhpwgxv
+hhs4cgg
+hhwz4io
+hhwzde3
+hhwze0z
+hi0qkr7
+hi0qmwn
+hhy15lo
+hi2ingl
+hi2inyg
+hi2mjx6
+hi2mkj8
+hi7x1cs
+hi7x2b1
+hieavhl
+hieaxsg
+hieb4wr
+hiigbox
+hiige8q
+hiizhg5
+hiizip4
+hiizj3k
+hinmg0f
+hinmh75
+hipqu5z
+hipqvfo
+hj0xwuk
+hj0xyhu
+hj0xze6
+hj2bbww
+hj2be55
+hj2beuz
+hj3263l
+hj327e0
+hj5vh6r
+hj5vizo
+hj7k146
+hj7k2i0
+hj91qoq
+hj91rqf
+hj99fzd
+hj99g9m
+hj9fifz
+hj9jfgq
+hj9fsoh
+hj9jft8
+hjdch0u
+hjdci1c
+hjlgv77
+hjlgw77
+hjmqv7t
+hjmr1bn
+hjnjelm
+hjnji53
+hjrckm7
+hjrcmly
+hjsrm0d
+hjsrmxt
+hjwoj6i
+hjwojv9
+hk11abc
+hk11bg7
+hk5ug5q
+hk5uh9t
+hk77yqm
+hk77zv3
+hkcowbo
+hkcoygn
+hkh3r5y
+hkh3yt9
+hkr1kxd
+hkr6aiw
+hkr6bae
+hkrw3tn
+hks78rj
+hktow03
+hktowob
+hkw19qb
+hkw1axj
+hla1v28
+hlbzdwi
+hlbzehc
+hlfqctw
+hlfqdv4
+hlfqel7
+hllnbn0
+hlpunhc
+hlpuo1v
+hlv25pl
+hlzjy9r
+hlzjyrd
+hlzsn19
+hlzso97
+hm4au0x
+hm4b051
+hm8hpbg
+hm8hqa5
+hm8hqok
+hm8hra8
+hmcyzdc
+hmcz03n
+hmhoedu
+hmicdlt
+hmicdx6
+hmiok5a
+hmiooqo
+hmu3nbh
+hmwwnpl
+hmwwo0c
+hmw254l
+hmwwohh
+hn0y28f
+hn0y33h
+hn2eqfv
+hn2exx2
+hn2eybl
+hn5m04q
+hn5s8l9
+hnbns1q
+hnbnza9
+hnbnznw
+hnh8kj3
+hnh8mpo
+hnm1oyl
+hnu6ota
+hnu6p9y
+hnve7bs
+hnve9se
+hnveamw
+ho090lo
+ho3z82e
+ho3z8fs
+ho50vwq
+ho50x9h
+ho50xtz
+holqxxz
+honjo0k
+honjoni
+hoog84x
+hoog9ll
+hooga9e
+hoql40s
+hotxwm4
+hotxxgf
+hoxm9oc
+hp20i5x
+hp20imc
+hoxy30k
+hp20j05
+hp1zit2
+hp20jnc
+hp2hqjn
+hp2hyyb
+hpamocj
+hpamp6o
+hpg9njf
+hplsysj
+hplszg8
+hpp9kdh
+hpp9lo2
+hpkqp0y
+hppa7pz
+hppa8cl
+hpvsnae
+hpvsok2
+hpvsoun
+hpzn0e4
+hpzn20e
+hpzn2gf
+hq3v8az
+hq3v9l5
+hq3v9zh
+hq48pma
+hq48qj4
+hq48qvd
+hqkt8q3
+hqktb3l
+hqktklz
+hqo8hhg
+hqo8ib0
+hqof9kx
+hqofgi5
+hqpm8x7
+hqpmaqd
+hqskzmt
+hqsl0ek
+huglpmi
+huglr2o
+hulrwma
+hulrxw9
+huo35bg
+huo36oo
+hupt5xn
+hupt791
+huptb8w
+huptcof
+huptjbc
+huptkjn
+hv0qo8p
+hv0qrgp
+hv0qs2v
+hx4fvvk
+hx4g4b1
+igefurj
+igefxnm
+igeg640
+\.
+
+
+--
+-- Data for Name: starinforeplyerexcluded; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.starinforeplyerexcluded (username) FROM stdin;
+Last_Side_7789
+s_nutella
+Peyton2518
+AwayThrownSomeNumber
+Bi7477
+KlutzyFishing6743
+584072914
+keilapallo165
+powpow1254
+\.
+
+
+--
+-- Data for Name: starlink; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.starlink (star_name, link, link_name) FROM stdin;
+Angela White	http://angelawhite.com/	Website
+Angela White	http://instagram.com/theangelawhite	Instagram
+Angela White	https://twitter.com/angelawhite	Twitter
+Angela White	https://www.reddit.com/user/AngelaWhiteXXX/	Reddit
+Siri Dahl	https://siridahl.com/	Website
+Siri Dahl	https://twitch.tv/siridahl	Twitch
+Siri Dahl	https://twitter.com/thesiridahl	Twitter
+Siri Dahl	https://www.instagram.com/therealsiri.ps/	Instagram
+Layla Price	https://www.instagram.com/mzpriceisright	Instagram
+Layla Price	https://twitter.com/laylapricexoxo	Twitter
+Cherie DeVille	http://twitter.com/cheriedeville	Twitter
+Cherie DeVille	http://cheriedeville.com/	Website
+Cherie DeVille	https://onlyfans.com/cheriedeville	Onlyfans
+Cherie DeVille	http://www.instagram.com/cheriedevillexo	Instagram
+Kissa Sins	http://coyotelovesyou.com/	Website
+Holly Michaels	http://twitter.com/hmhollymichaels	Twitter
+Natasha Nice	http://twitter.com/benicenatasha	Twitter
+Eva Lovia	https://fallinlovia.com/	One-stop website
+Asa Akira	https://onlyfans.com/asaakira	Onlyfans
+Dana Vespoli	http://msdanatoyou.com	Website
+Elena Koshka	https://onlyfans.com/elenakoshkaxoxo	Onlyfans
+Elena Koshka	https://instagram.com/therealelenakoshka	Instagram
+Elena Koshka	https://twitter.com/elenakoshkaxoxo	Twitter
+Elena Koshka	https://centerfold.com/elenakoshkaxoxo	Centerfold
+Angela White	https://onlyfans.com/angelawhite	Onlyfans
+\.
+
+
+--
+-- Data for Name: starnotificationsubscription; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.starnotificationsubscription (username, star) FROM stdin;
+Grod97	Lisey Sweet
+lldolobll	Cherie Deville
+lldolobll	Valentina Nappi
+tattedass	Cherie Deville
+Grod97	Iwia
+shipwrecked_stu	Cherie DeVille
+throwawayb_r	Cherie DeVille
+throwawayb_r	Julia Ann
+beeznutsonly	Manuel Ferrara
+beeznutsonly	Elena Koshka
+elmasqueentono	Angela White
+elmasqueentono	Cherie DeVille
+\.
+
+
+--
+-- Data for Name: submissionreplydetails; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.submissionreplydetails (url, reply, oneoff) FROM stdin;
+\.
+
+
+--
+-- Data for Name: submissionreplyercommented; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.submissionreplyercommented (commentid, url) FROM stdin;
+\.
+
+
+--
+-- Data for Name: submissionsandinfo; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.submissionsandinfo (submission_id, movie, star1, star2) FROM stdin;
+r7pu59	Hot Creampie for Big Tits UK Blonde	Georgie Lyall	Thomas Crown
+r6y6r6	Virgins	Riley Nixon	Jake Adams
+r5ec3b	XConfessions 1	Carol Vega	Cristian Frey
+r4muvu	My Girlfriend's Mother 3	Inari Vachs	Joey Brass
+rhhwqi	Primary Season 2	Casey Calvert	Ryan Driller
+r34qyo	Burlesque Story	Cherie DeVille	Codey Steele
+rknvkq	Only She	Cristal Caitlin	Angelo Godshack
+r1nfso	Slow Sensual Blowjob and Doggystyle	Josephine Jackson	Ricky Rascal
+rabyr6	Paparazzi	Brandi Love	Jay Snake
+se34gk	My Abduction Fantasy	Katana	Ramon Nomar
+rikuh3	The Masseuse	Asa Akira	Charles Dera
+r3v96g	Kira Noir and Nathan Bronson: Romantic Passionate Fuck	Kira Noir	Nathan Bronson
+r8gzcq	Feeling Playful	Iwia	Unknown Guy
+rm9iv3	The Plumber	Jessy Jones	Bree Daniels
+r2evgu	Raw 22	Layla Price	Manuel Ferrara
+rmzzgp	The Widow	Dana Vespoli	Dante Colle
+rclvri	Serendipity	Angela White	Markus Dupree
+rgq2sj	Sensual Moments 8	Adira Allure	Jay Smooth
+sevdwf	My Daughter's Boyfriend 6	Tanya Tate	Mr. Pete
+qzcuao	Dirty Thirty	Alexxa Vice	Lutro
+rlkd6p	XConfessions 2	Samantha Bentley	Franck Franco
+rs8phx	Raw 24	Karlee Grey	Manuel Ferrara
+p8r17j	Black Lingerie (II)* with **Alina Lopez*	Alina Lopez	Bambino
+qyg4lb	Love Marriage and Other Bad Ideas	Alison Tyler	Richie Calhoun
+r9g9za	Raw 9	Veronica Avluv	Manuel Ferrara
+re3ug1	Almost Heaven	Allie Haze	Xander Corvus
+qxl800	XConfessions 3	Irina Vega	Fenyx Santos
+rdd2nf	The Intern: A Summer of Lust	Lena Anderson	Michael Vegas
+ro1w5q	Sensual Suite: Cherie DeVille	Cherie DeVille	Laz Fyre
+r0whry	Madly in Love With My Best Friend	Romy Furie	Cara Vega
+qt5bb6	The Female of the Species	Evelyn Claire	Manuel Ferrara
+qvfhlx	Scandale aux vestiaires	Liza Del Sierra	Pascal White
+qun4ut	Kassandra Kelly (Ivy Lebelle) Fucks Her Man's Friend	Ivy Lebelle	Chad White
+qsfkgp	Romantic Getaway	Georgie Lyall	Nick Moreno
+sh79in	My Sinful Valentine	Angela White	Jay Smooth
+qqlkw5	Father Figure	London Keyes	Evan Stone
+rb3aju	Striped Shorts	Adriana Chechik	T.J. Cummings
+qrcap3	Cum Addiction Intervention	Athena Faris	Codey Steele
+qofpre	Losing Kayden	Kayden Kross	Manuel Ferrara
+qp4i22	Something Borrowed	Elena Koshka	Seth Gamble
+rpe3or	Raw and Unfiltered	Rion Rhodes	Owen Gray
+qn1qro	True Blue	Marina Visconti	Danny Mountain
+qnrn3r	My Dad, Your Dad 2	Devon Green	Ramon Nomar
+qm607j	Home Wrecker 3	Charley Chase	Nacho Vidal
+qlenbb	Body Language	Holly Michaels	Tyler Nixon
+qj4f2p	I Dare You	Dana Vespoli	Lucas Frost
+qig1n0	Snatched	Valentina Nappi	Bruce Venture
+qhqisf	Angela 3	Angela White	Manuel Ferrara
+pxrf7e	Twisted Passions 18	Prinzzess	Dani Daniels
+q91lyz	Strap On Fucking Courtney Trouble	Courtney Trouble	Sinn Sage
+pwa8gp	Recipe for Romance	Samantha Ryan	Richie Calhoun
+pwx6by	Kira Gets a Creampie	Kira Noir	Codey Steele
+pu46x2	Raw 23	Megan Rain	Manuel Ferrara
+psz9xs	Brandi Loves Girls	Kate England	Brandi Love
+qdwflw	The Kendra Sunderland Experience	Kendra Sunderland	Ricky Johnson
+qam776	Second Chance	Penny Barber	Ryan McLane
+q7qz1j	Afternoon Delight	Iwia	Steve Q
+qf7zv2	Horizon of Love	Josephine Jackson	Nick Moreno
+pyzdg9	Stud is Obsessed With This MILF's Thick Ass	Valentina Ross	George Uhl
+q72cvf	Sensual Suite: Cherie DeVille	Cherie DeVille	Laz Fyre
+q9qsuu	My Sister's Husband	Brett Rossi	Erik Everhard
+ps81d2	Double Take	Alison Tyler	Johnny Castle
+pyazh7	Light my Fire	Angel Wicky	Max Deeds
+ptj5p5	Fucking in Robby's Bedroom (Onlyfans)* with **Siri Dahl*	Siri Dahl	Robby Echo
+qfxoyd	Recipe for Romance	Allie Haze	Johnny Castle
+q18fmv	Babysitter 5	Tanya Tate	Evan Stone
+qcaurp	Use the Rake	Mistress T	Shreddz
+q0h9rs	Karlee's Big Naturals	Karlee Grey	Manuel Ferrara
+pq3500	Mother Lovers Society 11	Julia Ann	Lola Foxx
+ppg4ns	La Mamma Della Mia Ragazza 9	Valentina Nappi	Tyler Nixon
+prkfnn	Lost in the Clouds	Mia Malkova	Danny Mountain
+q8w7ua	Morning Stretch	Kalisy	Pavlos
+pot1xt	Recipe For Romance	Missy Martinez	Ramon Nomar
+poc0og	TS, I Love You	Dana Vespoli	Xander Corvus
+pqp2jz	Raw 33	Lena Paul	Manuel Ferrara
+pnsil1	Girls Kissing Girls 22	April O'Neil	Elena Koshka
+pkxr9t	Ricky and Ana go at it	Ana Foxxx	Ricky Johnson
+qbej0v	Performers of the Year 2019	Kissa Sins	Manuel Ferrara
+pjmlaz	Love is a Dangerous Game	Natasha Nice	Richie Calhoun
+pzn2vc	Sensual Encounter	Demi Sutra	Owen Gray
+pn6gk1	Surrender to Anal 8	Angela White	Manuel Ferrara
+q8g6gx	Mother Exchange 8	Lisey Sweet	Codey Steele
+pkjhip	Slow Deep Penetration For Cute Brunette	Iwia	George Uhl
+piyz82	Belladonna: The Sexual Explorer	Mia Rose	Belladonna
+qd8ffl	My Husband's Boss: The Power Position	Ana Foxxx	Isiah Maxwell
+pico84	Charity Case	Lisey Sweet	Will Pounder
+phr4j5	Raw 11	Liza Del Sierra	Manuel Ferrara
+pgkx0r	Taken for a Ride	Holly Michaels	Bruce Venture
+pfwrlt	Older Women Younger Guys 2	Shay Fox	Rocco Reed
+pf5s8i	Follow Me 1	Isis Taylor	Nacho Vidal
+pehlte	Raw 33	Abella Danger	Manuel Ferrara
+pdusx6	Lesbian Adventures: Strap-On Specialists 15	Lena Paul	Sinn Sage
+pcmv4b	Summer of Love	Daisy Haze	Gavin Kane
+pc2fuq	Abigail Part 5	Abigail Mac	Markus Dupree
+pbe7mu	Women Seeking Women 141	August Ames	Riley Nixon
+paq7qt	Gigolos	Sienna West	Manuel Ferrara
+oy2gzc	Erotic pussy eating at the office with Hungarian and Czech blonde lesbians	Kathia Nobili	Lana S
+oxf7ma	Raw 32	Angela White	Manuel Ferrara
+ou6x84	Slow Deep Penetration For Cute Brunette	Iwia	George Uhl
+rjcabh	Raw 9	Krissy Lynn	Manuel Ferrara
+p398as	Bounce 3	Kissa Sins	Manuel Ferrara
+p2oozr	Lesbian Truth or Dare 5	Sincerre Lemore	Natasha Nice
+ok5oe5	Mom Wouldn't Like That!* with **Abella Danger*	Abella Danger	Markus Dupree
+oswfm8	Huge Tits MILF Gives Oily Titwank	Angel Wicky	El Gran Erick
+pa239w	Raw and Unfiltered	Rion Rhodes	Owen Gray
+p9c1se	Big Ass Ebony Babe Interracial Sex	Zaawaadi	Angelo Godshack
+p7edak	Lesbian PsychoDramas 32	Dana DeArmond	Angela White
+p03il9	Lesbian Sex 8	Elexis Monroe	Sinn Sage
+oqbuv6	Nubiles Casting 8	Holly Michaels	Bruce Venture
+ozhn9c	The Turn-On	Franceska Jaimes	Nacho Vidal
+ow0dko	Interracial Milf Massage	Julia Ann	Nat Turnher
+p3uu1d	The Stepmother 12	Cherie DeVille	Evan Stone
+outvcr	Babysitter 7	Veronica Avluv	Manuel Ferrara
+otj18g	Sexy Private Dance for Boyfriend	Nelly Kent	Erik Everhard
+p5xvx9	AJ Applegate's Onlyfans	AJ Applegate	Danny Mountain
+p84pd2	Mr. Perfect from the Dating App	Dana Vespoli	Damon Dice
+os8nl0	Lesbian Adventures: Strap-On Specialists 15	Lena Paul	Sinn Sage
+opntci	Brandi Loves Girls	Brandi Love	Abigail Mac
+ork3mi	Raw 24	Karlee Grey	Manuel Ferrara
+oqy8co	Nacho's Big Asses	Canela Skin	Nacho Vidal
+p4maag	Redhead Has Her Pussy Tenderly Plowed	Denisa Haven	George Uhl
+oys9be	Trashy Love Story	Riley Nixon	Stallion
+oveyij	Dani Loves Girls	Natasha Nice	Dani Daniels
+owomxp	Charity Case	Lisey Sweet	Will Pounder
+ooz91x	Raw 33	Elena Koshka	Manuel Ferrara
+p6qo7l	Raw 17	Mia Rose	Manuel Ferrara
+omf97q	Splendor in Gold Lingerie	Morgan Lee	Ricky Johnson
+olmq07	Road Queen 29	Mellanie Monroe	Prinzzess
+oobm3s	My Father's Girlfriend	AJ Applegate	Tommy Gunn
+p24n3w	Putting the "Lay" in Layover	Siri Dahl	Unknown Male
+ol37bp	2 Cute 4 Porn 2	Karlee Grey	Manuel Ferrara
+omzch1	Manuel's Maximum Penetration 5	Angela White	Manuel Ferrara
+p1ao1r	Angel's Boutique	Angel Wicky	Kai Taylor
+p0qea5	Bounce 2	Lena Paul	Manuel Ferrara
+oksvud	MILF Wakes Up For The Cock Ride Of Her Mature Life	Jessica Fiorentino	George Uhl
+okjjeq	Electricity	Brittany Bardot	George Uhl
+p59vim	Lipstick and Muscles	Abella Danger	Elena Koshka
+oji86j	Belladonna's Party of Feet 3	Sinn Sage	Lily Labeau
+oj168s	Have Fun	Ana Ribera	Nacho Vidal
+oictl5	Lesbian Love Stories 9: Tempted	Lisey Sweet	Prinzzess
+oj1dri	Lesbian Sports-Widow	Shyla Jennings	Angela White
+oi70mo	Rocco's Back to America for More Adventures	Jane Wilde	Rocco Siffredi
+ohr6gj	Internal Damnation 11	Keisha Grey	Manuel Ferrara
+ohhlc3	Dripping Wet	Kendra Sunderland	Ricky Johnson
+oh8lgx	Holding Out and Giving in 2	Demi Sutra	Robby Echo
+og8wva	Persuasive Busty Arguments	Angela White	Manuel Ferrara
+ofsuqe	2 Cute 4 Porn 2	Karlee Grey	Manuel Ferrara
+o8klzz	Bounce 3	Manuel Ferrara	Bridgette B
+o7a7bi	Raw 25	Summer Brielle	Manuel Ferrara
+od8j3t	The Personal Trainer	Kissa Sins	Manuel Ferrara
+ocm4tc	Sun-Lit 3	Elena Koshka	Manuel Ferrara
+oecv4s	Strapped for Pleasure	AJ Applegate	Cherie DeVille
+rooqw6	Something Borrowed	Elena Koshka	Seth Gamble
+ofp186	What Dreams may Mean	Penny Pax	Logan Pierce
+o973jv	Raw 24	Karlee Grey	Manuel Ferrara
+ob3ojb	Girls Kissing Girls 15	Sinn Sage	Justine Joli
+oh7rcs	Abigail 4	Kissa Sins	Abigail Mac
+o6njml	Raw and Unfiltered	Owen Gray	Rion Rhodes
+o7xoy8	Raw 33	Elena Koshka	Manuel Ferrara
+odook2	Locked Out	Abella Danger	Ricky Johnson
+o9ote0	Night Caps	Julia Ann	Nat Turnher
+rt09fw	Putting the "Lay" in Layover	Siri Dahl	Regular Dude
+obx8ou	Dani Loves Girls	Natasha Nice	Dani Daniels
+oaizh0	Big Wet Breasts 3	Karlee Grey	Manuel Ferrara
+\.
+
+
+--
+-- Name: adminupdate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.adminupdate_id_seq', 44, true);
+
+
+--
+-- Name: adminupdate adminupdate_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.adminupdate
+    ADD CONSTRAINT adminupdate_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: botcredentials botcredentials_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.botcredentials
+    ADD CONSTRAINT botcredentials_pkey PRIMARY KEY (client_id, client_secret, username);
+
+
+--
+-- Name: completedcrosspost completedcrosspost_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.completedcrosspost
+    ADD CONSTRAINT completedcrosspost_pkey PRIMARY KEY (url, subreddit);
+
+
+--
+-- Name: completedsubmission completedsubmission_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.completedsubmission
+    ADD CONSTRAINT completedsubmission_pkey PRIMARY KEY (url, subreddit);
+
+
+--
+-- Name: featuretester featuretester_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.featuretester
+    ADD CONSTRAINT featuretester_pkey PRIMARY KEY (username);
+
+
+--
+-- Name: postinfo postinfo_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.postinfo
+    ADD CONSTRAINT postinfo_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sceneinfo sceneinfo_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sceneinfo
+    ADD CONSTRAINT sceneinfo_pkey PRIMARY KEY (movie, star1, star2);
+
+
+--
+-- Name: scheduledcrosspost scheduledcrosspost_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.scheduledcrosspost
+    ADD CONSTRAINT scheduledcrosspost_pkey PRIMARY KEY (url, subreddit);
+
+
+--
+-- Name: scheduledsubmission scheduledsubmission_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.scheduledsubmission
+    ADD CONSTRAINT scheduledsubmission_pkey PRIMARY KEY (url, subreddit);
+
+
+--
+-- Name: scheduledsubmissionautoreply scheduledsubmissionautoreply_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.scheduledsubmissionautoreply
+    ADD CONSTRAINT scheduledsubmissionautoreply_pkey PRIMARY KEY (url, subreddit, comment_body);
+
+
+--
+-- Name: star star_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.star
+    ADD CONSTRAINT star_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: starinforeplyercommented starinforeplyercommented_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.starinforeplyercommented
+    ADD CONSTRAINT starinforeplyercommented_pkey PRIMARY KEY (commentid);
+
+
+--
+-- Name: starinforeplyerexcluded starinforeplyerexcluded_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.starinforeplyerexcluded
+    ADD CONSTRAINT starinforeplyerexcluded_pkey PRIMARY KEY (username);
+
+
+--
+-- Name: starlink starlink_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.starlink
+    ADD CONSTRAINT starlink_pkey PRIMARY KEY (star_name, link);
+
+
+--
+-- Name: starnotificationsubscription starnotificationsubscription_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.starnotificationsubscription
+    ADD CONSTRAINT starnotificationsubscription_pkey PRIMARY KEY (username, star);
+
+
+--
+-- Name: submissionreplydetails submissionreplydetails_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissionreplydetails
+    ADD CONSTRAINT submissionreplydetails_pkey PRIMARY KEY (url);
+
+
+--
+-- Name: submissionreplyercommented submissionreplyercommented_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissionreplyercommented
+    ADD CONSTRAINT submissionreplyercommented_pkey PRIMARY KEY (commentid);
+
+
+--
+-- Name: submissionsandinfo submissionsandinfo_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissionsandinfo
+    ADD CONSTRAINT submissionsandinfo_pkey PRIMARY KEY (submission_id);
+
+
+--
+-- Name: completedcrosspost completedcrosspost_url_subreddit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.completedcrosspost
+    ADD CONSTRAINT completedcrosspost_url_subreddit_fkey FOREIGN KEY (url, subreddit) REFERENCES public.scheduledcrosspost(url, subreddit) ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: completedsubmission completedsubmission_scheduledsubmission_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.completedsubmission
+    ADD CONSTRAINT completedsubmission_scheduledsubmission_fkey FOREIGN KEY (url, subreddit) REFERENCES public.scheduledsubmission(url, subreddit) ON UPDATE RESTRICT ON DELETE CASCADE;
+
+
+--
+-- Name: starlink name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.starlink
+    ADD CONSTRAINT name_fkey FOREIGN KEY (star_name) REFERENCES public.star(name) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: scheduledsubmissionautoreply scheduledsubmissionautoreply_url_subreddit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.scheduledsubmissionautoreply
+    ADD CONSTRAINT scheduledsubmissionautoreply_url_subreddit_fkey FOREIGN KEY (url, subreddit) REFERENCES public.scheduledsubmission(url, subreddit) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: submissionreplyercommented submissionreplyercommented_url_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissionreplyercommented
+    ADD CONSTRAINT submissionreplyercommented_url_fkey FOREIGN KEY (url) REFERENCES public.submissionreplydetails(url) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: submissionsandinfo submissionsandinfo_movie_star1_star2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissionsandinfo
+    ADD CONSTRAINT submissionsandinfo_movie_star1_star2_fkey FOREIGN KEY (movie, star1, star2) REFERENCES public.sceneinfo(movie, star1, star2) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: submissionsandinfo submissionsandinfo_submission_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissionsandinfo
+    ADD CONSTRAINT submissionsandinfo_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.postinfo(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

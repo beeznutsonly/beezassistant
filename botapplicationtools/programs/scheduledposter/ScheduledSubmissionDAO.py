@@ -38,7 +38,7 @@ class ScheduledSubmissionDAO:
                         record[2],
                         record[3],
                         record[4],
-                        record[6]
+                        record[5]
                     )
                 )
             return dueSubmissions
