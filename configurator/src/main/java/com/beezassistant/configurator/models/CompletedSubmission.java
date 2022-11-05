@@ -18,7 +18,9 @@ public class CompletedSubmission implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 6800233518518073631L;
-
+	
+	private ZonedDateTime completedTime;
+	
 	@Id
 	@OneToOne
 	@JoinColumns({
@@ -26,7 +28,6 @@ public class CompletedSubmission implements Serializable {
 		@JoinColumn(name="subreddit", referencedColumnName="subreddit")
 	})
 	private ScheduledSubmission scheduledSubmission;
-	private ZonedDateTime completedTime;
 	
 	public CompletedSubmission() {
 		super();
@@ -37,28 +38,20 @@ public class CompletedSubmission implements Serializable {
 		this.scheduledSubmission = scheduledSubmission;
 	}
 
-	public ScheduledSubmission getScheduledSubmission() {
-		return scheduledSubmission;
-	}
-
-	public void setScheduledSubmission(ScheduledSubmission scheduledSubmission) {
-		this.scheduledSubmission = scheduledSubmission;
-	}
-
-	public String getUrl() {
-		return scheduledSubmission.getUrl();
-	}
-
-	public String getSubreddit() {
-		return scheduledSubmission.getSubreddit();
-	}
-
 	public ZonedDateTime getCompletedTime() {
 		return completedTime;
 	}
 
 	public void setCompletedTime(ZonedDateTime completedTime) {
 		this.completedTime = completedTime;
+	}
+
+	public ScheduledSubmission getScheduledSubmission() {
+		return scheduledSubmission;
+	}
+
+	public void setScheduledSubmission(ScheduledSubmission scheduledSubmission) {
+		this.scheduledSubmission = scheduledSubmission;
 	}
 
 }

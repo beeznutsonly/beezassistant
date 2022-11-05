@@ -1,5 +1,5 @@
 .app-view {
   display: flex;
-  min-height: 100%;
+  height: inherit;
   flex-direction: column;
 }

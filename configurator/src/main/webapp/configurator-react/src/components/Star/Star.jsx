@@ -33,7 +33,7 @@ const Star = ({ item }) => {
                     </div>
                     <div className="additional-information-pane">
                         {
-                            Boolean(item.description) || Boolean (item.starLinks)
+                            Boolean(item.description) || Boolean(item.starLinks.length)
                             ?(
                                 <div
                                     className={`item-secondary-details-selector-group ${
@@ -62,7 +62,7 @@ const Star = ({ item }) => {
                                         </div>
                                     )
                                     : <></>}
-                                    {Boolean(item.starLinks)
+                                    {Boolean(item.starLinks.length)
                                     ?(
                                         <div
                                             title="Links"
@@ -89,7 +89,7 @@ const Star = ({ item }) => {
                     </div>
                 </div>
                 {
-                    Boolean(item.description) || Boolean(item.starLinks)
+                    Boolean(item.description) || Boolean(item.starLinks.length)
                     ? (
                         <div className="item-secondary-details">
                             {Boolean(item.description)
@@ -108,7 +108,7 @@ const Star = ({ item }) => {
                                     </Collapse>
                                 )
                                 : <></>}
-                            {Boolean(item.starLinks)
+                            {Boolean(item.starLinks.length)
                                 ?(
                                     <Collapse
                                         in={isStarLinksOpen}

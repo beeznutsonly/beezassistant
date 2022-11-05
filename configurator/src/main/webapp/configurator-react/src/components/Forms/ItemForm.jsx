@@ -2,11 +2,11 @@ import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
 import AlertModel from '../../models/AlertModel';
-import "./DialogForm.css";
+import "./BasicForm.css";
 import LoadingAnimationModel from '../../models/InlineLoadingAnimationModel';
 import LoadingAnimation from '../LoadingAnimations/BasicInlineLoadingAnimation';
 
-const ItemDialogForm = (props) => {
+const ItemForm = (props) => {
 
     const [alertModel, setAlertModel] = useState(AlertModel.defaultAlertModel());
     const [isFormValidated, setFormValidated] = useState(false);
@@ -85,9 +85,15 @@ const ItemDialogForm = (props) => {
                 validated={isFormValidated} 
                 noValidate
             >
-                <div className="form-heading">
-                    <h1 className="form-title">{props.formTitle}</h1>
-                </div>
+                {
+                    Boolean(props.formTitle)
+                    ? (
+                        <div className="form-heading">
+                            <h1 className="form-title">{props.formTitle}</h1>
+                        </div>
+                    )
+                    : <></>
+                }
                 <div className="form-content">
                     {props.children}
                 </div>
@@ -120,4 +126,4 @@ const ItemDialogForm = (props) => {
     );
 }
 
-export default ItemDialogForm;
+export default ItemForm;

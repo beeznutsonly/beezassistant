@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useLocation, useOutletContext, useParams } from 'react-router-dom';
-import ItemDialogForm from '../Forms/ItemDialogForm';
+import ItemForm from '../Forms/ItemForm';
 import BasicFormDialog from './BasicFormDialog';
 
 const OutletBasedFormDialog = (props) => {
@@ -68,7 +68,7 @@ const OutletBasedFormDialog = (props) => {
         <>
             <BasicFormDialog 
                 form={
-                    <ItemDialogForm
+                    <ItemForm
                         formTitle={props.formTitle}
                         itemModel={itemModel}
                         submitSuccessHandler={submitSuccessHandler}
@@ -90,7 +90,7 @@ const OutletBasedFormDialog = (props) => {
                         }                
                     >
                         {props.itemFormContent}
-                    </ItemDialogForm>
+                    </ItemForm>
                 }
             />
         </>

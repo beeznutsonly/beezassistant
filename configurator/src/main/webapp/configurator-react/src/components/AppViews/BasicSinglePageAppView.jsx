@@ -11,9 +11,10 @@ import ErrorContent from "../NavigableContent/ErrorContent";
 import HomeContentView from "../ContentViews/BasicContentView";
 import ScheduledCrosspostsContent from "../NavigableContent/ScheduledCrosspostsContent";
 import StarsContent from "../NavigableContent/StarsContent";
-import ScheduledSubmissionFormDialog from "../FormDialogs/OutletBasedScheduledSubmissionFormDialog";
-import ScheduledCrosspostFormDialog from "../FormDialogs/OutletBasedScheduledCrosspostFormDialog";
-import StarFormDialog from "../FormDialogs/OutletBasedStarFormDialog";
+import ScheduledSubmissionFormDialog from "../NavigableContent/OutletBasedScheduledSubmissionFormDialog";
+import ScheduledCrosspostFormDialog from "../NavigableContent/OutletBasedScheduledCrosspostFormDialog";
+import StarFormDialog from "../NavigableContent/OutletBasedStarFormDialog";
+import AdminUpdateContent from "../NavigableContent/AdminUpdateContent";
 
 const BasicSinglePageAppView = () => {
 
@@ -107,12 +108,18 @@ const BasicSinglePageAppView = () => {
       }
     ]
   }
+  const adminUpdateNavigable = {
+    "path": "/AdminUpdate",
+    "linkName": "New Admin Update",
+    "linkContent": <AdminUpdateContent apiURL={apiURL}/>
+  }
 
   const navigables = [
     homeNavigable, 
     scheduledSubmissionsNavigable,
     scheduledCrosspostsNavigable,
-    starsNavigable
+    starsNavigable,
+    adminUpdateNavigable
   ];
 
   const unwrapRoute = (navigable, exactPath) => {

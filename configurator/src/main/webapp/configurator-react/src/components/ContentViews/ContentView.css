@@ -1,4 +1,5 @@
 .content-view {
     display: flex;
+    min-height: 0; /* Magic trick to make flex item fill remaining height*/
     flex-grow: 1;
 }

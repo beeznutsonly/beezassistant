@@ -1,0 +1,7 @@
+.form-floating > textarea.form-control {
+    min-height: 10rem;
+}
+.form-pane-standard {
+    max-width: inherit;
+    margin-inline: 0;
+}

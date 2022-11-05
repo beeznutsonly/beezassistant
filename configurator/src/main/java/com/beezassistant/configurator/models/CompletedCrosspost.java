@@ -18,7 +18,9 @@ public class CompletedCrosspost implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4914953242998002559L;
-
+	
+	private ZonedDateTime completedTime;
+	
 	@Id
 	@OneToOne
 	@JoinColumns({
@@ -26,7 +28,6 @@ public class CompletedCrosspost implements Serializable {
 		@JoinColumn(name = "subreddit", referencedColumnName = "subreddit")
 	})
 	private ScheduledCrosspost scheduledCrosspost;
-	private ZonedDateTime completedTime;
 
 	public CompletedCrosspost() {
 		super();
@@ -36,6 +37,14 @@ public class CompletedCrosspost implements Serializable {
 		super();
 		this.scheduledCrosspost = scheduledCrosspost;
 	}
+	
+	public ZonedDateTime getCompletedTime() {
+		return completedTime;
+	}
+
+	public void setCompletedTime(ZonedDateTime completedTime) {
+		this.completedTime = completedTime;
+	}
 
 	public ScheduledCrosspost getScheduledCrosspost() {
 		return scheduledCrosspost;
@@ -43,22 +52,6 @@ public class CompletedCrosspost implements Serializable {
 
 	public void setScheduledCrosspost(ScheduledCrosspost scheduledCrosspost) {
 		this.scheduledCrosspost = scheduledCrosspost;
-	}
-	
-	public String getUrl() {
-		return scheduledCrosspost.getUrl();
-	}
-
-	public String getSubreddit() {
-		return scheduledCrosspost.getSubreddit();
-	}
-
-	public ZonedDateTime getCompletedTime() {
-		return completedTime;
-	}
-
-	public void setCompletedTime(ZonedDateTime completedTime) {
-		this.completedTime = completedTime;
 	}
 
 }

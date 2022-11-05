@@ -22,9 +22,12 @@ public class ScheduledSubmission {
 	@OneToOne(mappedBy="scheduledSubmission")
 	private CompletedSubmission completed;
 	
+
+
 	public ScheduledSubmission() {
 		super();
-		id = new ScheduledSubmissionId(); //TODO: Clean-up this workaround
+		// This needs to be fixed in the future
+		id = new ScheduledSubmissionId();
 	}
 	
 	
@@ -98,5 +101,13 @@ public class ScheduledSubmission {
 
 	public void setCommentBody(String commentBody) {
 		this.commentBody = commentBody;
+	}
+
+	public CompletedSubmission getCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(CompletedSubmission completed) {
+		this.completed = completed;
 	}
 }

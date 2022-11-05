@@ -22,19 +22,6 @@ body {
 .dynamic-shard {
     background-image: linear-gradient(to bottom, var(--ACOLOR-1), var(--COLOR-1));
 }
-
-.form-pane-standard {
-    max-width: 450px;
-    margin-inline: auto;
-}
-.form-title {
-    font-size: calc(1.3rem + .6vw);
-    margin-bottom: 0;
-}
-.form-content {
-    width: 100%;
-    height: 100%;
-}
 .v-flexbox {
     display: flex;
     flex-direction: column;

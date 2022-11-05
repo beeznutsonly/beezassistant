@@ -9,7 +9,7 @@ public class AddAdminUpdateController {
 	
 	@RequestMapping("addadminupdate")
 	public ModelAndView returnPage() {
-		return new ModelAndView("webpages/addadminupdate/index.html");
+		return new ModelAndView("webpages/add-admin-update/index.html");
 	}
 	
 }

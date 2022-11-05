@@ -2,11 +2,16 @@
     /* border-radius: 0; */
     border-color: transparent;
 }
-
 .form-dialog .modal-header {
     border-bottom-width: 0;
 }
-
 .form-dialog .modal-body {
     padding-top: 0;
+}
+.form-pane-standard {
+    max-width: 450px;
+    margin-inline: auto;
+}
+.form-heading {
+    text-align: center;
 }

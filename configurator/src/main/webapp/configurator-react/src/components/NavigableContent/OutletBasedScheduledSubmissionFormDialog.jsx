@@ -1,5 +1,5 @@
 import { getValidFormValue, isEditForm as isEditFormFunction, updateField } from '../../utilities/FormManipulationUtilities';
-import OutletBasedFormDialog from './OutletBasedFormDialog';
+import OutletBasedFormDialog from '../FormDialogs/OutletBasedFormDialog';
 import Form from 'react-bootstrap/Form';
 import ItemModel from '../../models/ScheduledSubmissionModel';
 import { useState } from 'react';
