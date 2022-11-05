@@ -80,7 +80,7 @@ class ScheduledPoster(RecurringProgramNature):
 
                 # Processing auto-reply for the given submission
                 if bool(dueSubmission.getCommentBody):
-                    reply = submission.reply(dueSubmission.commentBody)
+                    reply = submission.reply(dueSubmission.getCommentBody)
                     self._programLogger.debug(
                         'Auto reply (ID: {}) for post (ID: {}) '
                         'successfully submitted'.format(
