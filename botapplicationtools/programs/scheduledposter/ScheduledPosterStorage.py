@@ -1,6 +1,4 @@
 from botapplicationtools.programs.scheduledposter import ScheduledSubmissionDAO, CompletedSubmissionDAO
-from botapplicationtools.programs.scheduledposter.ScheduledSubmissionAutoReplyDAO import ScheduledSubmissionAutoReplyDAO
-
 
 class ScheduledPosterStorage:
     """
