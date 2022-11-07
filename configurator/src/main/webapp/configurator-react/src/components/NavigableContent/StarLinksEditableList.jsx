@@ -60,6 +60,7 @@ const StarLinksEditableList = (props) => {
                     <InputGroup>
                         <Form.Control
                             type="text"
+                            name="linkName"
                             placeholder="Link Name"
                             onChange={(e) => updateField(e, "linkName", starLinkModelState)}
                             value={getValidFormValue(starLinkModel.linkName)}>
@@ -67,9 +68,11 @@ const StarLinksEditableList = (props) => {
                         <Form.Control
                             type="url"
                             inputMode="url"
+                            name="link"
                             placeholder="Link"
                             onChange={(e) => updateField(e, "link", starLinkModelState)}
-                            value={getValidFormValue(starLinkModel.link)}>
+                            value={getValidFormValue(starLinkModel.link)}
+                            autoComplete="off">
                         </Form.Control>
                     </InputGroup>
                 }

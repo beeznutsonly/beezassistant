@@ -15,7 +15,7 @@
     display: flex;
     justify-content: center;
     align-items: baseline;
-    gap: 2rem;
+    gap: .9rem;
     margin-bottom: -0.4rem;
 }
 .shard-title {

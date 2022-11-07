@@ -122,6 +122,13 @@ const BasicSinglePageAppView = () => {
     adminUpdateNavigable
   ];
 
+  const navigationLinks = navigables.map(navigable =>
+    ({
+      "path": navigable.path,
+      "linkName": navigable.linkName
+    })
+  );
+
   const unwrapRoute = (navigable, exactPath) => {
     if (navigable.subNavigables) {
       if (exactPath)
@@ -167,20 +174,14 @@ const BasicSinglePageAppView = () => {
             <SinglePageAppViewLayout
               label="Beezassistant Configurator"
               theme="accent"
+              navigationLinks={navigationLinks}
             />
           }>
             <Route exact path="/" element={<HomeContentView />}>
               <Route index element={homeNavigable.linkContent} />
             </Route>
             <Route path="/" element={
-              <ContentView navigationLinks={
-                navigables.map(navigable =>
-                  ({
-                    "path": navigable.path,
-                    "linkName": navigable.linkName
-                  })
-                )
-              }/>
+              <ContentView navigationLinks={navigationLinks}/>
             }>
               {
                 unwrapRoutes(navigables, false)

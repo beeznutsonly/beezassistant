@@ -6,7 +6,11 @@ const BasicSinglePageAppViewLayout = (props) => {
     return (
         <>
             <div className='app-view'>
-                <Header theme={props.theme} label={props.label} />
+                <Header 
+                    theme={props.theme} 
+                    label={props.label} 
+                    navigationLinks={props.navigationLinks}
+                />
                 <Outlet />
             </div>
         </>

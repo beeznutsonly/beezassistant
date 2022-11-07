@@ -1,9 +1,17 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Link } from "react-router-dom";
+import { faBars as Menu } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useLayoutEffect, useState } from "react";
+import Animation from "react-bootstrap/Collapse";
+import { Link, NavLink } from "react-router-dom";
 import "./BasicNavigationBar.css";
 
 const BasicNavigationBar = (props) => {
-    
+
+    const mql = useState(window.matchMedia('(min-width: 500px)'))[0];
+    const [isWidthThreshold, setWidthThreshold] = useState(mql.matches);
+
+    const [isNavigationLinksShown, setNavigationLinksShown] = useState(false);
     let navigationBarType, logoType;
 
     if ((props.theme) === "accent") {
@@ -19,14 +27,66 @@ const BasicNavigationBar = (props) => {
         logoType = "logo-light";
     }
 
-    // eslint-disable-next-line jsx-a11y/alt-text
+    useLayoutEffect(() => {
+        mql.onchange = event => {
+            setWidthThreshold(event.matches)
+        }
+    }, [mql])
+
     return (
         <>
             <nav className={`basic-navigation-bar ${navigationBarType}`}>
-                <Link to="/">
-                    <img title="Home" className={logoType} />
-                </Link>
-                <label className="navigation-bar-label">{props.label}</label>
+                <div 
+                    className="primary-pane"
+                >
+                    <div 
+                        className="menu-selector"
+                        onClick={() => setNavigationLinksShown(value => !value)}
+                    >
+                        <FontAwesomeIcon icon={Menu} />
+                    </div>
+                    <Link to="/" className="home-icon">
+                        <img title="Home" className={logoType} />
+                    </Link>
+                    <label className="navigation-bar-label">{props.label}</label>
+                </div>
+                {
+                    props.navigationLinks && props.navigationLinks.length > 0
+                    ? (
+                            isWidthThreshold 
+                            ? (
+                                <div className="header-navigation-links">
+                                    {
+                                        props.navigationLinks.map(
+                                            navigationLink =>
+                                                <NavLink to={navigationLink.path} end key={navigationLink.path}>
+                                                    {navigationLink.linkName}
+                                                </NavLink>
+                                        )
+                                    }
+                                </div>
+                            )
+                            : ( 
+                                <Animation
+                                    in={isNavigationLinksShown}
+                                >
+                                    <div className="collapsible">
+                                        <div className="header-navigation-links">
+                                            {
+                                                props.navigationLinks.map(
+                                                    navigationLink =>
+                                                        <NavLink to={navigationLink.path} end key={navigationLink.path}>
+                                                            {navigationLink.linkName}
+                                                        </NavLink>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                </Animation>
+                            )
+                    )
+                    : <></>
+                }
             </nav>
         </>
      );
