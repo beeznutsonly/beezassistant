@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { faBars as Menu } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown as MenuCollapsed } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLayoutEffect, useState } from "react";
 import Animation from "react-bootstrap/Collapse";
@@ -43,7 +43,11 @@ const BasicNavigationBar = (props) => {
                         className="menu-selector"
                         onClick={() => setNavigationLinksShown(value => !value)}
                     >
-                        <FontAwesomeIcon icon={Menu} />
+                        {
+                            !isNavigationLinksShown
+                            ? <FontAwesomeIcon icon={MenuCollapsed} />
+                            : <FontAwesomeIcon icon={MenuCollapsed} transform="flip-v"/>
+                        }
                     </div>
                     <Link to="/" className="home-icon">
                         <img title="Home" className={logoType} />
