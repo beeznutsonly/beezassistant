@@ -1,6 +1,6 @@
 .sorting-tools {
     padding-right: 0.6em;
-    border-right-color: var(--ACOLOR-6);
+    border-right-color: inherit;
     border-right-style: solid;
     border-right-width: 1px;
 }

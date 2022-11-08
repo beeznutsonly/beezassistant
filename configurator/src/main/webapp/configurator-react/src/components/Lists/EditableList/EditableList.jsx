@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import StickyEventListener from "sticky-event-listener";
 import EditableListGroup from "./EditableListGroup";
 import EditTools from "./EditTools";
 import SortingTools from "./SortingTools";
@@ -17,6 +18,9 @@ const EditableList = (props) => {
     const [isSortAscend, setSortAscend] = useState(true);
     const [focusedItem, setFocusedItem] = useState(null);
     const [selectedItems, setSelectedItems] = useState(new Set());
+    const [isEditPanelStuck, setEditPanelStuck] = useState(false);
+    
+    const editPanelRef = useRef();
     
     const { 
         isAddAvailable, 
@@ -34,6 +38,13 @@ const EditableList = (props) => {
     }
 
     useEffect(() => {
+        new StickyEventListener(editPanelRef.current);
+        editPanelRef.current.addEventListener('sticky', function(event) {
+            setEditPanelStuck(event.detail.stuck);
+        });
+    }, []);
+
+    useEffect(() => {
         clearSelection();
     }, [items])
 
@@ -41,36 +52,38 @@ const EditableList = (props) => {
         <div 
             className="editable-list"
         >
-                <div className="edit-panel">
+                <div className="edit-panel" ref={editPanelRef}>
                     { 
                         Boolean(props.listAdornment)
                         ? props.listAdornment
                         : <></>
                     }
-                    { 
-                        Boolean(sortingFunctions)
-                        ? <SortingTools 
-                            sortAscendState={[isSortAscend, setSortAscend]}
-                            sortingFunctions={sortingFunctions}
-                            currentSortingFunctionState={
-                                [
-                                    currentSortingFunction,
-                                    setCurrentSortingFunction
-                                ]
-                            }
+                    <div className={`primary-toolkit${isEditPanelStuck ? " stuck": ""}`}>
+                        {
+                            Boolean(sortingFunctions)
+                            ? <SortingTools
+                                sortAscendState={[isSortAscend, setSortAscend]}
+                                sortingFunctions={sortingFunctions}
+                                currentSortingFunctionState={
+                                    [
+                                        currentSortingFunction,
+                                        setCurrentSortingFunction
+                                    ]
+                                }
+                            />
+                            : <></>
+                        }
+                        <EditTools
+                            selectedItems={selectedItems}
+                            focusedItem= {focusedItem}
+                            refreshItemsHandler={props.refreshItemsHandler}
+                            addItemHandler={props.addItemHandler}
+                            editItemHandler={props.editItemHandler}
+                            removeSelectedHandler={props.removeSelectedHandler}
+                            clearSelectionHandler={clearSelection}
+                            actionStatuses={props.actionStatuses}
                         />
-                        : <></>
-                    }
-                    <EditTools 
-                        selectedItems={selectedItems}
-                        focusedItem= {focusedItem}
-                        refreshItemsHandler={props.refreshItemsHandler}
-                        addItemHandler={props.addItemHandler}
-                        editItemHandler={props.editItemHandler}
-                        removeSelectedHandler={props.removeSelectedHandler}
-                        clearSelectionHandler={clearSelection}
-                        actionStatuses={props.actionStatuses}
-                    />
+                    </div>
                 </div>
                 <EditableListGroup 
                     items={items}

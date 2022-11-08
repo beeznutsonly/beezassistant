@@ -1,13 +1,20 @@
-.standard-content-shard {
+.content-shard-container {
     background-color: var(--ACOLOR-2);
+    flex-grow: 1;
+    display: flex;
+    justify-content: stretch;
+}
+
+.standard-content-shard {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    flex-grow: 1;
+    /* flex-grow: 1; */
     max-width: inherit;
     max-height: inherit;
+    min-width: 100%;
     padding-inline: 1em;
-    padding-block: 1.5em;
+    margin-block: 1.5em;
     margin-inline: auto;
     overflow-y: auto;
 }
