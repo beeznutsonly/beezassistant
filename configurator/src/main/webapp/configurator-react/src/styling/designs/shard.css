@@ -58,7 +58,6 @@ body {
 }
 .form-fields.v-flexbox {
     gap: 5px;
-    padding-inline: 10px;
 }
 .form-control {
     background-color: transparent;
@@ -128,4 +127,9 @@ body {
 }
 .sort-dropdown.dropdown {
     display: flex;
+}
+.sticky {
+    position: sticky;
+    z-index: 10;
+    top: 0px;
 }

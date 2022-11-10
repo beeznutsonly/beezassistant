@@ -15,6 +15,8 @@ import ScheduledSubmissionFormDialog from "../NavigableContent/OutletBasedSchedu
 import ScheduledCrosspostFormDialog from "../NavigableContent/OutletBasedScheduledCrosspostFormDialog";
 import StarFormDialog from "../NavigableContent/OutletBasedStarFormDialog";
 import AdminUpdateContent from "../NavigableContent/AdminUpdateContent";
+import UniversalMediaUrlProcessor from "../../utilities/UniversalMediaUrlProcessor";
+import RedGifsMediaUrlProcessor from "../../utilities/RedGifsMediaUrlProcessor";
 
 const BasicSinglePageAppView = () => {
 
@@ -22,6 +24,13 @@ const BasicSinglePageAppView = () => {
     ? process.env.REACT_APP_DEV_API_URL 
     : process.env.REACT_APP_PROD_API_URL;
     
+  const universalMediaUrlProcessor = new UniversalMediaUrlProcessor(
+    {
+      "redgifs.com": RedGifsMediaUrlProcessor,
+      "www.redgifs.com": RedGifsMediaUrlProcessor
+    }
+  )
+
   const homeNavigable = {
     "path": "/",
     "linkName": "Home",
@@ -30,61 +39,85 @@ const BasicSinglePageAppView = () => {
   const scheduledSubmissionsNavigable = {
     "path": "/ScheduledSubmissions",
     "linkName": "Scheduled Submissions",
-    "linkContent": <ScheduledSubmissionsContent apiURL={apiURL}/>,
+    "linkContent": <ScheduledSubmissionsContent 
+        apiURL={apiURL}
+        mediaUrlProcessor={universalMediaUrlProcessor}
+      />,
     "subNavigables": [
       {
         "path": "add",
         "linkName": "Scheduled Submissions",
-        "linkContent": <ScheduledSubmissionFormDialog />
+        "linkContent": <ScheduledSubmissionFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       },
       {
         "path": "add/:itemId",
         "linkName": "Scheduled Submissions",
-        "linkContent": <ScheduledSubmissionFormDialog />
+        "linkContent": <ScheduledSubmissionFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       },
       {
         "path": "edit",
         "linkName": "Scheduled Submissions",
-        "linkContent": <ScheduledSubmissionFormDialog />
+        "linkContent": <ScheduledSubmissionFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       },
       {
         "path": "edit/:itemId",
         "linkName": "Scheduled Submissions",
-        "linkContent": <ScheduledSubmissionFormDialog />
+        "linkContent": <ScheduledSubmissionFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       }
     ]
   }
   const scheduledCrosspostsNavigable = {
     "path": "/ScheduledCrossposts",
     "linkName": "Scheduled Crossposts",
-    "linkContent": <ScheduledCrosspostsContent apiURL={apiURL}/>,
+    "linkContent": <ScheduledCrosspostsContent 
+        apiURL={apiURL}
+        mediaUrlProcessor={universalMediaUrlProcessor}
+      />,
     "subNavigables": [
       {
         "path": "add",
         "linkName": "Scheduled Crossposts",
-        "linkContent": <ScheduledCrosspostFormDialog />
+        "linkContent": <ScheduledCrosspostFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       },
       {
         "path": "add/:itemId",
         "linkName": "Scheduled Crossposts",
-        "linkContent": <ScheduledCrosspostFormDialog />
+        "linkContent": <ScheduledCrosspostFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       },
       {
         "path": "edit",
         "linkName": "Scheduled Crossposts",
-        "linkContent": <ScheduledCrosspostFormDialog />
+        "linkContent": <ScheduledCrosspostFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor} 
+        />
       },
       {
         "path": "edit/:itemId",
         "linkName": "Scheduled Crossposts",
-        "linkContent": <ScheduledCrosspostFormDialog />
+        "linkContent": <ScheduledCrosspostFormDialog
+            mediaUrlProcessor={universalMediaUrlProcessor}
+        />
       }
     ]
   }
   const starsNavigable = {
     "path": "/Stars",
     "linkName": "Stars",
-    "linkContent": <StarsContent apiURL={apiURL}/>,
+    "linkContent": <StarsContent 
+        apiURL={apiURL}
+      />,
     "subNavigables": [
       {
         "path": "add",

@@ -5,7 +5,10 @@ import EditableListContent from "./OutletBasedEditableListContent";
 
 const ScheduledCrosspostsContent = (props) => {
     const itemMappingFunction = scheduledCrosspost => {
-      return <ScheduledCrosspost item={scheduledCrosspost}/>
+      return <ScheduledCrosspost 
+        item={scheduledCrosspost}
+        mediaUrlProcessor={props.universalMediaUrlProcessor}
+      />
     }
     const itemsRepository = new ItemsRepository(
       props.apiURL +  "scheduledcrossposts"

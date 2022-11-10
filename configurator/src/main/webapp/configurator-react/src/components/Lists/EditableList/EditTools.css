@@ -12,6 +12,3 @@
     padding-inline: 0.4em;
     border-radius: 0;
 } */
-.edit-tools-button:focus {
-    box-shadow: 0 0 0 0 transparent;
-}

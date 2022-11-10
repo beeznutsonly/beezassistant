@@ -1,0 +1,28 @@
+.media-preview-card {
+    padding: 1em;
+    max-width: 100%;
+    max-height: 7em;
+    background-color: var(--ACCENT-ACOLOR2);
+    border-radius: .5rem;
+}
+
+.media-preview-card-content {
+    display: flex;
+    gap: .9em;
+    color: var(--COLOR-2);
+    font-size: .7rem;
+    align-items: center;
+}
+
+.media-preview-card-content .thumbnail {
+    width: 10em
+}
+
+.media-preview-card-content .information-pane {
+    display: flex;
+    flex-direction: column;
+}
+
+.media-preview-card-content .title {
+    font-style: italic;
+}

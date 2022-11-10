@@ -52,13 +52,16 @@ const EditableList = (props) => {
         <div 
             className="editable-list"
         >
-                <div className="edit-panel" ref={editPanelRef}>
+                <div className="sticky edit-panel" ref={editPanelRef}>
                     { 
                         Boolean(props.listAdornment)
                         ? props.listAdornment
                         : <></>
                     }
-                    <div className={`primary-toolkit${isEditPanelStuck ? " stuck": ""}`}>
+                    <div 
+                        className={
+                            `primary-toolkit${isEditPanelStuck ? " stuck": ""}`
+                        }>
                         {
                             Boolean(sortingFunctions)
                             ? <SortingTools

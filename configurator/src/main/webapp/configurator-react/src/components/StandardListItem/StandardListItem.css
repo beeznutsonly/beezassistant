@@ -1,3 +1,4 @@
+
 .item, .item-core-details {
     display: flex;
     flex-direction: column;
@@ -5,13 +6,24 @@
 .item-core {
     display: flex;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 1em;
+}
+.item-details {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    max-width: 100%;
+    transition:  all 0.3s ease;
+}
+.item-thumbnail {
+    max-width: min(40%, 7em);;
+    border-radius: .4em;
 }  
 .item-core-details {
     font-size: 0.8rem;
     flex-grow: 1;
     gap: 0.25em;
+    overflow-wrap: anywhere;
 }
 .item-title {
     font-size: 0.9rem;

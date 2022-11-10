@@ -3,6 +3,7 @@
     flex-grow: 1;
     display: flex;
     justify-content: stretch;
+    max-width: 100%;
 }
 
 .standard-content-shard {

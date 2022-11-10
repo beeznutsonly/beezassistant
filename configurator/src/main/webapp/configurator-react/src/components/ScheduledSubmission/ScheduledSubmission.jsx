@@ -1,30 +1,46 @@
 import DateAdapter from '@date-io/date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { faMessage as Comment, faCalendarCheck as Completed } from '@fortawesome/free-regular-svg-icons';
-// import { faCircleCheck as Completed } from '@fortawesome/free-solid-svg-icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import "../StandardListItem/StandardListItem.css"
 import './ScheduledSubmission.css';
 
-const ScheduledSubmission = ({ item }) => {
+const ScheduledSubmission = ({ item, mediaUrlProcessor }) => {
     
     const dateAdapter = new DateAdapter();
     const [isCommentBodyOpen, setCommentBodyOpen] = useState(false);
+    const [mediaObject, setMediaObject] = useState();
+
+    useEffect(() => {
+        mediaUrlProcessor.processUrl(
+            item.url, setMediaObject
+        );
+    }, [item, mediaUrlProcessor])
 
     return (
         <>
             <div className="item general-list-group-item-content">
                 <div className="item-core">
-                    <div className="item-core-details">
-                        <label className="item-title">{item.title}</label>
-                        <label className="scheduled-submission-url">{item.url}</label>
-                        <label className="scheduled-submission-subreddit">r/{item.subreddit}</label>
-                        <label className="scheduled-submission-scheduled-time">{
-                            dateAdapter.formatByString(dateAdapter.date(item.scheduledTime), 'E, dd MMM yyyy HH:mm')
-                        }</label>
+                    <div className="item-details">
+                        {
+                            mediaObject && 
+                            <img
+                                className="item-thumbnail"
+                                alt="Thumbnail"
+                                src={mediaObject.thumbnail}
+                            />
+                        }
+                        <div className="item-core-details">
+                            <label className="item-title">{item.title}</label>
+                            <label className="scheduled-submission-url">{item.url}</label>
+                            <label className="scheduled-submission-subreddit">r/{item.subreddit}</label>
+                            <label className="scheduled-submission-scheduled-time">{
+                                dateAdapter.formatByString(dateAdapter.date(item.scheduledTime), 'E, dd MMM yyyy HH:mm')
+                            }</label>
+                        </div>
                     </div>
                     <div className="additional-information-pane">
                         {

@@ -10,12 +10,11 @@
     min-width: 100%
 }
 .edit-panel {
-    position: sticky;
-    top: 0;
-    z-index: 10;
     display: flex;
     justify-content: flex-end;
     gap: .6em;
+    min-width: fit-content;
+    align-self: flex-end;
     color: var(--COLOR-6)
 }
 
@@ -32,18 +31,22 @@
     border-radius: 0;
 }
 
+.primary-toolkit .btn:focus {
+    box-shadow: 0 0 0 0 transparent;
+}
+
 .primary-toolkit .btn:hover {
     color: var(--ACCENT-COLOR2);
 }
 
 .primary-toolkit.stuck {
-    color: var(--ACOLOR-2);
+    color: var(--COLOR-2);
     background-color: var(--ACCENT-ACOLOR2);
     border-radius: 1em;
     padding: .4em;
+    transition:  all 0.3s ease;
 }
 
 .primary-toolkit.stuck .btn:hover {
-    color: var(--COLOR-2);
+    color: var(--ACOLOR-2);
 }
-

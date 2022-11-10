@@ -15,6 +15,9 @@
 .form-floating > textarea.form-control {
     height: 100px;
 }
+.form-pane-standard {
+    padding-inline: .5em;
+}
 .form-pane-standard .feedback-alert-card {
     margin: 0;
 }
