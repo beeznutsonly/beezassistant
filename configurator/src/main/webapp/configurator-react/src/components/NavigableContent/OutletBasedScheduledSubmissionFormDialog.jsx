@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import ItemModel from '../../models/ScheduledSubmissionModel';
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import DateTimePickerField from '../Forms/FormFieldControls/DateTimePickerField';
+import DateTimePickerField from '../Forms/FormControls/DateTimePickerField';
 import MediaPreviewCard from '../MediaPreviewCard/MediaPreviewCard';
 
 const OutletBasedScheduledSubmissionFormDialog = (props) => {

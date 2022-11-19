@@ -1,8 +1,8 @@
-const getValidFormValue = (value) => {
+export const getValidFormValue = (value) => {
     return (value === undefined || value === null) ? "" : value;
 }
 
-const updateField = (changeEvent, field, itemModelState) => {
+export const updateField = (changeEvent, field, itemModelState) => {
     const itemModel = itemModelState[0];
     const setItemModel = itemModelState[1];
     
@@ -14,7 +14,7 @@ const updateField = (changeEvent, field, itemModelState) => {
     );
 }
 
-const isEditForm = (location, params) => {
+export const isEditForm = (location, params) => {
     const pathNodes = location.pathname.split("/");
     if (pathNodes.includes("edit")) {
         if (location.state) {
@@ -27,4 +27,7 @@ const isEditForm = (location, params) => {
     return false;
 }
 
-export { getValidFormValue, updateField, isEditForm }
+// TODO: Implement
+export const cureFormItemModel = (itemModel) => {
+    return itemModel
+}

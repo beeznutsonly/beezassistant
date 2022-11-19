@@ -5,7 +5,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import ItemModel from '../../models/ScheduledCrosspostModel';
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import DateTimePickerField from '../Forms/FormFieldControls/DateTimePickerField';
+import DateTimePickerField from '../Forms/FormControls/DateTimePickerField';
 import MediaPreviewCard from '../MediaPreviewCard/MediaPreviewCard';
 
 const OutletBasedScheduledCrosspostFormDialog = (props) => {

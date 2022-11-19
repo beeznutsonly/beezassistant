@@ -1,15 +1,13 @@
 import ContentShard from "../ContentShards/StandardContentShard";
 import AlertSystem from "../../utilities/AlertSystem";
 import React, { useCallback, useEffect, useState } from "react";
-import AlertContainer from "../Alerts/AlertContainer";
 import ConfirmationDialog from "../ConfirmationDialogs/ConfirmationDialog";
-import AlertModel from "../../models/AlertModel";
 import ConfirmationDialogModel from "../../models/ConfirmationDialogModel";
-import LoadingAnimation from "../LoadingAnimations/BasicInlineLoadingAnimation";
 import LoadingAnimationModel from "../../models/InlineLoadingAnimationModel";
 import OutletInputBasedEditableList from "../Lists/EditableList/OutletInputBasedEditableList";
 import ItemManipulationTools, { ItemTools } from "../Forms/ItemManipulationTools";
 import { delay } from "../../utilities/GeneralUtilities";
+import useAlertModelAndController from "../Alerts/useAlertModelAndController";
 
 const OutletBasedEditableListContent = (props) => {
 
@@ -17,31 +15,20 @@ const OutletBasedEditableListContent = (props) => {
     const [items, setItems] = useState([]);
 
     const [confirmationDialogModel, setConfirmationDialogModel] = useState(
-      ConfirmationDialogModel.defaultConfirmationDialogModel()
-    );
-    const [alertModel, setAlertModel] = useState(
-      AlertModel.defaultAlertModel()
+        ConfirmationDialogModel.defaultConfirmationDialogModel()
     );
     const [loadingAnimationModel, setLoadingAnimationModel] = useState(
-      LoadingAnimationModel.defaultLoadingAnimationModel()
+        LoadingAnimationModel.defaultLoadingAnimationModel()
     )
-    const confirmationDialog = <ConfirmationDialog 
-      confirmationDialogState={[confirmationDialogModel, setConfirmationDialogModel]}
-    />
-    const alertContainer = <AlertContainer 
-      alertState={[alertModel, setAlertModel]}
-    />
-    const loadingAnimation = <LoadingAnimation
-      loadingAnimationModel={loadingAnimationModel} 
-    />
-    
+    const { alertModel, alertController } = useAlertModelAndController();
+
     const [isRefreshing, setRefreshing] = useState(false);
     const [isAdding, setAdding] = useState(false);
     const [isEditing, setEditing] = useState(false);
     const [isRemoving, setRemoving] = useState(false);
-    
+
     const alertSystem = useState(new AlertSystem(
-        setAlertModel, 
+        alertController,
         setConfirmationDialogModel
     ))[0];
 
@@ -55,30 +42,10 @@ const OutletBasedEditableListContent = (props) => {
                 return Promise.reject(new Error(response.status))
             }
         })
-        .then(responseJson => {
-            return Object.values(responseJson._embedded)[0]
-        }) 
+            .then(responseJson => {
+                return Object.values(responseJson._embedded)[0]
+            })
     }, [itemsRepository])
-
-    // const addItem = (itemModel) => {
-    //     const promise = itemsRepository.addItem(itemModel);
-    //     return promise.then((response) => {
-    //         if (!response.ok) {
-    //             return Promise.reject(new Error(response.status))
-    //         }
-    //         return response.json();
-    //     })
-    // }
-
-    // const editItem = (updatedItem) => {
-    //     const promise = itemsRepository.editItem(updatedItem);
-    //     return promise.then((response) => {
-    //         if (!response.ok) {
-    //             return Promise.reject(new Error(response.status))
-    //         }
-    //         return response.json();
-    //     });
-    // }
 
     const removeItem = (item) => {
         const promise = itemsRepository.removeItem(item);
@@ -97,7 +64,7 @@ const OutletBasedEditableListContent = (props) => {
                 innerPromise.then(() => removeItem(item))
             });
             resolveOuter();
-        });       
+        });
     }
 
     const __actionHandlerStub = useCallback((actionHandler, statusSetter, successCallback) => {
@@ -108,8 +75,8 @@ const OutletBasedEditableListContent = (props) => {
             })
             .catch((error) => {
                 const errorMessage = `Could not complete the task: ${error}`;
-                alertSystem.alert(
-                    errorMessage, "danger", false, "An error occurred"
+                alertSystem.alertController.openAlert(
+                    "danger", errorMessage, "An error occurred"
                 )
                 console.error(
                     errorMessage
@@ -121,7 +88,7 @@ const OutletBasedEditableListContent = (props) => {
     }, [alertSystem]);
 
     const refreshItemsHandler = useCallback(() => {
-        alertSystem.closeAlert();
+        alertSystem.alertController.closeAlert();
         __actionHandlerStub(
             () => retrieveItems(),
             setRefreshing,
@@ -145,7 +112,7 @@ const OutletBasedEditableListContent = (props) => {
     }
 
     const editItemSuccessCallback = (updatedItem) => {
-        const filteredItems = items.filter((item) => 
+        const filteredItems = items.filter((item) =>
             item._links.self.href !== updatedItem._links.self.href
         );
         setItems(
@@ -170,9 +137,8 @@ const OutletBasedEditableListContent = (props) => {
                     )
                 );
                 alertSystem.alert(
-                    `${
-                        itemsToBeRemoved.size === 1 
-                        ? 'Item' 
+                    `${itemsToBeRemoved.size === 1
+                        ? 'Item'
                         : 'Items'
                     } successfully removed`,
                     'success',
@@ -194,11 +160,11 @@ const OutletBasedEditableListContent = (props) => {
     useEffect(() => {
         setLoadingAnimationModel(
             {
-            ...loadingAnimationModel,
-            isShown: isRefreshing || 
-                isAdding || 
-                isEditing ||   
-                isRemoving
+                ...loadingAnimationModel,
+                isShown: isRefreshing ||
+                    isAdding ||
+                    isEditing ||
+                    isRemoving
             }
         );
     }, [isRefreshing, isAdding, isEditing, isRemoving, loadingAnimationModel])
@@ -206,38 +172,40 @@ const OutletBasedEditableListContent = (props) => {
     useEffect(() => {
         refreshItemsHandler();
     }, [refreshItemsHandler])
-  
+
     return (
-      <>
-        <ContentShard
-           title={props.shardTitle} 
-           alertContainer={alertContainer}
-           loadingAnimation={loadingAnimation}
-        >
-          {confirmationDialog}
-          <OutletInputBasedEditableList
-            items={items}
-            sortingFunctions={props.sortingFunctions}
-            itemMappingFunction={props.itemMappingFunction}
-            itemManipulationTools={
-              new ItemManipulationTools(
-                itemsRepository,
-                new ItemTools(addItemSuccessCallback, [isAdding, setAdding]),
-                new ItemTools(editItemSuccessCallback, [isEditing, setEditing])
-              )
-            }
-            refreshItemsHandler={refreshItemsHandler}
-            removeSelectedHandler={removeSelectedHandler}
-            actionStatuses={{
-              isRefreshingAvailable: !isRefreshing,
-              isAddingAvailable: !isAdding,
-              isEditingAvailable: !isEditing,
-              isRemovingAvailable: !isRemoving
-            }}
-          />
-        </ContentShard>
-      </>
+        <>
+            <ContentShard
+                title={props.shardTitle}
+                alertModelAndController={{alertModel, alertController}}
+                loadingAnimationModel={loadingAnimationModel}
+            >
+                <ConfirmationDialog
+                    confirmationDialogState={[confirmationDialogModel, setConfirmationDialogModel]}
+                />
+                <OutletInputBasedEditableList
+                    items={items}
+                    sortingFunctions={props.sortingFunctions}
+                    itemMappingFunction={props.itemMappingFunction}
+                    itemManipulationTools={
+                        new ItemManipulationTools(
+                            itemsRepository,
+                            new ItemTools(addItemSuccessCallback, [isAdding, setAdding]),
+                            new ItemTools(editItemSuccessCallback, [isEditing, setEditing])
+                        )
+                    }
+                    refreshItemsHandler={refreshItemsHandler}
+                    removeSelectedHandler={removeSelectedHandler}
+                    actionStatuses={{
+                        isRefreshingAvailable: !isRefreshing,
+                        isAddingAvailable: !isAdding,
+                        isEditingAvailable: !isEditing,
+                        isRemovingAvailable: !isRemoving
+                    }}
+                />
+            </ContentShard>
+        </>
     );
-  }
+}
 
 export default OutletBasedEditableListContent;

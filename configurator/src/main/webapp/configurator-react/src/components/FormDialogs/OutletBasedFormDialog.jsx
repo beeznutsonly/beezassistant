@@ -30,7 +30,7 @@ const OutletBasedFormDialog = (props) => {
         }
         else {
             if (params["itemId"]) {
-                const promise = context.itemsAPI.retrieveItem(
+                const promise = context.itemsRepository.retrieveItem(
                     encodeURI(`${params["itemId"]}`)
                 );
                 promise.then((response) => {
@@ -54,7 +54,7 @@ const OutletBasedFormDialog = (props) => {
         location.state,
         isEditForm,
         setIsEditForm,
-        context.itemsAPI,
+        context.itemsRepository,
         setItemModel,
         params
     ])
@@ -78,9 +78,9 @@ const OutletBasedFormDialog = (props) => {
                             ? context.editItemTools.isActionInProgressState
                             : context.addItemTools.isActionInProgressState
                         }
-                        itemAPIAction={(item) => isEditForm 
-                            ? context.itemsAPI.updateItem(item)
-                            : context.itemsAPI.addItem(item)
+                        itemRepositoryAction={(item) => isEditForm 
+                            ? context.itemsRepository.updateItem(item)
+                            : context.itemsRepository.addItem(item)
                         }
                         successMessage={
                             `Item successfully ${isEditForm ? "modified" : "added"}`

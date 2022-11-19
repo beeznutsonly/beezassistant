@@ -1,9 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AppView from './components/AppViews/BasicSinglePageAppView';
+import App from './App';
 import reportWebVitals from './miscellaneous/reportWebVitals';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import './styling/designs/shard.css';
 import './styling/themes/romanticxxx/romanticxxx.css';
 import './index.css';
@@ -12,9 +10,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <AppView />
-    </LocalizationProvider>
+      <App />
   </React.StrictMode>
 );
 

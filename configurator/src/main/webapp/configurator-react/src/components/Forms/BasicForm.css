@@ -18,8 +18,9 @@
 .form-pane-standard {
     padding-inline: .5em;
 }
-.form-pane-standard .feedback-alert-card {
+.form-pane-standard .alert-card {
     margin: 0;
+    width: 100%;
 }
 .form-pane-standard .alert {
     text-align: center;

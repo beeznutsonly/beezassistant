@@ -1,22 +1,17 @@
 import Alert from 'react-bootstrap/Alert';
-import './AlertContainer.css';
+import './BasicAlert.css';
 
-const AlertContainer = (props) => {
-    const [alertModel, setAlertModel] = props.alertState;
-
-    const closeAlert = () => {
-        setAlertModel({
-            ...alertModel,
-            "isShown": false
-        })
-    }
+const BasicAlert = ({
+    alertModel, 
+    alertController
+}) => {
 
     return (
-        <div className="feedback-alert-card">
+        <div className="alert-card">
             <Alert
                 show={alertModel.isShown}
                 variant={alertModel.variant}
-                onClose={() => closeAlert()}
+                onClose={() => alertController.closeAlert()}
             >
                 {alertModel.heading
                     ? <><Alert.Heading>{alertModel.heading}</Alert.Heading><hr/></>
@@ -26,6 +21,6 @@ const AlertContainer = (props) => {
             </Alert>
         </div>
     );
-};
+}
 
-export default AlertContainer;
+export default BasicAlert;

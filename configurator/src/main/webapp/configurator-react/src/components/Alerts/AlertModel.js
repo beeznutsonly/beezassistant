@@ -1,21 +1,19 @@
-class AlertModel {
+export default class AlertModel {
 
     constructor(
         isShown,
         variant,
-        heading,
-        body
+        body,
+        heading
     ) {
         this.isShown = isShown;
         this.variant = variant;
-        this.heading = heading;
         this.body = body;
+        this.heading = heading;
     }
 
-    static defaultAlertModel() {
+    static defaultModel() {
         return new AlertModel(false, undefined, "", "");
     }
 
 }
-
-export default AlertModel;

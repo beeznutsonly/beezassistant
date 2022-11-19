@@ -1,38 +1,29 @@
 import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import Alert from 'react-bootstrap/Alert';
-import AlertModel from '../../models/AlertModel';
 import "./BasicForm.css";
 import LoadingAnimationModel from '../../models/InlineLoadingAnimationModel';
 import LoadingAnimation from '../LoadingAnimations/BasicInlineLoadingAnimation';
+import useAlertModelAndController from '../Alerts/useAlertModelAndController';
+import BasicAlert from '../Alerts/BasicAlert';
 
-const ItemForm = (props) => {
+const ItemForm = ({
+    formTitle,
+    itemModel,
+    isActionInProgressState,
+    itemRepositoryAction,
+    successMessage,
+    failureMessage,
+    submitSuccessHandler,
+    children
+}) => {
 
-    const [alertModel, setAlertModel] = useState(AlertModel.defaultAlertModel());
+    const { alertModel, alertController } = useAlertModelAndController();
     const [isFormValidated, setFormValidated] = useState(false);
-    const [isActionInProgress, setIsActionInProgress] = props.isActionInProgressState;
-
-    const closeAlert = () => {
-        setAlertModel({
-            ...alertModel,
-            isShown: false
-        })
-    }
-
-    const openAlert = (body, variant) => {
-        setAlertModel(
-            new AlertModel(
-                true,
-                variant,
-                "",
-                body
-            )
-        )
-    }
+    const [isActionInProgress, setIsActionInProgress] = isActionInProgressState;
 
     const submitForm = () => {
-        setIsActionInProgress(true);  
-        const promise = props.itemAPIAction(props.itemModel);
+        setIsActionInProgress(true);
+        const promise = itemRepositoryAction(itemModel);
         promise.then((response) => {
             if (response.ok) {
                 return response.json();
@@ -42,20 +33,17 @@ const ItemForm = (props) => {
             }
         })
         .then((item) => {
-            openAlert(
-                props.successMessage,
-                "success"
+            alertController.openAlert(
+                "success",
+                successMessage
             )
-            if (props.submitSuccessHandler) {
-                props.submitSuccessHandler(item);
-            }
-            if (props.secondarySuccessCallback) {
-                props.secondarySuccessCallback(item);
+            if (submitSuccessHandler) {
+                submitSuccessHandler(item);
             }
         })
-        .catch((error) => openAlert(
-            `${props.failureMessage}: ${error.message}`
-            , "danger"
+        .catch((error) => alertController.openAlert(
+            "danger",
+            `${failureMessage}: ${error.message}`
         ))
         .finally(() => {
             setIsActionInProgress(false);
@@ -67,7 +55,7 @@ const ItemForm = (props) => {
             setFormValidated(true);
             event.preventDefault();
             event.stopPropagation();
-            closeAlert();
+            alertController.closeAlert();
             submitForm();
         }
         else {
@@ -86,26 +74,21 @@ const ItemForm = (props) => {
                 noValidate
             >
                 {
-                    Boolean(props.formTitle)
+                    Boolean(formTitle)
                     ? (
                         <div className="form-heading">
-                            <h1 className="form-title">{props.formTitle}</h1>
+                            <h1 className="form-title">{formTitle}</h1>
                         </div>
                     )
                     : <></>
                 }
                 <div className="form-content">
-                    {props.children}
+                    {children}
                 </div>
-                <div className="feedback-alert-card">
-                    <Alert
-                        show={alertModel.isShown && !isActionInProgress}
-                        variant={alertModel.variant}
-                        onClose={() => closeAlert()}
-                    >
-                        {alertModel.body}
-                    </Alert>
-                </div>
+                <BasicAlert 
+                    alertModel={alertModel}
+                    alertController={alertController}
+                />
                 <button 
                     className="btn btn-outline-primary" 
                     type="submit"

@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import ItemModel from '../../models/StarModel';
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import DateTimePickerField from '../Forms/FormFieldControls/DateTimePickerField';
+import DateTimePickerField from '../Forms/FormControls/DateTimePickerField';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import StarLinksEditableList from './StarLinksEditableList';

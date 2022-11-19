@@ -19,7 +19,7 @@ class ItemManipulationTools {
         addItemTools,
         editItemTools
     ) {
-        this.itemsAPI = itemsRepository
+        this.itemsRepository = itemsRepository
         this.addItemTools = addItemTools;
         this.editItemTools = editItemTools;
     }

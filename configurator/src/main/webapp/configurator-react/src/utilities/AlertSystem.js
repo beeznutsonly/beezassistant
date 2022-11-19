@@ -1,27 +1,20 @@
-import AlertModel from "../models/AlertModel";
 import ConfirmationDialogModel from "../models/ConfirmationDialogModel";
 import { delay } from "./GeneralUtilities";
 
 class AlertSystem {
 
-    constructor(alertSetter, confirmationDialogSetter) {
-        this.alertSetter = alertSetter;
+    constructor(alertController, confirmationDialogSetter) {
+        this.alertController = alertController;
         this.confirmationDialogSetter = confirmationDialogSetter;
     }
 
     alert(body, variant, transitory = false, heading="") {
-        this.alertSetter(
-            new AlertModel(true, variant, heading, body)
+        this.alertController.openAlert(
+            variant, body, heading
         );
         if (transitory) {
-            delay(4000, () => this.closeAlert());
+            delay(4000, () => this.alertController.closeAlert());
         }
-    }
-
-    closeAlert() {
-        this.alertSetter(
-            new AlertModel(false, "", "", "")
-        )
     }
 
     confirm(body, confirmedCallback) {

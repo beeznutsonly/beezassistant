@@ -1,6 +1,6 @@
 import ContentShard from "../ContentShards/StandardContentShard";
 
-const ErrorContent = () => {
+const PageNotFoundContent = () => {
     return (
         <>
             <ContentShard title="Page Not Found">
@@ -10,4 +10,4 @@ const ErrorContent = () => {
     );
 }
 
-export default ErrorContent;
+export default PageNotFoundContent;

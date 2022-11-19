@@ -60,8 +60,8 @@ const EditableList = (props) => {
                     }
                     <div 
                         className={
-                            `primary-toolkit${isEditPanelStuck ? " stuck": ""}`
-                        }>
+                            `primary-toolkit${isEditPanelStuck ? " stuck": ""}`}
+                        >
                         {
                             Boolean(sortingFunctions)
                             ? <SortingTools

@@ -6,32 +6,46 @@ import Animation from "react-bootstrap/Collapse";
 import { Link, NavLink } from "react-router-dom";
 import "./BasicNavigationBar.css";
 
-const BasicNavigationBar = (props) => {
+const WIDTH_BREAKPOINT = "(min-width: 500px)";
 
-    const mql = useState(window.matchMedia('(min-width: 500px)'))[0];
-    const [isWidthThreshold, setWidthThreshold] = useState(mql.matches);
+const BasicNavigationBar = ({
+    theme,
+    title,
+    navigationLinks
+}) => {
+
+    const widthMediaQueryList = useState(window.matchMedia(WIDTH_BREAKPOINT))[0];
+    const [isWidthThreshold, setWidthThreshold] = useState(widthMediaQueryList.matches);
 
     const [isNavigationLinksShown, setNavigationLinksShown] = useState(false);
     let navigationBarType, logoType;
 
-    if ((props.theme) === "accent") {
+    const navigationLinkElements = navigationLinks.map(
+        navigationLink => (
+            <NavLink to={navigationLink.path} end key={navigationLink.path}>
+                {navigationLink.linkName}
+            </NavLink>
+        )
+    )
+
+    if (theme === "accent") {
         navigationBarType = "basic-navigation-bar-accent";
         logoType = "logo-light";
     }
-    else if ((props.theme) === "light") {
+    else if (theme === "light") {
         navigationBarType = "basic-navigation-bar-light"
         logoType = "logo";
     }
-    else if ((props.theme) === "dark") {
+    else if (theme === "dark") {
         navigationBarType = "basic-navigation-bar-dark"
         logoType = "logo-light";
     }
 
     useLayoutEffect(() => {
-        mql.onchange = event => {
+        widthMediaQueryList.onchange = event => {
             setWidthThreshold(event.matches)
         }
-    }, [mql])
+    }, [widthMediaQueryList])
 
     return (
         <>
@@ -52,21 +66,16 @@ const BasicNavigationBar = (props) => {
                     <Link to="/" className="home-icon">
                         <img title="Home" className={logoType} />
                     </Link>
-                    <label className="navigation-bar-label">{props.label}</label>
+                    <span className="navigation-bar-label">{title}</span>
                 </div>
                 {
-                    props.navigationLinks && props.navigationLinks.length > 0
+                    navigationLinks && navigationLinks.length > 0
                     ? (
                             isWidthThreshold 
                             ? (
                                 <div className="header-navigation-links">
-                                    {
-                                        props.navigationLinks.map(
-                                            navigationLink =>
-                                                <NavLink to={navigationLink.path} end key={navigationLink.path}>
-                                                    {navigationLink.linkName}
-                                                </NavLink>
-                                        )
+                                    { 
+                                        navigationLinkElements
                                     }
                                 </div>
                             )
@@ -77,12 +86,7 @@ const BasicNavigationBar = (props) => {
                                     <div className="collapsible">
                                         <div className="header-navigation-links">
                                             {
-                                                props.navigationLinks.map(
-                                                    navigationLink =>
-                                                        <NavLink to={navigationLink.path} end key={navigationLink.path}>
-                                                            {navigationLink.linkName}
-                                                        </NavLink>
-                                                )
+                                                navigationLinkElements
                                             }
                                         </div>
                                     </div>
@@ -93,7 +97,7 @@ const BasicNavigationBar = (props) => {
                 }
             </nav>
         </>
-     );
+    );
 }
 
 export default BasicNavigationBar;

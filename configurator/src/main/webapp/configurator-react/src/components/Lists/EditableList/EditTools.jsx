@@ -10,14 +10,23 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import "./EditTools.css";
 
-const EditTools = (props) => {
+const EditTools = ({
+    actionStatuses,
+    selectedItems,
+    focusedItem,
+    addItemHandler,
+    editItemHandler,
+    removeSelectedHandler,
+    refreshItemsHandler,
+    clearSelectionHandler
+}) => {
 
     const { 
         isRefreshingAvailable, 
         isAddingAvailable, 
         isEditingAvailable, 
         isRemovingAvailable 
-    } = props.actionStatuses
+    } = actionStatuses
 
     return(
         <>
@@ -27,85 +36,86 @@ const EditTools = (props) => {
                 <div 
                     className="selection-manipulation-tools btn-group"
                     style={
-                        props.selectedItems.size !== 0
-                        ? {
-                            display: 'inherit',
-                            visibility: 'visible'
-                        }
-                        : {
-                            display: 'none',
-                            visibility: 'hidden'
-                        }
+                        selectedItems.size !== 0
+                        ? { display: 'contents' }
+                        : { display: 'none' }
                     }
                 >
-                    <button
-                        title="Edit"
-                        className="btn edit-tools-button edit-button"
-                        style={
-                            Boolean(props.editItemHandler) && props.selectedItems.size === 1
-                            ? {display: 'initial'}
-                            : {display: 'none'}
-                        }
-                        onClick={(e) => {
-                            e.preventDefault();
-                            props.editItemHandler(props.focusedItem);
-                        }}
-                        disabled={!(isEditingAvailable && Boolean(props.editItemHandler))}
-                    >
-                        <FontAwesomeIcon icon={Edit}></FontAwesomeIcon>
-                    </button>
+                    {
+                        focusedItem && 
+                        !(focusedItem.isEditable === false) &&
+                        <button
+                            title="Edit"
+                            className="btn edit-tools-button edit-button"
+                            style={
+                                Boolean(editItemHandler) && selectedItems.size === 1
+                                ? {display: 'initial'}
+                                : {display: 'none'}
+                            }
+                            onClick={(e) => {
+                                e.preventDefault();
+                                editItemHandler(focusedItem)
+                            }}
+                            disabled={!(isEditingAvailable && Boolean(editItemHandler))}
+                        >
+                            <FontAwesomeIcon icon={Edit}></FontAwesomeIcon>
+                        </button>
+                    }
                     <button
                         title="Remove"
                         className="btn edit-tools-button remove-button"
                         style={
-                            Boolean(props.removeSelectedHandler)
+                            Boolean(removeSelectedHandler)
                             ? {display: 'initial'}
                             : {display: 'none'}
                         }
                         onClick={(e) => {
                             e.preventDefault();
-                            props.removeSelectedHandler(
-                                props.selectedItems
+                            removeSelectedHandler(
+                                selectedItems
                             );
                         }}
-                        disabled={!(isRemovingAvailable && Boolean(props.removeSelectedHandler))}
+                        disabled={!(isRemovingAvailable && Boolean(removeSelectedHandler))}
                     >
                         <FontAwesomeIcon icon={Remove}></FontAwesomeIcon>
                     </button>
-                    <button className="btn edit-tools-button cancel-button" onClick={(e) => {
-                        e.preventDefault();
-                        props.clearSelectionHandler();
-                    }}>
+                    <button 
+                        className="btn edit-tools-button cancel-button" 
+                        onClick={(e) => {
+                            e.preventDefault();
+                            clearSelectionHandler();
+                        }}
+                    >
                         <FontAwesomeIcon icon={Cancel}></FontAwesomeIcon>
                     </button>
                 </div>
                 <button 
                     className="btn edit-tools-button add-item-button" 
                     style={
-                        Boolean(props.addItemHandler)
+                        Boolean(addItemHandler)
                         ? {display: 'inherit'}
                         : {display: 'none'}
                     }
                     onClick={(e) => {
                         e.preventDefault();
-                        props.addItemHandler();
+                        addItemHandler();
                     }}
-                    disabled={!(isAddingAvailable && Boolean(props.addItemHandler))}
+                    disabled={!(isAddingAvailable && Boolean(addItemHandler))}
                 >
                     <FontAwesomeIcon icon={Add}></FontAwesomeIcon>
                 </button>
                 <button 
                     className="btn edit-tools-button refresh-button" 
                     style={
-                        Boolean(props.refreshItemsHandler)
+                        Boolean(refreshItemsHandler)
                         ? {display: 'inherit'}
                         : {display: 'none'}
                     }
                     onClick={(e) => {
                         e.preventDefault();
-                        props.refreshItemsHandler();
+                        refreshItemsHandler();
                     }}
-                    disabled={!(isRefreshingAvailable && Boolean(props.refreshItemsHandler))}
+                    disabled={!(isRefreshingAvailable && Boolean(refreshItemsHandler))}
                 >
                     <FontAwesomeIcon icon={Refresh}></FontAwesomeIcon>
                 </button>
